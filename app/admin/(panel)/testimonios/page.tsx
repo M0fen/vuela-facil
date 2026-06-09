@@ -3,6 +3,7 @@ import type { Testimonio } from "@/lib/types";
 import { readTestimonios } from "@/lib/store";
 import { saveTestimonioAction, deleteTestimonioAction } from "../../actions";
 import { Field, Area, Card } from "../ui";
+import { AIGenerate } from "@/components/admin/AIGenerate";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,20 @@ function TestimonioForm({ t, index }: { t?: Testimonio; index: number | "nuevo" 
         <Field label="Nombre" name="nombre" defaultValue={t?.nombre} required />
         <Field label="Ciudad" name="ciudad" defaultValue={t?.ciudad} />
         <Field label="Destino" name="destino" defaultValue={t?.destino} />
+      </div>
+      <Area
+        label="Notas reales del cliente (para la IA)"
+        name="notas"
+        rows={2}
+        hint="Qué te contó el cliente (puntos sueltos). La IA lo redacta; no se guarda ni se inventan hechos."
+      />
+      <div>
+        <AIGenerate
+          kind="testimonio"
+          read={["nombre", "ciudad", "destino", "rating", "notas"]}
+          write={["texto"]}
+          label="Redactar reseña con IA"
+        />
       </div>
       <Area label="Texto de la reseña" name="texto" defaultValue={t?.texto} rows={3} />
       <div className="grid sm:grid-cols-2 gap-4 items-end">

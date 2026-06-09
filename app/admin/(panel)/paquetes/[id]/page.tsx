@@ -5,6 +5,7 @@ import type { Paquete } from "@/lib/types";
 import { readPaquetes } from "@/lib/store";
 import { savePaqueteAction } from "../../../actions";
 import { Field, Area, Select, Card } from "../../ui";
+import { AIGenerate } from "@/components/admin/AIGenerate";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +83,17 @@ export default async function EditarPaquete({
         </Card>
 
         <Card title="Detalle y contenido">
+          <div className="mb-4 p-3 rounded-xl bg-ivory border border-navy/8 flex flex-wrap items-center gap-3">
+            <span className="text-[12px] text-navy/60">
+              Completa arriba destino, país, categoría e incluye, y deja que la IA redacte:
+            </span>
+            <AIGenerate
+              kind="paquete"
+              read={["destino", "pais", "categoria", "precio", "duracion", "duracionDias", "incluye"]}
+              write={["resumen", "mejorEpoca", "comoLlegar"]}
+              label="Redactar textos"
+            />
+          </div>
           <div className="space-y-4">
             <Area label="Resumen" name="resumen" defaultValue={pkg.resumen} rows={2} hint="Una o dos frases para la página y SEO." />
             <Area label="Qué incluye (una por línea)" name="incluye" defaultValue={pkg.incluye?.join("\n")} />
