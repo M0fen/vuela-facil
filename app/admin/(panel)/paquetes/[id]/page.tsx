@@ -3,8 +3,9 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Paquete } from "@/lib/types";
 import { readPaquetes } from "@/lib/store";
+import { Icon } from "@/components/icons";
 import { savePaqueteAction } from "../../../actions";
-import { Field, Area, Select, Card } from "../../ui";
+import { Field, Area, Select, Card, btnPrimary } from "../../ui";
 import { AIGenerate } from "@/components/admin/AIGenerate";
 
 export const dynamic = "force-dynamic";
@@ -29,11 +30,14 @@ export default async function EditarPaquete({
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
-        <Link href="/admin/paquetes" className="text-navy/50 hover:text-navy text-[13px]">
-          ← Paquetes
+      <div className="mb-6">
+        <Link
+          href="/admin/paquetes"
+          className="inline-flex items-center gap-1 text-navy/50 hover:text-coral text-[13px] mb-2"
+        >
+          <Icon.Arrow className="w-4 h-4 rotate-180" /> Paquetes
         </Link>
-        <h1 className="font-serif text-navy text-[26px]">
+        <h1 className="font-serif text-navy text-[28px] md:text-[32px] leading-tight">
           {esNuevo ? "Nuevo paquete" : pkg.destino}
         </h1>
       </div>
@@ -41,7 +45,7 @@ export default async function EditarPaquete({
       <form action={savePaqueteAction} className="space-y-5 max-w-3xl">
         {!esNuevo && <input type="hidden" name="id" value={pkg.id} />}
 
-        <Card title="Información principal">
+        <Card title="Información principal" icon={Icon.Pin}>
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="Destino" name="destino" defaultValue={pkg.destino} required />
             <Field label="País" name="pais" defaultValue={pkg.pais} />
@@ -64,7 +68,7 @@ export default async function EditarPaquete({
           </div>
         </Card>
 
-        <Card title="Imagen principal">
+        <Card title="Imagen principal" icon={Icon.Compass}>
           <div className="flex items-center gap-4">
             {pkg.imagen && (
               <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-ivory shrink-0">
@@ -89,9 +93,9 @@ export default async function EditarPaquete({
           </div>
         </Card>
 
-        <Card title="Detalle y contenido">
-          <div className="mb-4 p-3 rounded-xl bg-ivory border border-navy/8 flex flex-wrap items-center gap-3">
-            <span className="text-[12px] text-navy/60">
+        <Card title="Detalle y contenido" icon={Icon.Sparkle}>
+          <div className="mb-4 p-3.5 rounded-xl bg-gradient-to-r from-coral/8 to-amber/8 border border-coral/15 flex flex-wrap items-center gap-3">
+            <span className="text-[12px] text-navy/70">
               Completa arriba destino, país, categoría e incluye, y deja que la IA redacte:
             </span>
             <AIGenerate
@@ -112,7 +116,7 @@ export default async function EditarPaquete({
           </div>
         </Card>
 
-        <Card title="Galería">
+        <Card title="Galería" icon={Icon.Compass}>
           <Area
             label="URLs de la galería (una por línea)"
             name="galeria"
@@ -132,11 +136,12 @@ export default async function EditarPaquete({
           />
         </Card>
 
-        <div className="flex items-center gap-3">
-          <button className="px-6 py-3 rounded-full bg-coral text-white font-semibold hover:bg-[#cf550f] transition-colors">
+        <div className="sticky bottom-4 z-10 flex items-center gap-3 p-3 rounded-2xl bg-white/90 backdrop-blur border border-navy/10 shadow-[0_12px_30px_-18px_rgba(13,44,84,0.4)]">
+          <button className={`${btnPrimary} px-7 py-3`}>
+            <Icon.Check className="w-4 h-4" />
             {esNuevo ? "Crear paquete" : "Guardar cambios"}
           </button>
-          <Link href="/admin/paquetes" className="text-navy/55 text-[13px] hover:text-navy">
+          <Link href="/admin/paquetes" className="text-navy/55 text-[13px] hover:text-navy px-2">
             Cancelar
           </Link>
         </div>

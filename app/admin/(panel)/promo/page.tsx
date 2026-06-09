@@ -1,6 +1,7 @@
+import { Icon } from "@/components/icons";
 import { readPromo } from "@/lib/store";
 import { savePromoAction } from "../../actions";
-import { Field, Area, Card } from "../ui";
+import { Field, Area, Card, PageHeader, btnPrimary } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -11,14 +12,14 @@ export default async function PromoAdmin() {
 
   return (
     <div>
-      <h1 className="font-serif text-navy text-[26px] mb-1">Promoción (OfferBanner)</h1>
-      <p className="text-navy/55 text-[14px] mb-6">
-        Si la promo no está activa o la fecha ya pasó, el banner muestra un mensaje perenne sin reloj.
-      </p>
+      <PageHeader
+        title="Promoción"
+        subtitle="Si la promo no está activa o la fecha ya pasó, el banner muestra un mensaje perenne sin reloj."
+      />
 
       <form action={savePromoAction} className="space-y-5 max-w-2xl">
-        <Card>
-          <label className="flex items-center gap-3 mb-4">
+        <Card title="Estado y vigencia" icon={Icon.Clock}>
+          <label className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-ivory border border-navy/8 cursor-pointer">
             <input
               type="checkbox"
               name="activa"
@@ -26,6 +27,7 @@ export default async function PromoAdmin() {
               className="w-5 h-5 accent-coral"
             />
             <span className="text-navy font-semibold text-[14px]">Promoción activa</span>
+            <span className="text-navy/45 text-[12px]">— enciende el banner de oferta</span>
           </label>
           <Field
             label="Fecha y hora de cierre"
@@ -36,7 +38,7 @@ export default async function PromoAdmin() {
           />
         </Card>
 
-        <Card title="Textos del banner">
+        <Card title="Textos del banner" icon={Icon.Sparkle}>
           <div className="space-y-4">
             <Field label="Etiqueta superior" name="eyebrow" defaultValue={promo.eyebrow} />
             <div className="grid sm:grid-cols-3 gap-4">
@@ -49,8 +51,8 @@ export default async function PromoAdmin() {
           </div>
         </Card>
 
-        <button className="px-6 py-3 rounded-full bg-coral text-white font-semibold hover:bg-[#cf550f] transition-colors">
-          Guardar promoción
+        <button className={`${btnPrimary} px-7 py-3`}>
+          <Icon.Check className="w-4 h-4" /> Guardar promoción
         </button>
       </form>
     </div>

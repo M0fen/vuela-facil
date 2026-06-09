@@ -1,8 +1,9 @@
 import Image from "next/image";
 import type { Testimonio } from "@/lib/types";
 import { readTestimonios } from "@/lib/store";
+import { Icon } from "@/components/icons";
 import { saveTestimonioAction, deleteTestimonioAction } from "../../actions";
-import { Field, Area, Card } from "../ui";
+import { Field, Area, Card, PageHeader, btnPrimary, btnDanger } from "../ui";
 import { AIGenerate } from "@/components/admin/AIGenerate";
 
 export const dynamic = "force-dynamic";
@@ -46,7 +47,8 @@ function TestimonioForm({ t, index }: { t?: Testimonio; index: number | "nuevo" 
           />
         </div>
       </div>
-      <button className="px-5 py-2.5 rounded-full bg-coral text-white text-[13px] font-semibold hover:bg-[#cf550f] transition-colors">
+      <button className={btnPrimary}>
+        <Icon.Check className="w-4 h-4" />
         {index === "nuevo" ? "Agregar testimonio" : "Guardar"}
       </button>
     </form>
@@ -58,32 +60,39 @@ export default async function TestimoniosAdmin() {
 
   return (
     <div>
-      <h1 className="font-serif text-navy text-[26px] mb-6">Testimonios</h1>
+      <PageHeader
+        title="Testimonios"
+        subtitle={`${testimonios.length} ${testimonios.length === 1 ? "reseña publicada" : "reseñas publicadas"}`}
+      />
 
       <div className="mb-6">
-        <Card title="Agregar testimonio">
+        <Card title="Agregar testimonio" icon={Icon.Star}>
           <TestimonioForm index="nuevo" />
         </Card>
       </div>
 
       <div className="space-y-4">
         {testimonios.map((t, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-navy/10 p-5">
-            <div className="flex items-center justify-between mb-4">
+          <div
+            key={i}
+            className="bg-white rounded-2xl border border-navy/8 shadow-[0_1px_0_rgba(13,44,84,0.04),0_12px_30px_-24px_rgba(13,44,84,0.25)] p-5"
+          >
+            <div className="flex items-center justify-between mb-4 pb-4 border-b border-navy/8">
               <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-ivory">
-                  <Image src={t.foto} alt={t.nombre} fill sizes="40px" className="object-cover" />
+                <div className="relative w-11 h-11 rounded-full overflow-hidden bg-ivory ring-2 ring-coral/15">
+                  <Image src={t.foto} alt={t.nombre} fill sizes="44px" className="object-cover" />
                 </div>
                 <div>
                   <div className="font-semibold text-navy text-[14px]">{t.nombre}</div>
-                  <div className="text-navy/50 text-[12px]">{t.rating.toFixed(1)}★</div>
+                  <div className="inline-flex items-center gap-1 text-amber text-[12px]">
+                    <Icon.Star className="w-3.5 h-3.5" /> {t.rating.toFixed(1)}
+                    <span className="text-navy/45">· {t.ciudad}</span>
+                  </div>
                 </div>
               </div>
               <form action={deleteTestimonioAction}>
                 <input type="hidden" name="index" value={i} />
-                <button className="px-3 py-2 rounded-full border border-coral/30 text-coral text-[12px] font-semibold hover:bg-coral hover:text-white transition-colors">
-                  Eliminar
-                </button>
+                <button className={btnDanger}>Eliminar</button>
               </form>
             </div>
             <TestimonioForm t={t} index={i} />
