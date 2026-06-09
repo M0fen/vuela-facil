@@ -48,6 +48,16 @@ export interface Paquete {
   mapaQuery?: string;
 }
 
+export interface Lead {
+  id: string;
+  email: string;
+  telefono?: string;
+  /** De dónde vino el lead (sección/landing). */
+  origen: string;
+  /** ISO date string. */
+  createdAt: string;
+}
+
 export interface CategoriaCard {
   id: string;
   nombre: Categoria;

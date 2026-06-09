@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "./icons";
 import { SectionEyebrow } from "./ui";
-import { PAQUETES } from "@/lib/data";
 import { formatCOP, waLink } from "@/lib/utils";
 import { useUI, type Filtro } from "@/lib/ui-context";
 import type { Paquete } from "@/lib/types";
@@ -107,9 +106,9 @@ function PackageCard({ p }: { p: Paquete }) {
   );
 }
 
-export function Paquetes() {
+export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
   const { filtro, setFiltro } = useUI();
-  const list = filtro === "Todos" ? PAQUETES : PAQUETES.filter((p) => p.categoria === filtro);
+  const list = filtro === "Todos" ? paquetes : paquetes.filter((p) => p.categoria === filtro);
 
   return (
     <section id="paquetes" className="bg-ivory py-24 md:py-32 border-y border-navy/5">

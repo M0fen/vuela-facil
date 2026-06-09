@@ -1,21 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useActionState } from "react";
 import { Icon } from "./icons";
 import { IMG } from "@/lib/data";
+import { submitLead, type LeadState } from "@/app/lead-actions";
 
 export function CapturaContacto() {
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [sent, setSent] = useState(false);
-
-  const handleSubmit = () => {
-    // TODO: conectar a un Server Action / API que guarde el lead
-    // (Supabase, Resend, etc.). Por ahora solo confirma en el cliente.
-    if (!email) return;
-    setSent(true);
-  };
+  const [state, formAction, pending] = useActionState<LeadState, FormData>(submitLead, {
+    ok: false,
+  });
+  const sent = state.ok;
 
   return (
     <section id="contacto" className="relative py-20 md:py-28 overflow-hidden">
@@ -46,14 +41,13 @@ export function CapturaContacto() {
                 <div className="text-navy/55 text-[13px] mb-6">
                   Te avisamos antes de que se agoten los cupos.
                 </div>
-                <div className="space-y-3">
+                <form action={formAction} className="space-y-3">
                   <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-navy/15 focus-within:border-coral transition-colors">
                     <Icon.Compass className="w-5 h-5 text-navy/50" />
                     <input
                       type="email"
+                      name="email"
                       required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="tu@correo.com"
                       className="flex-1 bg-transparent outline-none text-navy placeholder:text-navy/40 text-[14px]"
                     />
@@ -62,23 +56,25 @@ export function CapturaContacto() {
                     <Icon.Whatsapp className="w-5 h-5 text-[#25D366]" />
                     <input
                       type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      name="telefono"
                       placeholder="WhatsApp (opcional)"
                       className="flex-1 bg-transparent outline-none text-navy placeholder:text-navy/40 text-[14px]"
                     />
                   </div>
+                  {state.error && (
+                    <p className="text-[12px] text-coral text-center">{state.error}</p>
+                  )}
                   <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#e8631a] to-[#f4a93c] text-white font-semibold tracking-wide hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.6)] transition-shadow"
+                    type="submit"
+                    disabled={pending}
+                    className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#e8631a] to-[#f4a93c] text-white font-semibold tracking-wide hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.6)] transition-shadow disabled:opacity-60"
                   >
-                    Quiero las ofertas exclusivas
+                    {pending ? "Enviando…" : "Quiero las ofertas exclusivas"}
                   </button>
                   <p className="text-[11px] text-navy/45 text-center">
                     Al continuar aceptas nuestra política de tratamiento de datos.
                   </p>
-                </div>
+                </form>
               </>
             ) : (
               <div className="text-center py-6">

@@ -13,8 +13,15 @@ import { FloatingWA } from "@/components/FloatingWA";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { AIAssistant } from "@/components/AIAssistant";
 import { PackageModal } from "@/components/PackageModal";
+import { getPaquetes, getPromo, getTestimonios } from "@/lib/store";
 
-export default function Home() {
+export default async function Home() {
+  const [paquetes, promo, testimonios] = await Promise.all([
+    getPaquetes(),
+    getPromo(),
+    getTestimonios(),
+  ]);
+
   return (
     <div className="bg-ivory">
       <Header />
@@ -22,10 +29,10 @@ export default function Home() {
         <Hero />
         <TrustBar />
         <Categorias />
-        <Paquetes />
-        <OfferBanner />
+        <Paquetes paquetes={paquetes} />
+        <OfferBanner promo={promo} />
         <Confianza />
-        <Testimonios />
+        <Testimonios testimonios={testimonios} />
         <StoryEjeCafetero />
         <CapturaContacto />
       </main>
@@ -33,7 +40,7 @@ export default function Home() {
       <FloatingWA />
       <StickyWhatsApp />
       <AIAssistant />
-      <PackageModal />
+      <PackageModal paquetes={paquetes} />
     </div>
   );
 }

@@ -8,7 +8,8 @@ import { FloatingWA } from "@/components/FloatingWA";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { Icon } from "@/components/icons";
 import { Stars } from "@/components/ui";
-import { PAQUETES, TESTIMONIOS, NEGOCIO } from "@/lib/data";
+import { NEGOCIO } from "@/lib/data";
+import { getPaquete, getPaquetes, getTestimonios } from "@/lib/store";
 import {
   galeriaDe,
   resumenDe,
@@ -20,10 +21,9 @@ import {
 } from "@/lib/paquete-helpers";
 import { formatCOP, waLink } from "@/lib/utils";
 
-const getPaquete = (id: string) => PAQUETES.find((p) => p.id === id) ?? null;
-
-export function generateStaticParams() {
-  return PAQUETES.map((p) => ({ id: p.id }));
+export async function generateStaticParams() {
+  const paquetes = await getPaquetes();
+  return paquetes.map((p) => ({ id: p.id }));
 }
 
 export async function generateMetadata({
@@ -32,7 +32,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const pkg = getPaquete(id);
+  const pkg = await getPaquete(id);
   if (!pkg) return { title: "Paquete no encontrado · Vuela Fácil Travel" };
 
   const titulo = `${pkg.destino} · ${pkg.duracion} desde ${formatCOP(pkg.precio)}`;
@@ -57,9 +57,10 @@ export default async function PaquetePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const pkg = getPaquete(id);
+  const pkg = await getPaquete(id);
   if (!pkg) notFound();
 
+  const testimonios = await getTestimonios();
   const galeria = galeriaDe(pkg);
   const resumen = resumenDe(pkg);
   const itinerario = itinerarioDe(pkg);
@@ -72,10 +73,10 @@ export default async function PaquetePage({
   // Reseñas del destino: las que coinciden con este viaje; si no hay, mostramos
   // las generales como prueba social honesta.
   const norm = (s: string) => s.toLowerCase();
-  const delDestino = TESTIMONIOS.filter(
+  const delDestino = testimonios.filter(
     (t) => norm(pkg.destino).includes(norm(t.destino)) || norm(t.destino).includes(norm(pkg.destino)),
   );
-  const reseñas = delDestino.length > 0 ? delDestino : TESTIMONIOS;
+  const reseñas = delDestino.length > 0 ? delDestino : testimonios;
   const reseñasEspecificas = delDestino.length > 0;
 
   const jsonLd = {

@@ -1,0 +1,127 @@
+import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import type { Paquete } from "@/lib/types";
+import { readPaquetes } from "@/lib/store";
+import { savePaqueteAction } from "../../../actions";
+import { Field, Area, Select, Card } from "../../ui";
+
+export const dynamic = "force-dynamic";
+
+const CATEGORIAS = ["Playa", "Eje Cafetero", "Cruceros", "Internacional", "Aventura", "Luna de Miel"];
+
+export default async function EditarPaquete({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const esNuevo = id === "nuevo";
+
+  let pkg: Partial<Paquete> = {};
+  if (!esNuevo) {
+    const paquetes = await readPaquetes();
+    const found = paquetes.find((p) => p.id === id);
+    if (!found) notFound();
+    pkg = found;
+  }
+
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-6">
+        <Link href="/admin/paquetes" className="text-navy/50 hover:text-navy text-[13px]">
+          ← Paquetes
+        </Link>
+        <h1 className="font-serif text-navy text-[26px]">
+          {esNuevo ? "Nuevo paquete" : pkg.destino}
+        </h1>
+      </div>
+
+      <form action={savePaqueteAction} className="space-y-5 max-w-3xl">
+        {!esNuevo && <input type="hidden" name="id" value={pkg.id} />}
+
+        <Card title="Información principal">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Destino" name="destino" defaultValue={pkg.destino} required />
+            <Field label="País" name="pais" defaultValue={pkg.pais} />
+            <Select label="Categoría" name="categoria" options={CATEGORIAS} defaultValue={pkg.categoria} />
+            <Field label="Etiqueta (opcional)" name="etiqueta" defaultValue={pkg.etiqueta ?? ""} placeholder="Más vendido, Promo del mes…" />
+            <Field label="Duración (texto)" name="duracion" defaultValue={pkg.duracion} placeholder="4 días · 3 noches" />
+            <Field label="Duración (días)" name="duracionDias" type="number" defaultValue={pkg.duracionDias} />
+            <Field label="Precio por persona (COP)" name="precio" type="number" defaultValue={pkg.precio} required />
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Calificación" name="calificacion" type="number" defaultValue={pkg.calificacion ?? 4.8} hint="0 a 5" />
+              <Field label="N° reseñas" name="reviews" type="number" defaultValue={pkg.reviews ?? 0} />
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Imagen principal">
+          <div className="flex items-center gap-4">
+            {pkg.imagen && (
+              <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-ivory shrink-0">
+                <Image src={pkg.imagen} alt="" fill sizes="96px" className="object-cover" />
+              </div>
+            )}
+            <div className="flex-1">
+              <input type="hidden" name="imagenActual" value={pkg.imagen ?? ""} />
+              <label className="block text-[12px] uppercase tracking-wider text-navy/60 font-semibold mb-1.5">
+                Subir nueva imagen
+              </label>
+              <input
+                type="file"
+                name="imagenArchivo"
+                accept="image/*"
+                className="text-[13px] text-navy/70 file:mr-3 file:px-3 file:py-2 file:rounded-full file:border-0 file:bg-navy file:text-white file:text-[12px] file:font-semibold"
+              />
+              <p className="text-[11px] text-navy/45 mt-1">
+                Si no subes nada, se conserva la imagen actual.
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Detalle y contenido">
+          <div className="space-y-4">
+            <Area label="Resumen" name="resumen" defaultValue={pkg.resumen} rows={2} hint="Una o dos frases para la página y SEO." />
+            <Area label="Qué incluye (una por línea)" name="incluye" defaultValue={pkg.incluye?.join("\n")} />
+            <Area label="Próximas salidas (una por línea)" name="salidas" defaultValue={pkg.salidas?.join("\n")} />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Area label="Mejor época" name="mejorEpoca" defaultValue={pkg.mejorEpoca} rows={3} />
+              <Area label="Cómo llegar" name="comoLlegar" defaultValue={pkg.comoLlegar} rows={3} />
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Galería">
+          <Area
+            label="URLs de la galería (una por línea)"
+            name="galeria"
+            defaultValue={pkg.galeria?.join("\n")}
+            rows={3}
+            hint="Se conservan estas y se agregan las que subas abajo."
+          />
+          <label className="block mt-4 text-[12px] uppercase tracking-wider text-navy/60 font-semibold mb-1.5">
+            Agregar fotos a la galería
+          </label>
+          <input
+            type="file"
+            name="galeriaArchivos"
+            accept="image/*"
+            multiple
+            className="text-[13px] text-navy/70 file:mr-3 file:px-3 file:py-2 file:rounded-full file:border-0 file:bg-navy file:text-white file:text-[12px] file:font-semibold"
+          />
+        </Card>
+
+        <div className="flex items-center gap-3">
+          <button className="px-6 py-3 rounded-full bg-coral text-white font-semibold hover:bg-[#cf550f] transition-colors">
+            {esNuevo ? "Crear paquete" : "Guardar cambios"}
+          </button>
+          <Link href="/admin/paquetes" className="text-navy/55 text-[13px] hover:text-navy">
+            Cancelar
+          </Link>
+        </div>
+      </form>
+    </div>
+  );
+}

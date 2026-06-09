@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import { Stars } from "./ui";
-import { TESTIMONIOS } from "@/lib/data";
+import type { Testimonio } from "@/lib/types";
 import { useReveal } from "@/hooks/useReveal";
 
-const promedio =
-  TESTIMONIOS.reduce((acc, t) => acc + t.rating, 0) / TESTIMONIOS.length;
-
-export function Testimonios() {
+export function Testimonios({ testimonios }: { testimonios: Testimonio[] }) {
   const ref = useReveal<HTMLElement>();
+  const promedio = testimonios.length
+    ? testimonios.reduce((acc, t) => acc + t.rating, 0) / testimonios.length
+    : 0;
 
   return (
     <section ref={ref} className="reveal py-24 md:py-32 bg-ivory border-y border-navy/5">
@@ -27,12 +27,12 @@ export function Testimonios() {
             <Stars rating={promedio} />
             <span className="text-navy font-semibold text-[14px]">{promedio.toFixed(1)}</span>
             <span className="text-navy/55 text-[13px]">
-              · {TESTIMONIOS.length} reseñas verificadas
+              · {testimonios.length} reseñas verificadas
             </span>
           </div>
         </div>
         <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-          {TESTIMONIOS.map((t) => (
+          {testimonios.map((t) => (
             <figure
               key={t.nombre}
               className="bg-white rounded-3xl p-7 md:p-8 border border-navy/8 flex flex-col"

@@ -1,18 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PROMO } from "@/lib/data";
+import type { Promo } from "@/lib/types";
 import { waLink } from "@/lib/utils";
 
 /**
  * Banner de oferta con escasez REAL: la cuenta regresiva se ata a
- * `PROMO.promoEnds` (fecha verdadera, configurable en lib/data.ts).
+ * `promo.promoEnds` (fecha verdadera, configurable en lib/data.ts).
  * Si la promo no está activa, no tiene fecha, o esa fecha ya pasó, el banner
  * muestra un mensaje perenne SIN reloj (nada de countdowns falsos que reinician).
  */
-export function OfferBanner() {
+export function OfferBanner({ promo }: { promo: Promo }) {
   const target =
-    PROMO.activa && PROMO.promoEnds ? new Date(PROMO.promoEnds).getTime() : null;
+    promo.activa && promo.promoEnds ? new Date(promo.promoEnds).getTime() : null;
 
   // El countdown solo tiene sentido si hay una fecha futura configurada.
   const hasCountdown = target !== null;
@@ -53,14 +53,14 @@ export function OfferBanner() {
         <div className="md:col-span-7">
           <div className="inline-flex items-center gap-2 text-amber text-[11px] tracking-[0.3em] uppercase font-semibold mb-4">
             <span className="w-2 h-2 rounded-full bg-amber animate-pulse" />
-            {mostrarReloj ? PROMO.eyebrow : "Acompañamiento humano todo el año"}
+            {mostrarReloj ? promo.eyebrow : "Acompañamiento humano todo el año"}
           </div>
           <h3 className="font-serif text-white text-[32px] md:text-[48px] leading-[1.05] tracking-[-0.02em]">
-            {PROMO.tituloLinea1} <em className="italic text-amber">{PROMO.destacado}</em>
+            {promo.tituloLinea1} <em className="italic text-amber">{promo.destacado}</em>
             <br />
-            <span className="text-white/85">{PROMO.tituloLinea2}</span>
+            <span className="text-white/85">{promo.tituloLinea2}</span>
           </h3>
-          <p className="text-white/75 mt-4 max-w-xl">{PROMO.descripcion}</p>
+          <p className="text-white/75 mt-4 max-w-xl">{promo.descripcion}</p>
         </div>
         <div className="md:col-span-5">
           <div className="bg-white/8 backdrop-blur-xl border border-white/15 rounded-3xl p-6 md:p-8">
@@ -102,7 +102,7 @@ export function OfferBanner() {
               </div>
             )}
             <a
-              href={waLink(PROMO.ctaMensaje)}
+              href={waLink(promo.ctaMensaje)}
               target="_blank"
               rel="noreferrer"
               className="block w-full text-center px-6 py-4 rounded-full bg-gradient-to-r from-[#e8631a] to-[#f4a93c] text-white font-semibold tracking-wide hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.6)] transition-shadow"

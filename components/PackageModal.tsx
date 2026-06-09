@@ -5,17 +5,17 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Icon } from "./icons";
 import { Stars } from "./ui";
-import { PAQUETES } from "@/lib/data";
+import type { Paquete } from "@/lib/types";
 import { itinerarioDe, noIncluyeDe } from "@/lib/paquete-helpers";
 import { formatCOP, waLink } from "@/lib/utils";
 import { useUI } from "@/lib/ui-context";
 
-export function PackageModal() {
+export function PackageModal({ paquetes }: { paquetes: Paquete[] }) {
   const { activePackageId, closePackage } = useUI();
   const [selectedDate, setSelectedDate] = useState(0);
   const [travelers, setTravelers] = useState(2);
 
-  const pkg = activePackageId ? PAQUETES.find((p) => p.id === activePackageId) ?? null : null;
+  const pkg = activePackageId ? paquetes.find((p) => p.id === activePackageId) ?? null : null;
 
   // Reset selección al abrir un paquete distinto + bloquear scroll del body
   useEffect(() => {
