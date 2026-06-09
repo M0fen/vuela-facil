@@ -26,6 +26,8 @@ export interface Paquete {
   duracionDias: number;
   incluye: string[];
   precio: number;
+  /** Precio anterior (opcional). Si es mayor al precio, se muestra tachado + % de ahorro. */
+  precioAntes?: number;
   categoria: Categoria;
   calificacion: number;
   reviews: number;

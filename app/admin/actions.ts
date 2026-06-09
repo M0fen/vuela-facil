@@ -85,6 +85,7 @@ export async function savePaqueteAction(formData: FormData): Promise<void> {
     duracionDias: num(formData, "duracionDias"),
     incluye: lines(formData, "incluye"),
     precio: num(formData, "precio"),
+    precioAntes: num(formData, "precioAntes") || undefined,
     categoria,
     calificacion: num(formData, "calificacion"),
     reviews: num(formData, "reviews"),

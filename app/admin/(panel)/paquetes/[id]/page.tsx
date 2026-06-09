@@ -50,6 +50,13 @@ export default async function EditarPaquete({
             <Field label="Duración (texto)" name="duracion" defaultValue={pkg.duracion} placeholder="4 días · 3 noches" />
             <Field label="Duración (días)" name="duracionDias" type="number" defaultValue={pkg.duracionDias} />
             <Field label="Precio por persona (COP)" name="precio" type="number" defaultValue={pkg.precio} required />
+            <Field
+              label="Precio anterior (opcional)"
+              name="precioAntes"
+              type="number"
+              defaultValue={pkg.precioAntes}
+              hint="Si es mayor al precio, se muestra tachado con el % de ahorro."
+            />
             <div className="grid grid-cols-2 gap-4">
               <Field label="Calificación" name="calificacion" type="number" defaultValue={pkg.calificacion ?? 4.8} hint="0 a 5" />
               <Field label="N° reseñas" name="reviews" type="number" defaultValue={pkg.reviews ?? 0} />

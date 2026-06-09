@@ -13,3 +13,12 @@ export const formatCOP = (n: number): string => copFormatter.format(n);
 
 export const waLink = (msg: string): string =>
   `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`;
+
+/**
+ * Porcentaje de ahorro si hay un precio anterior válido (mayor al actual).
+ * Devuelve null si no aplica, para no mostrar descuentos falsos.
+ */
+export const descuentoPct = (precio: number, precioAntes?: number): number | null => {
+  if (!precioAntes || precioAntes <= precio) return null;
+  return Math.round((1 - precio / precioAntes) * 100);
+};

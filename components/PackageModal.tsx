@@ -7,7 +7,7 @@ import { Icon } from "./icons";
 import { Stars } from "./ui";
 import type { Paquete } from "@/lib/types";
 import { itinerarioDe, noIncluyeDe } from "@/lib/paquete-helpers";
-import { formatCOP, waLink } from "@/lib/utils";
+import { formatCOP, waLink, descuentoPct } from "@/lib/utils";
 import { useUI } from "@/lib/ui-context";
 
 export function PackageModal({ paquetes }: { paquetes: Paquete[] }) {
@@ -179,6 +179,19 @@ Ref: ${pkg.id}`;
                 <div className="text-[11px] uppercase tracking-wider text-navy/50">
                   Precio por persona
                 </div>
+                {(() => {
+                  const desc = descuentoPct(pkg.precio, pkg.precioAntes);
+                  return desc ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[15px] text-navy/40 line-through">
+                        {formatCOP(pkg.precioAntes!)}
+                      </span>
+                      <span className="text-[11px] font-bold text-coral bg-coral/10 px-2 py-0.5 rounded-full">
+                        Ahorra {desc}%
+                      </span>
+                    </div>
+                  ) : null;
+                })()}
                 <div className="font-serif text-navy text-[34px] leading-none mt-1">
                   {formatCOP(pkg.precio)}
                 </div>

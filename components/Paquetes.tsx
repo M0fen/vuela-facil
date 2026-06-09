@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "./icons";
 import { SectionEyebrow } from "./ui";
-import { formatCOP, waLink } from "@/lib/utils";
+import { formatCOP, waLink, descuentoPct } from "@/lib/utils";
 import { useUI, type Filtro } from "@/lib/ui-context";
 import type { Paquete } from "@/lib/types";
 
@@ -71,6 +71,19 @@ function PackageCard({ p }: { p: Paquete }) {
               <div className="text-[11px] uppercase tracking-wider text-navy/50">
                 Desde por persona
               </div>
+              {(() => {
+                const desc = descuentoPct(p.precio, p.precioAntes);
+                return desc ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[13px] text-navy/40 line-through">
+                      {formatCOP(p.precioAntes!)}
+                    </span>
+                    <span className="text-[11px] font-bold text-coral bg-coral/10 px-1.5 py-0.5 rounded-full">
+                      −{desc}%
+                    </span>
+                  </div>
+                ) : null;
+              })()}
               <div className="font-serif text-[26px] text-navy leading-none mt-1">
                 {formatCOP(p.precio)}
               </div>

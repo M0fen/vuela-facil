@@ -19,7 +19,7 @@ import {
   faqsDe,
   resumenWhatsApp,
 } from "@/lib/paquete-helpers";
-import { formatCOP, waLink } from "@/lib/utils";
+import { formatCOP, waLink, descuentoPct } from "@/lib/utils";
 
 export async function generateStaticParams() {
   const paquetes = await getPaquetes();
@@ -346,6 +346,19 @@ export default async function PaquetePage({
               <div className="text-[11px] uppercase tracking-wider text-navy/50">
                 Precio por persona
               </div>
+              {(() => {
+                const desc = descuentoPct(pkg.precio, pkg.precioAntes);
+                return desc ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[16px] text-navy/40 line-through">
+                      {formatCOP(pkg.precioAntes!)}
+                    </span>
+                    <span className="text-[11px] font-bold text-coral bg-coral/10 px-2 py-0.5 rounded-full">
+                      Ahorra {desc}%
+                    </span>
+                  </div>
+                ) : null;
+              })()}
               <div className="font-serif text-navy text-[36px] leading-none mt-1">
                 {formatCOP(pkg.precio)}
               </div>
