@@ -13,7 +13,7 @@ export function AIGenerate({
   write,
   label = "Generar con IA",
 }: {
-  kind: "paquete" | "testimonio";
+  kind: "paquete" | "testimonio" | "guia";
   read: string[];
   write: string[];
   label?: string;

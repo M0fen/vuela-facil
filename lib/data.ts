@@ -1,4 +1,4 @@
-import type { CategoriaCard, Negocio, Paquete, Promo, Testimonio } from "./types";
+import type { CategoriaCard, Guia, Negocio, Paquete, Promo, Testimonio } from "./types";
 
 // ---------------------------------------------------------------------------
 // FUENTE ÚNICA DE DATOS
@@ -208,6 +208,74 @@ export const TESTIMONIOS: Testimonio[] = [
     texto:
       "Llevamos a mis papás de aniversario y lloraron de felicidad. Vuela Fácil cuidó cada detalle. Son una agencia para confiar de por vida.",
     rating: 4.9,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// GUÍAS — contenido local (blog). Semilla; editable desde el panel /admin/guias.
+// ---------------------------------------------------------------------------
+export const GUIAS: Guia[] = [
+  {
+    id: "guia-eje-joyas",
+    slug: "joyas-escondidas-del-eje-cafetero",
+    titulo: "Joyas escondidas del Eje Cafetero que las grandes agencias no te cuentan",
+    destino: "Eje Cafetero Premium",
+    paqueteId: "VF-EJC-002",
+    imagen: "/images/cat-eje.jpg",
+    resumen:
+      "Más allá del Valle de Cocora: pueblos de colores, miradores secretos y fincas cafeteras donde el tiempo se detiene.",
+    etiquetas: ["Eje Cafetero", "Naturaleza", "Café"],
+    publicada: true,
+    createdAt: "2026-05-20T10:00:00-05:00",
+    contenido: `El Eje Cafetero es nuestra casa, y por eso lo mostramos como solo un local puede hacerlo. Aquí van algunas **joyas escondidas** que valen cada minuto.
+
+## Filandia, el mirador del Quindío
+
+Menos turístico que Salento y igual de encantador. Sube a la **Colina Iluminada** para una vista de 360° de la cordillera y piérdete entre sus balcones de colores.
+
+## Valle de Cocora al amanecer
+
+Las palmas de cera más altas del mundo se ven mágicas con la niebla de la mañana. Sal temprano para evitar multitudes y caminar en silencio.
+
+## Una finca cafetera de verdad
+
+Nada como recoger el grano, tostarlo y catarlo con quien lleva generaciones haciéndolo. Te conectamos con haciendas boutique donde duermes entre cafetales.
+
+### Mejor época
+
+Cualquier mes es verde, pero **diciembre–marzo** y **julio–agosto** regalan los cielos más despejados.
+
+> ¿Listo para vivirlo sin preocuparte por la logística? Te armamos el plan completo desde Pereira.`,
+  },
+  {
+    id: "guia-sanandres",
+    slug: "san-andres-mas-alla-de-la-playa",
+    titulo: "San Andrés más allá de la playa: el mar de siete colores como local",
+    destino: "San Andrés Isla",
+    paqueteId: "VF-SAI-001",
+    imagen: "/images/pkg-sai.jpg",
+    resumen:
+      "Johnny Cay, Hoyo Soplador y los mejores rincones para snorkel en el mar de siete colores.",
+    etiquetas: ["Playa", "Caribe", "San Andrés"],
+    publicada: true,
+    createdAt: "2026-05-12T10:00:00-05:00",
+    contenido: `El **mar de siete colores** es solo el comienzo. San Andrés tiene rincones que la mayoría de turistas se pierde.
+
+## Johnny Cay sin filas
+
+Llega temprano para disfrutar el islote con calma, antes de que lleguen los grupos. Lleva efectivo para un coco frío recién abierto.
+
+## La Piscinita y el Hoyo Soplador
+
+Snorkel entre peces de colores en aguas tranquilas, y la curiosa fuente natural que sopla agua de mar con la marea.
+
+## Sabores isleños
+
+Pide un **rondón**, el guiso típico con leche de coco, pescado y caracol. Una experiencia tan auténtica como el paisaje.
+
+### Tip de local
+
+Recuerda la **Tarjeta de Turismo**, obligatoria para ingresar a la isla; nosotros te ayudamos con todo el papeleo.`,
   },
 ];
 

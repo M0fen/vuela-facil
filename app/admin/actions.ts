@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Categoria, EstadoReserva, Paquete, Promo, Testimonio } from "@/lib/types";
+import type { Categoria, EstadoReserva, Guia, Paquete, Promo, Testimonio } from "@/lib/types";
 import {
   readPaquetes,
   savePaquetes,
@@ -10,6 +10,8 @@ import {
   savePromo,
   readTestimonios,
   saveTestimonios,
+  readGuias,
+  saveGuias,
   deleteLead,
   updateReserva,
   deleteReserva,
@@ -129,6 +131,60 @@ export async function deletePaqueteAction(formData: FormData): Promise<void> {
   await savePaquetes(paquetes.filter((p) => p.id !== id));
   revalidatePath("/");
   redirect("/admin/paquetes");
+}
+
+// --- Guías -----------------------------------------------------------------
+
+export async function saveGuiaAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const guias = await readGuias();
+  const idActual = str(formData, "id");
+  const esNueva = !idActual;
+
+  let imagen = str(formData, "imagenActual");
+  const archivo = formData.get("imagenArchivo");
+  if (archivo instanceof File && archivo.size > 0) {
+    imagen = await uploadImage(archivo);
+  }
+
+  const titulo = str(formData, "titulo");
+  const slugManual = str(formData, "slug");
+  const slugFinal = (slugManual || slug(titulo)) || `guia-${Date.now().toString(36)}`;
+  const id = esNueva ? `guia-${Date.now().toString(36)}` : idActual;
+  const previa = guias.find((g) => g.id === id);
+
+  const guia: Guia = {
+    id,
+    slug: slugFinal,
+    titulo,
+    destino: str(formData, "destino"),
+    resumen: str(formData, "resumen"),
+    imagen: imagen || "/images/story-1.jpg",
+    contenido: str(formData, "contenido"),
+    etiquetas: str(formData, "etiquetas")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+    paqueteId: str(formData, "paqueteId") || undefined,
+    publicada: formData.get("publicada") === "on",
+    createdAt: previa?.createdAt ?? new Date().toISOString(),
+  };
+
+  const nuevas = previa ? guias.map((g) => (g.id === id ? guia : g)) : [...guias, guia];
+  await saveGuias(nuevas);
+  revalidatePath("/guias");
+  revalidatePath(`/guias/${slugFinal}`);
+  revalidatePath("/");
+  redirect("/admin/guias");
+}
+
+export async function deleteGuiaAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  const guias = await readGuias();
+  await saveGuias(guias.filter((g) => g.id !== id));
+  revalidatePath("/guias");
+  redirect("/admin/guias");
 }
 
 // --- Promo -----------------------------------------------------------------

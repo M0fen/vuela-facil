@@ -25,6 +25,12 @@ type TestimonioInput = {
   notas?: string;
 };
 
+type GuiaInput = {
+  titulo?: string;
+  destino?: string;
+  etiquetas?: string;
+};
+
 function promptPaquete(input: PaqueteInput): { system: string; user: string } {
   const precio = Number(input.precio) || 0;
   return {
@@ -59,6 +65,20 @@ Contexto (no inventar más allá de esto):
   };
 }
 
+function promptGuia(input: GuiaInput): { system: string; user: string } {
+  return {
+    system:
+      "Eres redactor de contenido de viajes de Vuela Fácil Travel (Pereira, Colombia). Escribes guías locales, útiles y auténticas en español de Colombia, con joyas escondidas y consejos reales (sin inventar datos imposibles). Devuelve EXCLUSIVAMENTE un objeto JSON.",
+    user: `Escribe una guía de viaje y devuelve un JSON con las claves exactas "resumen" y "contenido".
+- "resumen": 1-2 frases atractivas para la tarjeta y SEO.
+- "contenido": el cuerpo en *Markdown* (usa ## para secciones, listas con -, **negritas** y alguna > cita). 250-400 palabras, tono cálido y experto local. No incluyas el título principal (H1).
+
+Tema/Título: ${input.titulo || input.destino}
+Destino: ${input.destino}
+Etiquetas: ${input.etiquetas || ""}`,
+  };
+}
+
 export async function POST(req: Request) {
   try {
     await requireAdmin();
@@ -72,7 +92,7 @@ export async function POST(req: Request) {
   }
 
   let kind: string;
-  let input: PaqueteInput & TestimonioInput;
+  let input: PaqueteInput & TestimonioInput & GuiaInput;
   try {
     const body = await req.json();
     kind = String(body?.kind ?? "");
@@ -90,9 +110,16 @@ export async function POST(req: Request) {
   if (kind === "paquete" && !input.destino?.trim()) {
     return Response.json({ error: "Indica al menos el destino." }, { status: 400 });
   }
+  if (kind === "guia" && !input.titulo?.trim() && !input.destino?.trim()) {
+    return Response.json({ error: "Indica un título o destino para la guía." }, { status: 400 });
+  }
 
   const { system, user } =
-    kind === "testimonio" ? promptTestimonio(input) : promptPaquete(input);
+    kind === "testimonio"
+      ? promptTestimonio(input)
+      : kind === "guia"
+        ? promptGuia(input)
+        : promptPaquete(input);
 
   const client = new OpenAI({ apiKey, baseURL: "https://api.deepseek.com" });
 
@@ -100,7 +127,7 @@ export async function POST(req: Request) {
     const completion = await client.chat.completions.create({
       model: "deepseek-chat",
       temperature: kind === "testimonio" ? 0.6 : 0.8,
-      max_tokens: 600,
+      max_tokens: kind === "guia" ? 1800 : 600,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: system },

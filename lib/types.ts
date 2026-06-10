@@ -80,6 +80,24 @@ export interface Reserva {
   createdAt: string;
 }
 
+export interface Guia {
+  id: string;
+  slug: string;
+  titulo: string;
+  /** Destino o tema de la guía (para CTA y relación con paquetes). */
+  destino: string;
+  resumen: string;
+  imagen: string;
+  /** Contenido en Markdown. */
+  contenido: string;
+  etiquetas?: string[];
+  /** Si está en false, no aparece en el sitio público (borrador). */
+  publicada: boolean;
+  /** Paquete relacionado para la CTA (opcional). */
+  paqueteId?: string;
+  createdAt: string;
+}
+
 export interface CategoriaCard {
   id: string;
   nombre: Categoria;

@@ -1,8 +1,8 @@
 import "server-only";
 import { put, list, del } from "@vercel/blob";
 import { unstable_cache, revalidateTag } from "next/cache";
-import type { EstadoReserva, Lead, Paquete, Promo, Reserva, Testimonio } from "./types";
-import { PAQUETES, PROMO, TESTIMONIOS } from "./data";
+import type { EstadoReserva, Guia, Lead, Paquete, Promo, Reserva, Testimonio } from "./types";
+import { GUIAS, PAQUETES, PROMO, TESTIMONIOS } from "./data";
 
 // ---------------------------------------------------------------------------
 // Capa de datos sobre Vercel Blob (diseño "Blob-only", JSON + imágenes).
@@ -19,6 +19,7 @@ const KEYS = {
   paquetes: "data/packages.json",
   promo: "data/promo.json",
   testimonios: "data/testimonios.json",
+  guias: "data/guias.json",
 } as const;
 
 const LEADS_PREFIX = "data/leads/";
@@ -28,6 +29,7 @@ const TAGS = {
   paquetes: "paquetes",
   promo: "promo",
   testimonios: "testimonios",
+  guias: "guias",
 } as const;
 
 const putOpts = {
@@ -61,6 +63,7 @@ async function writeDoc<T>(key: string, data: T): Promise<void> {
 export const readPaquetes = () => readDoc<Paquete[]>(KEYS.paquetes, PAQUETES);
 export const readPromo = () => readDoc<Promo>(KEYS.promo, PROMO);
 export const readTestimonios = () => readDoc<Testimonio[]>(KEYS.testimonios, TESTIMONIOS);
+export const readGuias = () => readDoc<Guia[]>(KEYS.guias, GUIAS);
 
 // --- Lecturas cacheadas (para el sitio público) ----------------------------
 
@@ -76,10 +79,27 @@ export const getTestimonios = unstable_cache(readTestimonios, ["testimonios"], {
   tags: [TAGS.testimonios],
   revalidate: 300,
 });
+export const getGuias = unstable_cache(readGuias, ["guias"], {
+  tags: [TAGS.guias],
+  revalidate: 300,
+});
 
 export async function getPaquete(id: string): Promise<Paquete | null> {
   const paquetes = await getPaquetes();
   return paquetes.find((p) => p.id === id) ?? null;
+}
+
+/** Solo guías publicadas, ordenadas por fecha (para el sitio público). */
+export async function getGuiasPublicadas(): Promise<Guia[]> {
+  const guias = await getGuias();
+  return guias
+    .filter((g) => g.publicada)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function getGuia(slug: string): Promise<Guia | null> {
+  const guias = await getGuias();
+  return guias.find((g) => g.slug === slug) ?? null;
 }
 
 // --- Escrituras (invalidan el tag para refrescar el sitio público) ---------
@@ -97,6 +117,11 @@ export async function savePromo(promo: Promo): Promise<void> {
 export async function saveTestimonios(testimonios: Testimonio[]): Promise<void> {
   await writeDoc(KEYS.testimonios, testimonios);
   revalidateTag(TAGS.testimonios);
+}
+
+export async function saveGuias(guias: Guia[]): Promise<void> {
+  await writeDoc(KEYS.guias, guias);
+  revalidateTag(TAGS.guias);
 }
 
 // --- Leads (un archivo por lead) -------------------------------------------

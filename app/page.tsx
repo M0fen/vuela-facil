@@ -6,6 +6,7 @@ import { Paquetes } from "@/components/Paquetes";
 import { Quiz } from "@/components/Quiz";
 import { RecomendadosTemporada } from "@/components/RecomendadosTemporada";
 import { VistosRecientemente } from "@/components/VistosRecientemente";
+import { GuiasHome } from "@/components/GuiasHome";
 import { OfferBanner } from "@/components/OfferBanner";
 import { Confianza } from "@/components/Confianza";
 import { Testimonios } from "@/components/Testimonios";
@@ -16,13 +17,14 @@ import { FloatingWA } from "@/components/FloatingWA";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { AIAssistant } from "@/components/AIAssistant";
 import { PackageModal } from "@/components/PackageModal";
-import { getPaquetes, getPromo, getTestimonios } from "@/lib/store";
+import { getPaquetes, getPromo, getTestimonios, getGuiasPublicadas } from "@/lib/store";
 
 export default async function Home() {
-  const [paquetes, promo, testimonios] = await Promise.all([
+  const [paquetes, promo, testimonios, guias] = await Promise.all([
     getPaquetes(),
     getPromo(),
     getTestimonios(),
+    getGuiasPublicadas(),
   ]);
 
   return (
@@ -38,6 +40,7 @@ export default async function Home() {
         <Confianza />
         <RecomendadosTemporada paquetes={paquetes} />
         <Testimonios testimonios={testimonios} />
+        <GuiasHome guias={guias} />
         <VistosRecientemente paquetes={paquetes} />
         <StoryEjeCafetero />
         <CapturaContacto />

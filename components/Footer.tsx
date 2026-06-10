@@ -85,7 +85,10 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {c.l.map((it) => (
                   <li key={it}>
-                    <a href="#" className="text-white/70 hover:text-white text-[13px] transition-colors">
+                    <a
+                      href={it === "Blog de viajes" ? "/guias" : "#"}
+                      className="text-white/70 hover:text-white text-[13px] transition-colors"
+                    >
                       {it}
                     </a>
                   </li>

@@ -41,6 +41,60 @@ html {
   font-weight: 400;
 }
 
+/* Contenido de guías (Markdown renderizado) */
+.guia-content {
+  color: rgba(13, 44, 84, 0.8);
+  font-size: 16.5px;
+  line-height: 1.75;
+}
+.guia-content h2 {
+  font-family: var(--font-serif);
+  color: #0d2c54;
+  font-size: 26px;
+  line-height: 1.2;
+  margin: 2rem 0 0.75rem;
+}
+.guia-content h3 {
+  font-family: var(--font-serif);
+  color: #0d2c54;
+  font-size: 20px;
+  margin: 1.5rem 0 0.5rem;
+}
+.guia-content p {
+  margin: 0 0 1.1rem;
+}
+.guia-content ul,
+.guia-content ol {
+  margin: 0 0 1.1rem;
+  padding-left: 1.25rem;
+}
+.guia-content li {
+  margin: 0.35rem 0;
+}
+.guia-content ul li {
+  list-style: disc;
+}
+.guia-content ol li {
+  list-style: decimal;
+}
+.guia-content strong {
+  color: #0d2c54;
+  font-weight: 600;
+}
+.guia-content a {
+  color: #e8631a;
+  text-decoration: underline;
+}
+.guia-content blockquote {
+  border-left: 3px solid #e8631a;
+  background: #fff;
+  border-radius: 0 0.75rem 0.75rem 0;
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: rgba(13, 44, 84, 0.75);
+}
+
 /* Reveal on scroll */
 .reveal {
   opacity: 0;
