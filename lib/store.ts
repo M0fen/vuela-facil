@@ -2,7 +2,9 @@ import "server-only";
 import { put, list, del } from "@vercel/blob";
 import { unstable_cache, revalidateTag } from "next/cache";
 import type { Analytics, EstadoReserva, Guia, Lead, Paquete, Promo, Reserva, Testimonio } from "./types";
+import type { Destino } from "./geo";
 import { GUIAS, PAQUETES, PROMO, TESTIMONIOS } from "./data";
+import { DESTINOS } from "./destinos";
 
 // ---------------------------------------------------------------------------
 // Capa de datos sobre Vercel Blob (diseño "Blob-only", JSON + imágenes).
@@ -20,6 +22,7 @@ const KEYS = {
   promo: "data/promo.json",
   testimonios: "data/testimonios.json",
   guias: "data/guias.json",
+  destinos: "data/destinos.json",
 } as const;
 
 const LEADS_PREFIX = "data/leads/";
@@ -30,6 +33,7 @@ const TAGS = {
   promo: "promo",
   testimonios: "testimonios",
   guias: "guias",
+  destinos: "destinos",
 } as const;
 
 const putOpts = {
@@ -122,6 +126,20 @@ export async function saveTestimonios(testimonios: Testimonio[]): Promise<void> 
 export async function saveGuias(guias: Guia[]): Promise<void> {
   await writeDoc(KEYS.guias, guias);
   revalidateTag(TAGS.guias);
+}
+
+// --- Destinos (editables desde el panel; alimentan el globo) ---------------
+
+export const readDestinos = () => readDoc<Destino[]>(KEYS.destinos, DESTINOS);
+
+export const getDestinos = unstable_cache(readDestinos, ["destinos"], {
+  tags: [TAGS.destinos],
+  revalidate: 300,
+});
+
+export async function saveDestinos(destinos: Destino[]): Promise<void> {
+  await writeDoc(KEYS.destinos, destinos);
+  revalidateTag(TAGS.destinos);
 }
 
 // --- Leads (un archivo por lead) -------------------------------------------

@@ -31,7 +31,6 @@ import {
   buildPuntos,
   buildRutas,
 } from "@/lib/geo";
-import { PAISES_CON_DESTINOS } from "@/lib/destinos";
 import { useAdaptiveQuality } from "@/hooks/useAdaptiveQuality";
 
 const POV_GENERAL = { lat: 8, lng: -75, altitude: 2.2 };
@@ -41,6 +40,8 @@ export interface DestinosGlobeProps {
   destinos: Destino[];
   rutas: RutaCrucero[];
   origen: Coord;
+  /** ISO_A3 de países con destinos (para realzarlos). */
+  paisesConDestinos: Set<string>;
   /** id de destino resaltado desde el rail (highlight bidireccional). */
   activoId: string | null;
   /** Comando imperativo de cámara (fly-to / Colombia / reset). */
@@ -113,6 +114,7 @@ export function DestinosGlobe({
   destinos,
   rutas,
   origen,
+  paisesConDestinos,
   activoId,
   comando,
   comandoNonce,
@@ -152,18 +154,24 @@ export function DestinosGlobe({
     [],
   );
   // Realce por país: Colombia (cálida) y países con destinos brillan; resto tenue.
-  const hexColor = useCallback((obj: object) => {
-    const iso = (obj as { properties?: { ISO_A3?: string } }).properties?.ISO_A3 ?? "";
-    if (iso === "COL") return "rgba(250,231,212,0.9)"; // ivory cálido (toque coral)
-    if (PAISES_CON_DESTINOS.has(iso)) return "rgba(251,247,239,0.8)";
-    return "rgba(247,243,236,0.4)";
-  }, []);
+  const hexColor = useCallback(
+    (obj: object) => {
+      const iso = (obj as { properties?: { ISO_A3?: string } }).properties?.ISO_A3 ?? "";
+      if (iso === "COL") return "rgba(250,231,212,0.9)"; // ivory cálido (toque coral)
+      if (paisesConDestinos.has(iso)) return "rgba(251,247,239,0.8)";
+      return "rgba(247,243,236,0.4)";
+    },
+    [paisesConDestinos],
+  );
   // "Glow" barato (sin bloom): un poco más de altura en los países con destinos.
-  const hexAltitude = useCallback((obj: object) => {
-    const iso = (obj as { properties?: { ISO_A3?: string } }).properties?.ISO_A3 ?? "";
-    if (iso === "COL") return 0.013;
-    return PAISES_CON_DESTINOS.has(iso) ? 0.008 : 0.005;
-  }, []);
+  const hexAltitude = useCallback(
+    (obj: object) => {
+      const iso = (obj as { properties?: { ISO_A3?: string } }).properties?.ISO_A3 ?? "";
+      if (iso === "COL") return 0.013;
+      return paisesConDestinos.has(iso) ? 0.008 : 0.005;
+    },
+    [paisesConDestinos],
+  );
 
   const onHoverRef = useRef(onHover);
   onHoverRef.current = onHover;

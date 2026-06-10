@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Categoria, EstadoReserva, Guia, Paquete, Promo, Testimonio } from "@/lib/types";
+import type { Destino, TipoDestino } from "@/lib/geo";
 import {
   readPaquetes,
   savePaquetes,
@@ -12,6 +13,8 @@ import {
   saveTestimonios,
   readGuias,
   saveGuias,
+  readDestinos,
+  saveDestinos,
   deleteLead,
   updateReserva,
   deleteReserva,
@@ -20,6 +23,8 @@ import {
 import { requireAdmin } from "./guard";
 
 const ESTADOS_RESERVA: EstadoReserva[] = ["pendiente", "en_proceso", "confirmada", "cancelada"];
+
+const TIPOS_DESTINO: TipoDestino[] = ["playa", "naturaleza", "ciudad", "aventura", "internacional"];
 
 const CATEGORIAS: Categoria[] = [
   "Playa",
@@ -185,6 +190,59 @@ export async function deleteGuiaAction(formData: FormData): Promise<void> {
   await saveGuias(guias.filter((g) => g.id !== id));
   revalidatePath("/guias");
   redirect("/admin/guias");
+}
+
+// --- Destinos --------------------------------------------------------------
+
+export async function saveDestinoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const destinos = await readDestinos();
+  const idActual = str(formData, "id");
+  const esNuevo = !idActual;
+
+  let imagen = str(formData, "imagenActual");
+  const archivo = formData.get("imagenArchivo");
+  if (archivo instanceof File && archivo.size > 0) {
+    imagen = await uploadImage(archivo);
+  }
+
+  const tipoRaw = str(formData, "tipo") as TipoDestino;
+  const tipo = TIPOS_DESTINO.includes(tipoRaw) ? tipoRaw : "ciudad";
+
+  // Validación de coordenadas (rango real).
+  const lat = Math.max(-90, Math.min(90, num(formData, "lat")));
+  const lng = Math.max(-180, Math.min(180, num(formData, "lng")));
+
+  const nombre = str(formData, "nombre");
+  const id = esNuevo ? `dst-${slug(nombre) || Date.now().toString(36)}` : idActual;
+  const previo = destinos.find((d) => d.id === id);
+
+  const destino: Destino = {
+    id,
+    nombre,
+    pais: str(formData, "pais"),
+    lat,
+    lng,
+    tipo,
+    paqueteId: str(formData, "paqueteId") || undefined,
+    destacado: formData.get("destacado") === "on",
+    imagen: imagen || undefined,
+    descripcionCorta: str(formData, "descripcionCorta") || undefined,
+  };
+
+  const nuevos = previo ? destinos.map((d) => (d.id === id ? destino : d)) : [...destinos, destino];
+  await saveDestinos(nuevos);
+  revalidatePath("/");
+  redirect("/admin/destinos");
+}
+
+export async function deleteDestinoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  const destinos = await readDestinos();
+  await saveDestinos(destinos.filter((d) => d.id !== id));
+  revalidatePath("/");
+  redirect("/admin/destinos");
 }
 
 // --- Promo -----------------------------------------------------------------

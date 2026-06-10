@@ -18,14 +18,15 @@ import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { AIAssistant } from "@/components/AIAssistant";
 import { PackageModal } from "@/components/PackageModal";
 import { ExploraDestinos } from "@/components/globo/ExploraDestinos";
-import { getPaquetes, getPromo, getTestimonios, getGuiasPublicadas } from "@/lib/store";
+import { getPaquetes, getPromo, getTestimonios, getGuiasPublicadas, getDestinos } from "@/lib/store";
 
 export default async function Home() {
-  const [paquetes, promo, testimonios, guias] = await Promise.all([
+  const [paquetes, promo, testimonios, guias, destinos] = await Promise.all([
     getPaquetes(),
     getPromo(),
     getTestimonios(),
     getGuiasPublicadas(),
+    getDestinos(),
   ]);
 
   return (
@@ -34,7 +35,7 @@ export default async function Home() {
       <main>
         <Hero />
         <TrustBar />
-        <ExploraDestinos paquetes={paquetes} />
+        <ExploraDestinos paquetes={paquetes} destinos={destinos} />
         <Categorias />
         <Quiz paquetes={paquetes} />
         <Paquetes paquetes={paquetes} />

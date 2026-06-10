@@ -27,6 +27,10 @@ export interface Destino {
   /** Si hay paquete comprable → abre el modal; si no → WhatsApp de cotización. */
   paqueteId?: string;
   destacado?: boolean;
+  /** Foto opcional (para la tarjeta de destinos sin paquete). */
+  imagen?: string;
+  /** Descripción corta opcional (tarjeta de destinos sin paquete). */
+  descripcionCorta?: string;
 }
 
 export interface RutaCrucero {

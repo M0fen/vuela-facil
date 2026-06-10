@@ -163,7 +163,7 @@ export const RUTAS_CRUCERO: RutaCrucero[] = [
 
 // --- Países con destinos (para realzarlos en el globo, Módulo A) -----------
 // El GeoJSON usa códigos ISO_A3 en inglés; mapeamos desde el `pais` (español).
-const ISO_POR_PAIS: Record<string, string> = {
+export const ISO_POR_PAIS: Record<string, string> = {
   Colombia: "COL",
   México: "MEX",
   España: "ESP",

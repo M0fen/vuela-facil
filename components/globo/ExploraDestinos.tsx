@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useUI } from "@/lib/ui-context";
 import { formatCOP, waLink } from "@/lib/utils";
-import { DESTINOS, RUTAS_CRUCERO } from "@/lib/destinos";
+import { RUTAS_CRUCERO, ISO_POR_PAIS } from "@/lib/destinos";
 import {
   type ComandoGlobo,
   type Destino,
@@ -60,7 +60,13 @@ const FILTROS: { id: Filtro; label: string }[] = [
 
 const TIPOS_LEYENDA: TipoDestino[] = ["playa", "naturaleza", "ciudad", "aventura", "internacional"];
 
-export function ExploraDestinos({ paquetes }: { paquetes: Paquete[] }) {
+export function ExploraDestinos({
+  paquetes,
+  destinos: todosLosDestinos,
+}: {
+  paquetes: Paquete[];
+  destinos: Destino[];
+}) {
   const { openPackage } = useUI();
   const reduced = useReducedMotion();
   const { ref, entered, inView } = useInView<HTMLDivElement>("200px");
@@ -91,14 +97,20 @@ export function ExploraDestinos({ paquetes }: { paquetes: Paquete[] }) {
   const paqueteById = useMemo(() => new Map(paquetes.map((p) => [p.id, p])), [paquetes]);
 
   const destinosFiltrados = useMemo(() => {
-    if (filtro === "todos") return DESTINOS;
+    if (filtro === "todos") return todosLosDestinos;
     if (filtro === "cruceros") return [];
-    return DESTINOS.filter((d) => d.tipo === filtro);
-  }, [filtro]);
+    return todosLosDestinos.filter((d) => d.tipo === filtro);
+  }, [filtro, todosLosDestinos]);
 
   const rutasFiltradas = useMemo(
     () => (filtro === "todos" || filtro === "cruceros" ? RUTAS_CRUCERO : []),
     [filtro],
+  );
+
+  // Países (ISO_A3) con al menos un destino → el globo los realza.
+  const paisesConDestinos = useMemo(
+    () => new Set(todosLosDestinos.map((d) => ISO_POR_PAIS[d.pais]).filter(Boolean) as string[]),
+    [todosLosDestinos],
   );
 
   const avionId = seleccion
@@ -140,19 +152,22 @@ export function ExploraDestinos({ paquetes }: { paquetes: Paquete[] }) {
   );
 
   // Desde el globo (el marcador ya se zambulló → no re-volamos)
-  const seleccionarDesdeGlobo = useCallback((refId: string) => {
-    const d = DESTINOS.find((x) => x.id === refId);
-    if (d) {
-      setSeleccion({ tipo: "destino", destino: d });
-      setActivoId(d.id);
-      return;
-    }
-    const r = RUTAS_CRUCERO.find((x) => x.id === refId);
-    if (r) {
-      setSeleccion({ tipo: "crucero", ruta: r });
-      setActivoId(null);
-    }
-  }, []);
+  const seleccionarDesdeGlobo = useCallback(
+    (refId: string) => {
+      const d = todosLosDestinos.find((x) => x.id === refId);
+      if (d) {
+        setSeleccion({ tipo: "destino", destino: d });
+        setActivoId(d.id);
+        return;
+      }
+      const r = RUTAS_CRUCERO.find((x) => x.id === refId);
+      if (r) {
+        setSeleccion({ tipo: "crucero", ruta: r });
+        setActivoId(null);
+      }
+    },
+    [todosLosDestinos],
+  );
 
   const cerrarTarjeta = useCallback(() => {
     setSeleccion(null);
@@ -250,6 +265,7 @@ export function ExploraDestinos({ paquetes }: { paquetes: Paquete[] }) {
                   destinos={destinosFiltrados}
                   rutas={rutasFiltradas}
                   origen={origen}
+                  paisesConDestinos={paisesConDestinos}
                   activoId={activoId}
                   comando={comando}
                   comandoNonce={comandoNonce.current}
@@ -436,6 +452,7 @@ function TarjetaDestino({
   const waMsg = `Hola Vuela Fácil, quiero cotizar ${
     seleccion.tipo === "crucero" ? `el ${nombre}` : `un viaje a ${nombre}`
   }.`;
+  const destinoSel = seleccion.tipo === "destino" ? seleccion.destino : null;
 
   return (
     <div className="absolute z-20 bottom-3 left-3 right-3 sm:right-auto sm:w-[340px] animate-[slideUp_.3s_cubic-bezier(.2,.7,.2,1)]">
@@ -496,15 +513,24 @@ function TarjetaDestino({
           </>
         ) : (
           <div className="p-4">
-            <div
-              className="h-20 -mx-4 -mt-4 mb-3 flex items-end p-4"
-              style={{ background: `linear-gradient(135deg, ${color}, #0d2c54)` }}
-            >
-              <h4 className="font-serif text-white text-[20px] leading-tight">{nombre}</h4>
-            </div>
+            {destinoSel?.imagen ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={destinoSel.imagen} alt={nombre} className="w-full h-28 object-cover -mx-4 -mt-4 mb-3 max-w-[calc(100%+2rem)]" loading="lazy" />
+                <h4 className="font-serif text-navy text-[20px] leading-tight">{nombre}</h4>
+              </>
+            ) : (
+              <div
+                className="h-20 -mx-4 -mt-4 mb-3 flex items-end p-4"
+                style={{ background: `linear-gradient(135deg, ${color}, #0d2c54)` }}
+              >
+                <h4 className="font-serif text-white text-[20px] leading-tight">{nombre}</h4>
+              </div>
+            )}
             <div className="text-navy/55 text-[12px] -mt-1">{pais}</div>
             <p className="text-navy/70 text-[13px] mt-2 leading-relaxed">
-              Aún no publicamos un plan para {nombre}, ¡pero te lo armamos a tu medida!
+              {destinoSel?.descripcionCorta ||
+                `Aún no publicamos un plan para ${nombre}, ¡pero te lo armamos a tu medida!`}
             </p>
             <a
               href={waLink(waMsg)}
