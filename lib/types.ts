@@ -60,6 +60,26 @@ export interface Lead {
   createdAt: string;
 }
 
+export type EstadoReserva = "pendiente" | "confirmada" | "cancelada";
+
+export interface Reserva {
+  id: string;
+  paqueteId: string;
+  /** Snapshot del destino al momento de reservar (sobrevive si el paquete cambia). */
+  destino: string;
+  fecha: string;
+  viajeros: number;
+  totalEstimado: number;
+  nombre: string;
+  telefono: string;
+  email?: string;
+  mensaje?: string;
+  estado: EstadoReserva;
+  /** Notas internas del asesor (no visibles para el cliente). */
+  notas?: string;
+  createdAt: string;
+}
+
 export interface CategoriaCard {
   id: string;
   nombre: Categoria;

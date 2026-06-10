@@ -7,6 +7,7 @@ import { Icon } from "@/components/icons";
 const NAV = [
   { href: "/admin", label: "Inicio", icon: Icon.Compass },
   { href: "/admin/paquetes", label: "Paquetes", icon: Icon.Plane },
+  { href: "/admin/reservas", label: "Reservas", icon: Icon.Calendar },
   { href: "/admin/promo", label: "Promo", icon: Icon.Sparkle },
   { href: "/admin/testimonios", label: "Testimonios", icon: Icon.Star },
   { href: "/admin/leads", label: "Leads", icon: Icon.Users },

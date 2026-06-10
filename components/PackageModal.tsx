@@ -9,11 +9,16 @@ import type { Paquete } from "@/lib/types";
 import { itinerarioDe, noIncluyeDe } from "@/lib/paquete-helpers";
 import { formatCOP, waLink, descuentoPct } from "@/lib/utils";
 import { useUI } from "@/lib/ui-context";
+import { crearReserva } from "@/app/reserva-actions";
 
 export function PackageModal({ paquetes }: { paquetes: Paquete[] }) {
   const { activePackageId, closePackage } = useUI();
   const [selectedDate, setSelectedDate] = useState(0);
   const [travelers, setTravelers] = useState(2);
+  const [nombre, setNombre] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [hecho, setHecho] = useState(false);
 
   const pkg = activePackageId ? paquetes.find((p) => p.id === activePackageId) ?? null : null;
 
@@ -22,6 +27,8 @@ export function PackageModal({ paquetes }: { paquetes: Paquete[] }) {
     if (pkg) {
       setSelectedDate(0);
       setTravelers(2);
+      setHecho(false);
+      setEnviando(false);
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -46,11 +53,34 @@ export function PackageModal({ paquetes }: { paquetes: Paquete[] }) {
   const fechaSel = pkg.salidas[selectedDate] || pkg.salidas[0];
   const waMsg = `Hola Vuela Fácil 👋
 Quiero RESERVAR el paquete:
-✈️ *${pkg.destino}* (${pkg.duracion})
+${nombre.trim() ? `👤 ${nombre.trim()}\n` : ""}✈️ *${pkg.destino}* (${pkg.duracion})
 📅 Salida: ${fechaSel}
 👥 Viajeros: ${travelers}
 💰 Total estimado: ${formatCOP(total)}
 Ref: ${pkg.id}`;
+
+  const puedeReservar = nombre.trim().length > 1 && telefono.trim().length >= 7;
+
+  const reservar = async () => {
+    if (!puedeReservar || enviando) return;
+    setEnviando(true);
+    try {
+      await crearReserva({
+        paqueteId: pkg.id,
+        destino: pkg.destino,
+        fecha: fechaSel,
+        viajeros: travelers,
+        totalEstimado: total,
+        nombre: nombre.trim(),
+        telefono: telefono.trim(),
+      });
+    } catch {
+      // No bloqueamos el handoff a WhatsApp si falla el guardado.
+    }
+    setEnviando(false);
+    setHecho(true);
+    window.open(waLink(waMsg), "_blank", "noopener");
+  };
 
   const itinerario = itinerarioDe(pkg);
   const noIncluye = noIncluyeDe(pkg);
@@ -273,28 +303,72 @@ Ref: ${pkg.id}`;
                     </p>
                   </div>
 
-                  <a
-                    href={waLink(waMsg)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block w-full text-center px-6 py-4 rounded-full bg-[#25D366] text-white font-semibold tracking-wide hover:bg-[#1ebe57] transition-colors shadow-[0_15px_30px_-8px_rgba(37,211,102,0.55)]"
-                  >
-                    <Icon.Whatsapp className="w-4 h-4 inline -mt-0.5 mr-1.5" />
-                    Reservar por WhatsApp
-                  </a>
-                  <button
-                    onClick={closePackage}
-                    className="w-full px-6 py-3 rounded-full border border-navy/15 text-navy/70 text-[13px] font-medium hover:border-navy hover:text-navy transition-colors"
-                  >
-                    Seguir explorando
-                  </button>
-                  <div className="flex items-center justify-center gap-3 text-[11px] text-navy/55 pt-2">
-                    <span className="inline-flex items-center gap-1">
-                      <Icon.Shield className="w-3.5 h-3.5 text-emerald" /> Reserva 100% segura
-                    </span>
-                    <span>·</span>
-                    <span>Cancelación flexible</span>
-                  </div>
+                  {hecho ? (
+                    <div className="text-center py-2">
+                      <div className="w-12 h-12 mx-auto rounded-full bg-emerald/10 flex items-center justify-center mb-2">
+                        <Icon.Check className="w-6 h-6 text-emerald" />
+                      </div>
+                      <div className="font-serif text-navy text-[18px]">¡Reserva registrada!</div>
+                      <p className="text-navy/60 text-[13px] mt-1">
+                        Te abrimos WhatsApp para confirmar con un asesor. Si no se abrió,{" "}
+                        <a
+                          href={waLink(waMsg)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-coral font-semibold underline"
+                        >
+                          toca aquí
+                        </a>
+                        .
+                      </p>
+                      <button
+                        onClick={closePackage}
+                        className="mt-4 w-full px-6 py-3 rounded-full border border-navy/15 text-navy/70 text-[13px] font-medium hover:border-navy hover:text-navy transition-colors"
+                      >
+                        Seguir explorando
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <input
+                          value={nombre}
+                          onChange={(e) => setNombre(e.target.value)}
+                          placeholder="Tu nombre"
+                          className="w-full px-4 py-3 rounded-xl border border-navy/15 outline-none focus:border-coral text-navy text-[14px] placeholder:text-navy/40"
+                        />
+                        <input
+                          value={telefono}
+                          onChange={(e) => setTelefono(e.target.value)}
+                          type="tel"
+                          inputMode="tel"
+                          placeholder="Tu WhatsApp"
+                          className="w-full px-4 py-3 rounded-xl border border-navy/15 outline-none focus:border-coral text-navy text-[14px] placeholder:text-navy/40"
+                        />
+                      </div>
+                      <button
+                        onClick={reservar}
+                        disabled={!puedeReservar || enviando}
+                        className="block w-full text-center px-6 py-4 rounded-full bg-[#25D366] text-white font-semibold tracking-wide hover:bg-[#1ebe57] transition-colors shadow-[0_15px_30px_-8px_rgba(37,211,102,0.55)] disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Icon.Whatsapp className="w-4 h-4 inline -mt-0.5 mr-1.5" />
+                        {enviando ? "Registrando…" : "Reservar por WhatsApp"}
+                      </button>
+                      <button
+                        onClick={closePackage}
+                        className="w-full px-6 py-3 rounded-full border border-navy/15 text-navy/70 text-[13px] font-medium hover:border-navy hover:text-navy transition-colors"
+                      >
+                        Seguir explorando
+                      </button>
+                      <div className="flex items-center justify-center gap-3 text-[11px] text-navy/55 pt-2">
+                        <span className="inline-flex items-center gap-1">
+                          <Icon.Shield className="w-3.5 h-3.5 text-emerald" /> Reserva 100% segura
+                        </span>
+                        <span>·</span>
+                        <span>Cancelación flexible</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </aside>

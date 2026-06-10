@@ -1,29 +1,32 @@
 import Link from "next/link";
 import { Icon } from "@/components/icons";
-import { readPaquetes, readTestimonios, listLeads, readPromo } from "@/lib/store";
+import { readPaquetes, readTestimonios, listLeads, listReservas, readPromo } from "@/lib/store";
 import { PageHeader, btnPrimary, btnGhost } from "./ui";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminHome() {
-  const [paquetes, testimonios, leads, promo] = await Promise.all([
+  const [paquetes, testimonios, leads, reservas, promo] = await Promise.all([
     readPaquetes(),
     readTestimonios(),
     listLeads(),
+    listReservas(),
     readPromo(),
   ]);
 
+  const pendientes = reservas.filter((r) => r.estado === "pendiente").length;
+
   const cards = [
     { href: "/admin/paquetes", label: "Paquetes", value: paquetes.length, hint: "Destinos y precios", icon: Icon.Plane },
-    { href: "/admin/testimonios", label: "Testimonios", value: testimonios.length, hint: "Reseñas del sitio", icon: Icon.Star },
-    { href: "/admin/leads", label: "Leads", value: leads.length, hint: "Contactos capturados", icon: Icon.Users },
     {
-      href: "/admin/promo",
-      label: "Promo",
-      value: promo.activa ? "On" : "Off",
-      hint: promo.activa ? "Banner activo" : "Banner inactivo",
-      icon: Icon.Sparkle,
+      href: "/admin/reservas",
+      label: "Reservas",
+      value: reservas.length,
+      hint: pendientes > 0 ? `${pendientes} pendientes` : "Al día",
+      icon: Icon.Calendar,
     },
+    { href: "/admin/leads", label: "Leads", value: leads.length, hint: "Contactos capturados", icon: Icon.Users },
+    { href: "/admin/testimonios", label: "Testimonios", value: testimonios.length, hint: "Reseñas del sitio", icon: Icon.Star },
   ];
 
   return (

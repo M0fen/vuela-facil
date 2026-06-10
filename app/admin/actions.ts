@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Categoria, Paquete, Promo, Testimonio } from "@/lib/types";
+import type { Categoria, EstadoReserva, Paquete, Promo, Testimonio } from "@/lib/types";
 import {
   readPaquetes,
   savePaquetes,
@@ -11,9 +11,13 @@ import {
   readTestimonios,
   saveTestimonios,
   deleteLead,
+  updateReserva,
+  deleteReserva,
   uploadImage,
 } from "@/lib/store";
 import { requireAdmin } from "./guard";
+
+const ESTADOS_RESERVA: EstadoReserva[] = ["pendiente", "confirmada", "cancelada"];
 
 const CATEGORIAS: Categoria[] = [
   "Playa",
@@ -196,4 +200,21 @@ export async function deleteLeadAction(formData: FormData): Promise<void> {
   await requireAdmin();
   await deleteLead(str(formData, "id"));
   redirect("/admin/leads");
+}
+
+// --- Reservas --------------------------------------------------------------
+
+export async function updateReservaAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  const estadoRaw = str(formData, "estado") as EstadoReserva;
+  const estado = ESTADOS_RESERVA.includes(estadoRaw) ? estadoRaw : undefined;
+  await updateReserva(id, { estado, notas: str(formData, "notas") });
+  redirect(`/admin/reservas/${id}`);
+}
+
+export async function deleteReservaAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  await deleteReserva(str(formData, "id"));
+  redirect("/admin/reservas");
 }

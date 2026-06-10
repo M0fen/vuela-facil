@@ -1,4 +1,21 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
+import type { EstadoReserva } from "@/lib/types";
+
+const ESTADO_STYLES: Record<EstadoReserva, string> = {
+  pendiente: "bg-amber/15 text-[#b8730a] border-amber/30",
+  confirmada: "bg-emerald/10 text-emerald-700 border-emerald/30",
+  cancelada: "bg-coral/10 text-coral border-coral/30",
+};
+
+export function EstadoBadge({ estado }: { estado: EstadoReserva }) {
+  return (
+    <span
+      className={`inline-flex px-2.5 py-0.5 rounded-full border text-[11px] font-semibold capitalize ${ESTADO_STYLES[estado]}`}
+    >
+      {estado}
+    </span>
+  );
+}
 
 const labelCls = "block text-[12px] font-semibold text-navy/55 mb-1.5";
 const inputCls =

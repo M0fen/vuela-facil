@@ -1,7 +1,7 @@
 import "server-only";
 import { put, list, del } from "@vercel/blob";
 import { unstable_cache, revalidateTag } from "next/cache";
-import type { Lead, Paquete, Promo, Testimonio } from "./types";
+import type { EstadoReserva, Lead, Paquete, Promo, Reserva, Testimonio } from "./types";
 import { PAQUETES, PROMO, TESTIMONIOS } from "./data";
 
 // ---------------------------------------------------------------------------
@@ -22,6 +22,7 @@ const KEYS = {
 } as const;
 
 const LEADS_PREFIX = "data/leads/";
+const RESERVAS_PREFIX = "data/reservas/";
 
 const TAGS = {
   paquetes: "paquetes",
@@ -132,6 +133,79 @@ export async function listLeads(): Promise<Lead[]> {
 
 export async function deleteLead(id: string): Promise<void> {
   const { blobs } = await list({ prefix: `${LEADS_PREFIX}${id}` });
+  await Promise.all(blobs.map((b) => del(b.url)));
+}
+
+// --- Reservas (un archivo por reserva, como los leads) ---------------------
+
+export async function addReserva(input: {
+  paqueteId: string;
+  destino: string;
+  fecha: string;
+  viajeros: number;
+  totalEstimado: number;
+  nombre: string;
+  telefono: string;
+  email?: string;
+  mensaje?: string;
+}): Promise<Reserva> {
+  const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const reserva: Reserva = {
+    id,
+    paqueteId: input.paqueteId,
+    destino: input.destino,
+    fecha: input.fecha,
+    viajeros: input.viajeros,
+    totalEstimado: input.totalEstimado,
+    nombre: input.nombre,
+    telefono: input.telefono,
+    email: input.email?.trim() || undefined,
+    mensaje: input.mensaje?.trim() || undefined,
+    estado: "pendiente",
+    createdAt: new Date().toISOString(),
+  };
+  await put(`${RESERVAS_PREFIX}${id}.json`, JSON.stringify(reserva, null, 2), putOpts);
+  return reserva;
+}
+
+export async function listReservas(): Promise<Reserva[]> {
+  try {
+    const { blobs } = await list({ prefix: RESERVAS_PREFIX });
+    const reservas = await Promise.all(
+      blobs.map(async (b) => {
+        const res = await fetch(`${b.url}?t=${Date.now()}`, { cache: "no-store" });
+        return res.ok ? ((await res.json()) as Reserva) : null;
+      }),
+    );
+    return reservas
+      .filter((r): r is Reserva => r !== null)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  } catch {
+    return [];
+  }
+}
+
+export async function getReserva(id: string): Promise<Reserva | null> {
+  const reservas = await listReservas();
+  return reservas.find((r) => r.id === id) ?? null;
+}
+
+export async function updateReserva(
+  id: string,
+  patch: { estado?: EstadoReserva; notas?: string },
+): Promise<void> {
+  const actual = await getReserva(id);
+  if (!actual) return;
+  const merged: Reserva = {
+    ...actual,
+    estado: patch.estado ?? actual.estado,
+    notas: patch.notas !== undefined ? patch.notas.trim() || undefined : actual.notas,
+  };
+  await put(`${RESERVAS_PREFIX}${id}.json`, JSON.stringify(merged, null, 2), putOpts);
+}
+
+export async function deleteReserva(id: string): Promise<void> {
+  const { blobs } = await list({ prefix: `${RESERVAS_PREFIX}${id}` });
   await Promise.all(blobs.map((b) => del(b.url)));
 }
 
