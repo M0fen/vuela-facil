@@ -121,4 +121,9 @@ export const Icon = {
       <path d="M4 7h16M4 12h16M4 17h16" />
     </svg>
   ),
+  Chart: (p: P) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" {...p}>
+      <path d="M5 21V11M12 21V4M19 21v-6" />
+    </svg>
+  ),
 } as const;

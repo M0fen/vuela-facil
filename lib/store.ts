@@ -1,7 +1,7 @@
 import "server-only";
 import { put, list, del } from "@vercel/blob";
 import { unstable_cache, revalidateTag } from "next/cache";
-import type { EstadoReserva, Guia, Lead, Paquete, Promo, Reserva, Testimonio } from "./types";
+import type { Analytics, EstadoReserva, Guia, Lead, Paquete, Promo, Reserva, Testimonio } from "./types";
 import { GUIAS, PAQUETES, PROMO, TESTIMONIOS } from "./data";
 
 // ---------------------------------------------------------------------------
@@ -232,6 +232,19 @@ export async function updateReserva(
 export async function deleteReserva(id: string): Promise<void> {
   const { blobs } = await list({ prefix: `${RESERVAS_PREFIX}${id}` });
   await Promise.all(blobs.map((b) => del(b.url)));
+}
+
+// --- Analítica de conversión (clics a WhatsApp) ----------------------------
+
+export async function readAnalytics(): Promise<Analytics> {
+  return readDoc<Analytics>("data/analytics.json", { whatsapp: {} });
+}
+
+export async function trackWhatsApp(ubicacion: string): Promise<void> {
+  const a = await readAnalytics();
+  if (!a.whatsapp) a.whatsapp = {};
+  a.whatsapp[ubicacion] = (a.whatsapp[ubicacion] ?? 0) + 1;
+  await writeDoc("data/analytics.json", a);
 }
 
 // --- Imágenes --------------------------------------------------------------

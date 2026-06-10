@@ -80,6 +80,11 @@ export interface Reserva {
   createdAt: string;
 }
 
+export interface Analytics {
+  /** Clics a WhatsApp por ubicación (ruta o etiqueta). */
+  whatsapp: Record<string, number>;
+}
+
 export interface Guia {
   id: string;
   slug: string;

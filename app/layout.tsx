@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { UIProvider } from "@/lib/ui-context";
+import { WhatsAppTracker } from "@/components/WhatsAppTracker";
 import { NEGOCIO } from "@/lib/data";
 import { WHATSAPP_NUMERO } from "@/lib/utils";
 import "./globals.css";
@@ -69,6 +71,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
         <UIProvider>{children}</UIProvider>
+        <WhatsAppTracker />
+        <Analytics />
       </body>
     </html>
   );

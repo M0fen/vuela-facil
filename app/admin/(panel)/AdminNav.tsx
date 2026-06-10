@@ -12,6 +12,7 @@ const NAV = [
   { href: "/admin/promo", label: "Promo", icon: Icon.Sparkle },
   { href: "/admin/testimonios", label: "Testimonios", icon: Icon.Star },
   { href: "/admin/leads", label: "Leads", icon: Icon.Users },
+  { href: "/admin/analitica", label: "Analítica", icon: Icon.Chart },
 ];
 
 export function AdminNav() {

@@ -4,7 +4,11 @@ import Image from "next/image";
 import { useActionState } from "react";
 import { Icon } from "./icons";
 import { IMG } from "@/lib/data";
+import { waLink } from "@/lib/utils";
 import { submitLead, type LeadState } from "@/app/lead-actions";
+
+const REFERIDO_MSG =
+  "Hola Vuela Fácil 👋 Quiero referir a alguien a la Tribu. ¿Cómo funciona el beneficio para los dos?";
 
 export function CapturaContacto() {
   const [state, formAction, pending] = useActionState<LeadState, FormData>(submitLead, {
@@ -32,6 +36,24 @@ export function CapturaContacto() {
             Promos relámpago, salidas grupales y descuentos por temporada. Sin spam — máximo un
             correo o WhatsApp por semana.
           </p>
+          <div className="mt-6 flex flex-wrap gap-2.5">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white/90 text-[13px]">
+              <Icon.Sparkle className="w-4 h-4 text-amber" />
+              De regalo: nuestra{" "}
+              <a href="/guias" className="underline font-semibold hover:text-amber">
+                guía del Eje Cafetero
+              </a>
+            </div>
+            <a
+              href={waLink(REFERIDO_MSG)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#25D366]/15 border border-[#25D366]/30 text-white text-[13px] font-semibold hover:bg-[#25D366]/25 transition-colors"
+            >
+              <Icon.Whatsapp className="w-4 h-4 text-[#25D366]" />
+              Refiere y ganan los dos
+            </a>
+          </div>
         </div>
         <div className="md:col-span-6">
           <div className="bg-white rounded-3xl p-6 md:p-8 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.4)]">
@@ -85,6 +107,12 @@ export function CapturaContacto() {
                 <div className="text-navy/60 text-[14px] mt-2">
                   Te escribiremos pronto con las próximas salidas 🌴
                 </div>
+                <a
+                  href="/guias"
+                  className="inline-flex items-center gap-1.5 mt-4 text-coral font-semibold text-[13px] hover:gap-2.5 transition-all"
+                >
+                  Mientras tanto, lee tu guía de regalo <Icon.Arrow className="w-4 h-4" />
+                </a>
               </div>
             )}
           </div>
