@@ -96,9 +96,10 @@ export interface PuntoDato {
   size: number;
   color: string;
   tipo: "origen" | "destino" | "puerto";
-  /** id del destino (para clic); ausente en origen/puertos. */
+  /** id del destino o del crucero (para clic); ausente solo en el origen. */
   refId?: string;
   label: string;
+  destacado?: boolean;
 }
 
 export interface RutaDato {
@@ -153,6 +154,7 @@ export function buildPuntos(destinos: Destino[], rutas: RutaCrucero[]): PuntoDat
       tipo: "destino",
       refId: d.id,
       label: d.nombre,
+      destacado: d.destacado,
     });
   }
   for (const r of rutas) {
@@ -163,6 +165,7 @@ export function buildPuntos(destinos: Destino[], rutas: RutaCrucero[]): PuntoDat
         size: 0.35,
         color: COLOR.ivory,
         tipo: "puerto",
+        refId: r.id, // clic en un puerto → abre el crucero
         label: p.nombre,
       });
     }

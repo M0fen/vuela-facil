@@ -2,16 +2,17 @@
 
 // components/globo/DestinosGlobe.tsx
 //
-// Globo WebGL (react-globe.gl). Disciplina de 60 fps:
-//  - Cero setState por frame: toda la animación vive en el loop de three; React
-//    solo reconfigura imperativamente vía ref o cuando cambia el tier de calidad.
-//  - Datos memoizados (arcos/puntos/rutas/rings) para no reconstruir objetos.
-//  - ResizeObserver con debounce; pausa fuera de viewport / pestaña oculta.
-//  - Calidad adaptativa (useAdaptiveQuality) ajusta dpr, atmósfera, rings,
-//    animación de arcos y autorotación en runtime.
-//
-// Interacción "entretenida": clic en un destino → la cámara se zambulle (fly-to
-// con altitude baja) y luego abre el paquete (modal) o WhatsApp de cotización.
+// Globo WebGL (react-globe.gl) con calidad profesional:
+//  - Tierra real (textura + relieve) y fronteras de países (polygonsData).
+//  - Marcadores HTML (htmlElementsData): se posan exactos en el lugar, se
+//    ocultan tras el globo (htmlElementVisibilityModifier) y son nítidos/legibles.
+//  - Desktop: zoom + arrastre; la etiqueta sale al pasar el cursor; la
+//    autorotación se pausa al interactuar y se reanuda al soltar.
+//  - Móvil: como no hay hover, la etiqueta del destino que queda al frente se
+//    revela sola al girar (cálculo de cercanía al centro, throttled).
+//  - Clic en un destino → la cámara se zambulle y abre el paquete o WhatsApp.
+//  - Disciplina de 60 fps: datos memoizados, cero setState por frame,
+//    ResizeObserver con debounce, pausa fuera de viewport, calidad adaptativa.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Globe, { type GlobeMethods } from "react-globe.gl";
@@ -34,13 +35,37 @@ import { useAdaptiveQuality } from "@/hooks/useAdaptiveQuality";
 const POV_GENERAL = { lat: 8, lng: -75, altitude: 2.2 };
 const POV_ZOOM_ALT = 0.62;
 
+const MARKER_CSS = `
+.vf-mk{position:relative;transform:translate(-50%,-50%);cursor:pointer;pointer-events:auto;transition:opacity .25s}
+.vf-mk-dot{display:block;width:11px;height:11px;border-radius:9999px;background:var(--c);box-shadow:0 0 0 3px rgba(255,255,255,.18),0 0 12px var(--c)}
+.vf-mk.destacado .vf-mk-dot{width:15px;height:15px;box-shadow:0 0 0 4px rgba(255,255,255,.24),0 0 18px var(--c)}
+.vf-mk.puerto .vf-mk-dot{width:7px;height:7px;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
+.vf-mk-label{position:absolute;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%) translateY(4px);white-space:nowrap;background:rgba(13,44,84,.94);color:#f7f3ec;font:600 12px/1.1 Inter,system-ui,sans-serif;letter-spacing:.01em;padding:5px 10px;border-radius:9999px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;box-shadow:0 8px 22px rgba(0,0,0,.42)}
+.vf-mk-label::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:rgba(13,44,84,.94)}
+.vf-mk:hover .vf-mk-label,.vf-mk.activo .vf-mk-label,.vf-mk.origen .vf-mk-label{opacity:1;transform:translateX(-50%) translateY(0)}
+.vf-mk.origen .vf-mk-dot{background:${COLOR.coral}}
+`;
+
+function injectCSS() {
+  if (typeof document === "undefined") return;
+  if (document.getElementById("vf-globo-mk")) return;
+  const s = document.createElement("style");
+  s.id = "vf-globo-mk";
+  s.textContent = MARKER_CSS;
+  document.head.appendChild(s);
+}
+
 export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: () => void }) {
   const { openPackage, activePackageId } = useUI();
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const timers = useRef<number[]>([]);
+  const markerMap = useRef<Map<PuntoDato, HTMLElement>>(new Map());
+  const coarseRef = useRef(false);
+  const resumeTimer = useRef<number | null>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [ready, setReady] = useState(false);
+  const [paises, setPaises] = useState<object[]>([]);
 
   const quality = useAdaptiveQuality(inView && ready);
 
@@ -54,11 +79,22 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
   const rings = useMemo(() => [{ lat: ORIGEN.lat, lng: ORIGEN.lng }], []);
   const destinoMap = useMemo(() => new Map(DESTINOS.map((d) => [d.id, d])), []);
 
-  // Textura base de la Tierra: alta fidelidad (blue marble) solo en equipos
-  // potentes; en el resto (sobre todo móvil) la versión liviana de 244 KB.
-  // El relieve (bump) se omite en gama baja. El cap es estable → no recarga.
   const baseTextura =
     quality.cap === "alto" ? "/globe/earth-blue-marble.jpg" : "/globe/earth-day.jpg";
+
+  // --- Cargar fronteras de países (lazy, al montar) -----------------------
+  useEffect(() => {
+    let vivo = true;
+    fetch("/globe/countries-110m.geojson")
+      .then((r) => r.json())
+      .then((geo: { features?: object[] }) => {
+        if (vivo && geo.features) setPaises(geo.features);
+      })
+      .catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, []);
 
   // --- Dimensionar con ResizeObserver (debounce 150 ms) -------------------
   useEffect(() => {
@@ -78,25 +114,7 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     };
   }, []);
 
-  // --- Setup imperativo al estar listo ------------------------------------
-  const handleReady = useCallback(() => {
-    const g = globeRef.current;
-    if (!g) return;
-    g.pointOfView(POV_GENERAL, 0);
-    const c = g.controls();
-    c.enableZoom = false;
-    c.enableDamping = true;
-    c.dampingFactor = 0.08;
-    c.autoRotate = true;
-    c.autoRotateSpeed = 0.4;
-    c.minDistance = 200;
-    g.renderer().setPixelRatio(quality.dpr);
-    setReady(true);
-    onReady?.();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onReady]);
-
-  // --- Acciones de clic ----------------------------------------------------
+  // --- Acciones de clic (vía ref para no recrear los marcadores HTML) -----
   const volverAlGeneral = useCallback(() => {
     const g = globeRef.current;
     if (!g) return;
@@ -108,14 +126,9 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     (refId: string) => {
       const d = destinoMap.get(refId);
       if (d) {
-        if (d.paqueteId) {
-          openPackage(d.paqueteId); // restauración al cerrar el modal (efecto abajo)
-        } else {
-          window.open(
-            waLink(`Hola Vuela Fácil, quiero cotizar un viaje a ${d.nombre}.`),
-            "_blank",
-            "noopener",
-          );
+        if (d.paqueteId) openPackage(d.paqueteId);
+        else {
+          window.open(waLink(`Hola Vuela Fácil, quiero cotizar un viaje a ${d.nombre}.`), "_blank", "noopener");
           timers.current.push(window.setTimeout(volverAlGeneral, 600));
         }
         return;
@@ -133,23 +146,116 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
   );
 
   const handlePointClick = useCallback(
-    (obj: object) => {
-      const pt = obj as PuntoDato;
+    (pt: PuntoDato) => {
       const g = globeRef.current;
       if (!g) return;
       if (pt.tipo === "origen") {
         g.pointOfView(POV_GENERAL, 900);
         return;
       }
-      // Zambullida hacia el punto y, a mitad del vuelo, abrir el destino.
       g.controls().autoRotate = false;
       g.pointOfView({ lat: pt.lat, lng: pt.lng, altitude: POV_ZOOM_ALT }, 1100);
-      if (pt.tipo === "destino" && pt.refId) {
-        timers.current.push(window.setTimeout(() => abrir(pt.refId as string), 750));
-      }
+      if (pt.refId) timers.current.push(window.setTimeout(() => abrir(pt.refId as string), 750));
     },
     [abrir],
   );
+  const clickRef = useRef(handlePointClick);
+  clickRef.current = handlePointClick;
+
+  // --- Crear cada marcador HTML (una vez por dato) ------------------------
+  const crearMarcador = useCallback((obj: object): HTMLElement => {
+    const pt = obj as PuntoDato;
+    const el = document.createElement("div");
+    el.className =
+      "vf-mk" +
+      (pt.destacado ? " destacado" : "") +
+      (pt.tipo === "puerto" ? " puerto" : "") +
+      (pt.tipo === "origen" ? " origen" : "");
+    el.style.setProperty("--c", pt.color);
+    const dot = document.createElement("span");
+    dot.className = "vf-mk-dot";
+    el.appendChild(dot);
+    if (pt.label) {
+      const lb = document.createElement("span");
+      lb.className = "vf-mk-label";
+      lb.textContent = pt.label;
+      el.appendChild(lb);
+    }
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      clickRef.current(pt);
+    });
+    markerMap.current.set(pt, el);
+    return el;
+  }, []);
+
+  // --- Setup imperativo al estar listo ------------------------------------
+  const autorotarRef = useRef(quality.autorotar);
+  autorotarRef.current = quality.autorotar;
+
+  const handleReady = useCallback(() => {
+    const g = globeRef.current;
+    if (!g) return;
+    injectCSS();
+    const coarse =
+      typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
+    coarseRef.current = !!coarse;
+
+    g.pointOfView(POV_GENERAL, 0);
+    const c = g.controls();
+    c.enableZoom = !coarse; // desktop: zoom con rueda; móvil: revelado por cercanía
+    c.enableDamping = true;
+    c.dampingFactor = 0.08;
+    c.autoRotate = true;
+    c.autoRotateSpeed = 0.4;
+    c.minDistance = 140;
+    c.maxDistance = 420;
+
+    // Pausar autorotación mientras el usuario interactúa; reanudar al soltar.
+    c.addEventListener("start", () => {
+      if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
+      c.autoRotate = false;
+    });
+    c.addEventListener("end", () => {
+      if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
+      resumeTimer.current = window.setTimeout(() => {
+        if (!activePackageId) c.autoRotate = autorotarRef.current;
+      }, 3500);
+    });
+
+    g.renderer().setPixelRatio(quality.dpr);
+    setReady(true);
+    onReady?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onReady]);
+
+  // --- Móvil: revelar la etiqueta del destino que queda al frente ---------
+  useEffect(() => {
+    if (!ready || !inView || !coarseRef.current) return;
+    const id = window.setInterval(() => {
+      const g = globeRef.current;
+      if (!g || document.hidden) return;
+      const cam = g.camera().position;
+      const camLen = Math.hypot(cam.x, cam.y, cam.z) || 1;
+      let best: PuntoDato | null = null;
+      let bestCos = -1;
+      for (const pt of puntos) {
+        if (pt.tipo === "puerto") continue; // solo destinos/origen revelan ref
+        const p = g.getCoords(pt.lat, pt.lng);
+        const len = Math.hypot(p.x, p.y, p.z) || 1;
+        const cos = (p.x * cam.x + p.y * cam.y + p.z * cam.z) / (len * camLen);
+        if (cos > bestCos) {
+          bestCos = cos;
+          best = pt;
+        }
+      }
+      for (const [pt, el] of markerMap.current) {
+        if (pt.tipo === "origen") continue; // Pereira siempre etiquetada
+        el.classList.toggle("activo", pt === best && bestCos > 0.55);
+      }
+    }, 220);
+    return () => window.clearInterval(id);
+  }, [ready, inView, puntos]);
 
   // --- Restaurar la vista al cerrar el modal ------------------------------
   const prevActive = useRef<string | null>(activePackageId);
@@ -184,6 +290,7 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     const pending = timers.current;
     return () => {
       pending.forEach((id) => window.clearTimeout(id));
+      if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
     };
   }, []);
 
@@ -202,6 +309,13 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
           atmosphereColor={COLOR.sky}
           atmosphereAltitude={0.16}
           onGlobeReady={handleReady}
+          // Fronteras de países
+          polygonsData={quality.efectos ? paises : []}
+          polygonCapColor={() => "rgba(0,0,0,0)"}
+          polygonSideColor={() => "rgba(0,0,0,0)"}
+          polygonStrokeColor={() => "rgba(247,243,236,0.34)"}
+          polygonAltitude={0.006}
+          polygonsTransitionDuration={0}
           // Arcos de vuelo
           arcsData={arcs}
           arcStartLat="startLat"
@@ -225,16 +339,16 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
           pathDashGap={0.25}
           pathDashAnimateTime={quality.arcosAnimados ? 4000 : 0}
           pathTransitionDuration={0}
-          // Puntos (origen, destinos, puertos)
-          pointsData={puntos}
-          pointLat="lat"
-          pointLng="lng"
-          pointColor="color"
-          pointLabel="label"
-          pointAltitude={0.012}
-          pointRadius={(o) => (o as PuntoDato).size * 0.4}
-          pointsTransitionDuration={0}
-          onPointClick={handlePointClick}
+          // Marcadores HTML (origen, destinos, puertos)
+          htmlElementsData={puntos}
+          htmlLat="lat"
+          htmlLng="lng"
+          htmlAltitude={0.012}
+          htmlElement={crearMarcador}
+          htmlElementVisibilityModifier={(el, isVisible) => {
+            el.style.opacity = isVisible ? "1" : "0";
+            el.style.pointerEvents = isVisible ? "auto" : "none";
+          }}
           // Pulso en Pereira
           ringsData={quality.efectos ? rings : []}
           ringLat="lat"

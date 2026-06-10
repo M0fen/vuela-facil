@@ -164,7 +164,9 @@ export function ExploraDestinos() {
           )}
           {puedeGlobo && (
             <p className="absolute bottom-3 left-0 right-0 text-center text-ivory/45 text-[11px] tracking-wide pointer-events-none">
-              {globoListo ? "Gira el globo y toca un destino para volar hasta él" : "Cargando el globo…"}
+              {globoListo
+                ? "Gira y acércate al globo · toca un destino para volar hasta él"
+                : "Cargando el globo…"}
             </p>
           )}
         </div>
