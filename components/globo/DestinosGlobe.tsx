@@ -15,6 +15,7 @@
 //    ResizeObserver con debounce, pausa fuera de viewport, calidad adaptativa.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
 import Globe, { type GlobeMethods } from "react-globe.gl";
 import { useUI } from "@/lib/ui-context";
 import { waLink } from "@/lib/utils";
@@ -79,8 +80,26 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
   const rings = useMemo(() => [{ lat: ORIGEN.lat, lng: ORIGEN.lng }], []);
   const destinoMap = useMemo(() => new Map(DESTINOS.map((d) => [d.id, d])), []);
 
-  const baseTextura =
-    quality.cap === "alto" ? "/globe/earth-blue-marble.jpg" : "/globe/earth-day.jpg";
+  // Esfera "océano" navy: material Phong sutil (sin textura realista → liviano,
+  // y los labels blancos se leen sobre el navy oscuro).
+  const globeMaterial = useMemo(
+    () =>
+      new THREE.MeshPhongMaterial({
+        color: new THREE.Color("#0d2c54"),
+        emissive: new THREE.Color("#0a2342"),
+        emissiveIntensity: 0.35,
+        shininess: 6,
+        specular: new THREE.Color("#13386b"),
+      }),
+    [],
+  );
+
+  // Continentes en hexágonos ivory; Colombia un poco más brillante (es casa).
+  const hexColor = useCallback((obj: object) => {
+    const props = (obj as { properties?: { NAME?: string; ADMIN?: string } }).properties;
+    const n = props?.NAME || props?.ADMIN || "";
+    return n === "Colombia" ? "rgba(247,243,236,0.78)" : "rgba(247,243,236,0.5)";
+  }, []);
 
   // --- Cargar fronteras de países (lazy, al montar) -----------------------
   useEffect(() => {
@@ -197,6 +216,13 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     const g = globeRef.current;
     if (!g) return;
     injectCSS();
+
+    // Iluminación suave (reemplaza la default) para que lea como esfera; sin sombras.
+    const hemi = new THREE.HemisphereLight(0xbcd4ff, 0x081428, 0.95);
+    const dir = new THREE.DirectionalLight(0xffffff, 0.35);
+    dir.position.set(1, 0.5, 0.8);
+    g.lights([hemi, dir]);
+
     const coarse =
       typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
     coarseRef.current = !!coarse;
@@ -291,8 +317,9 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     return () => {
       pending.forEach((id) => window.clearTimeout(id));
       if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
+      globeMaterial.dispose();
     };
-  }, []);
+  }, [globeMaterial]);
 
   return (
     <div ref={wrapRef} className="absolute inset-0">
@@ -303,19 +330,18 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
           height={size.h}
           backgroundColor="rgba(0,0,0,0)"
           rendererConfig={{ alpha: true, antialias: quality.antialias, powerPreference: "high-performance" }}
-          globeImageUrl={baseTextura}
-          bumpImageUrl={quality.efectos ? "/globe/earth-topology.png" : undefined}
+          globeMaterial={globeMaterial}
           showAtmosphere
-          atmosphereColor={COLOR.sky}
-          atmosphereAltitude={0.16}
+          atmosphereColor={COLOR.coral}
+          atmosphereAltitude={0.15}
           onGlobeReady={handleReady}
-          // Fronteras de países
-          polygonsData={quality.efectos ? paises : []}
-          polygonCapColor={() => "rgba(0,0,0,0)"}
-          polygonSideColor={() => "rgba(0,0,0,0)"}
-          polygonStrokeColor={() => "rgba(247,243,236,0.34)"}
-          polygonAltitude={0.006}
-          polygonsTransitionDuration={0}
+          // Continentes en hexágonos ivory (estilo cartográfico, no textura real)
+          hexPolygonsData={paises}
+          hexPolygonResolution={3}
+          hexPolygonMargin={0.3}
+          hexPolygonAltitude={0.005}
+          hexPolygonColor={hexColor}
+          hexPolygonsTransitionDuration={0}
           // Arcos de vuelo
           arcsData={arcs}
           arcStartLat="startLat"
