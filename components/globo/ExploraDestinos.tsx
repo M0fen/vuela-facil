@@ -10,13 +10,36 @@
 //   - con paquete  → abre el modal del paquete (useUI.openPackage)
 //   - sin paquete  → WhatsApp "Quiero cotizar un viaje a {nombre}"
 
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useUI } from "@/lib/ui-context";
 import { waLink } from "@/lib/utils";
 import { DESTINOS, RUTAS_CRUCERO } from "@/lib/destinos";
 import { type Destino, colorDestino, etiquetaTipo } from "@/lib/geo";
+import { useInView } from "@/hooks/useInView";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { SectionEyebrow } from "@/components/ui";
 import { Icon } from "@/components/icons";
 import { DestinosMapa2D } from "./DestinosMapa2D";
+
+// El globo (con three) se descarga lazy y solo en cliente: nunca antes del
+// scroll, nunca toca el LCP del hero.
+const DestinosGlobe = dynamic(() => import("./DestinosGlobe"), {
+  ssr: false,
+  loading: () => null,
+});
+
+function soportaWebGL(): boolean {
+  try {
+    const c = document.createElement("canvas");
+    return !!(
+      window.WebGLRenderingContext &&
+      (c.getContext("webgl") || c.getContext("experimental-webgl"))
+    );
+  } catch {
+    return false;
+  }
+}
 
 function ChipTipo({ d }: { d: Destino }) {
   const c = colorDestino(d.tipo);
@@ -86,6 +109,24 @@ function DestinoCard({ d, onPaquete }: { d: Destino; onPaquete: (id: string) => 
 
 export function ExploraDestinos() {
   const { openPackage } = useUI();
+  const reduced = useReducedMotion();
+  const { ref, entered, inView } = useInView<HTMLDivElement>("200px");
+  const [puedeGlobo, setPuedeGlobo] = useState(false);
+  const [globoListo, setGloboListo] = useState(false);
+
+  // Decide si este dispositivo merece el globo WebGL (escalera de mejora
+  // progresiva). Gama muy baja o reduced-motion → se queda con el póster 2D.
+  useEffect(() => {
+    if (reduced || !soportaWebGL()) {
+      setPuedeGlobo(false);
+      return;
+    }
+    const cores = navigator.hardwareConcurrency ?? 4;
+    const mem = (navigator as { deviceMemory?: number }).deviceMemory ?? 4;
+    setPuedeGlobo(!(cores <= 2 || mem <= 2));
+  }, [reduced]);
+
+  const montarGlobo = puedeGlobo && entered;
 
   return (
     <section id="explora" className="bg-navy py-20 md:py-28 overflow-hidden">
@@ -101,9 +142,31 @@ export function ExploraDestinos() {
           </p>
         </div>
 
-        {/* Visual: póster 2D (decorativo). El globo WebGL llega en fases siguientes. */}
-        <div className="mt-10 rounded-3xl overflow-hidden ring-1 ring-ivory/10 shadow-2xl shadow-black/30">
-          <DestinosMapa2D className="w-full aspect-[1000/560] block" />
+        {/* Visual: póster 2D de base + globo WebGL encima con crossfade al estar listo.
+            La altura está reservada (aspect-ratio) para no causar saltos (CLS). */}
+        <div
+          ref={ref}
+          className="relative mt-10 rounded-3xl overflow-hidden ring-1 ring-ivory/10 shadow-2xl shadow-black/30 aspect-[1000/560]"
+        >
+          <DestinosMapa2D
+            className={`w-full h-full block transition-opacity duration-500 ${
+              globoListo ? "opacity-0" : "opacity-100"
+            }`}
+          />
+          {montarGlobo && (
+            <div
+              className={`absolute inset-0 transition-opacity duration-700 ${
+                globoListo ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <DestinosGlobe inView={inView} onReady={() => setGloboListo(true)} />
+            </div>
+          )}
+          {puedeGlobo && (
+            <p className="absolute bottom-3 left-0 right-0 text-center text-ivory/45 text-[11px] tracking-wide pointer-events-none">
+              {globoListo ? "Gira el globo y toca un destino para volar hasta él" : "Cargando el globo…"}
+            </p>
+          )}
         </div>
 
         {/* Lista accesible e interactiva (la versión real para teclado/lectores) */}
