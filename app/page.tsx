@@ -34,7 +34,7 @@ export default async function Home() {
       <main>
         <Hero />
         <TrustBar />
-        <ExploraDestinos />
+        <ExploraDestinos paquetes={paquetes} />
         <Categorias />
         <Quiz paquetes={paquetes} />
         <Paquetes paquetes={paquetes} />

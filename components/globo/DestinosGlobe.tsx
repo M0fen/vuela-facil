@@ -2,30 +2,30 @@
 
 // components/globo/DestinosGlobe.tsx
 //
-// Globo WebGL (react-globe.gl) con calidad profesional:
-//  - Tierra real (textura + relieve) y fronteras de países (polygonsData).
-//  - Marcadores HTML (htmlElementsData): se posan exactos en el lugar, se
-//    ocultan tras el globo (htmlElementVisibilityModifier) y son nítidos/legibles.
-//  - Desktop: zoom + arrastre; la etiqueta sale al pasar el cursor; la
-//    autorotación se pausa al interactuar y se reanuda al soltar.
-//  - Móvil: como no hay hover, la etiqueta del destino que queda al frente se
-//    revela sola al girar (cálculo de cercanía al centro, throttled).
-//  - Clic en un destino → la cámara se zambulle y abre el paquete o WhatsApp.
-//  - Disciplina de 60 fps: datos memoizados, cero setState por frame,
-//    ResizeObserver con debounce, pausa fuera de viewport, calidad adaptativa.
+// Globo WebGL editorial (react-globe.gl) — capa de presentación. Recibe sus
+// datos y comandos de <ExploraDestinos> (estado único, sin duplicar).
+//
+// Estética v3: esfera navy Phong + continentes en hexágonos ivory + atmósfera
+// coral. Marcadores HTML legibles con labels inteligentes (hover, cercanía al
+// centro en móvil, y revelado por zoom). Highlight sincronizado con el rail.
+// Micro-interacciones: arcos con reveal escalonado y un avión recorriendo el
+// arco del destino activo. Disciplina de 60 fps: datos memoizados, cero
+// setState por frame, ResizeObserver con debounce, pausa fuera de viewport,
+// calidad adaptativa y dispose en unmount.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import Globe, { type GlobeMethods } from "react-globe.gl";
-import { useUI } from "@/lib/ui-context";
-import { waLink } from "@/lib/utils";
-import { DESTINOS, RUTAS_CRUCERO } from "@/lib/destinos";
 import {
   type ArcoDato,
+  type Coord,
+  type ComandoGlobo,
+  type Destino,
   type PuntoDato,
+  type RutaCrucero,
   type RutaDato,
   COLOR,
-  ORIGEN,
+  POV_COLOMBIA,
   buildArcos,
   buildArcosCrucero,
   buildPuntos,
@@ -34,54 +34,111 @@ import {
 import { useAdaptiveQuality } from "@/hooks/useAdaptiveQuality";
 
 const POV_GENERAL = { lat: 8, lng: -75, altitude: 2.2 };
-const POV_ZOOM_ALT = 0.62;
+const POV_ZOOM_ALT = 0.7;
+
+export interface DestinosGlobeProps {
+  destinos: Destino[];
+  rutas: RutaCrucero[];
+  origen: Coord;
+  /** id de destino resaltado desde el rail (highlight bidireccional). */
+  activoId: string | null;
+  /** Comando imperativo de cámara (fly-to / Colombia / reset). */
+  comando: ComandoGlobo | null;
+  comandoNonce: number;
+  /** id del destino cuyo arco lleva el avión animado (o null). */
+  avionId: string | null;
+  /** Si hay una tarjeta abierta: no reanudar autorotación. */
+  pausado: boolean;
+  inView: boolean;
+  onReady?: () => void;
+  onHover?: (id: string | null) => void;
+  onSelect?: (refId: string, tipo: "destino" | "puerto") => void;
+}
 
 const MARKER_CSS = `
 .vf-mk{position:relative;transform:translate(-50%,-50%);cursor:pointer;pointer-events:auto;transition:opacity .25s}
-.vf-mk-dot{display:block;width:11px;height:11px;border-radius:9999px;background:var(--c);box-shadow:0 0 0 3px rgba(255,255,255,.18),0 0 12px var(--c)}
+.vf-mk-dot{display:block;width:11px;height:11px;border-radius:9999px;background:var(--c);box-shadow:0 0 0 3px rgba(255,255,255,.18),0 0 12px var(--c);transition:transform .18s,box-shadow .18s}
 .vf-mk.destacado .vf-mk-dot{width:15px;height:15px;box-shadow:0 0 0 4px rgba(255,255,255,.24),0 0 18px var(--c)}
 .vf-mk.puerto .vf-mk-dot{width:7px;height:7px;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
-.vf-mk-label{position:absolute;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%) translateY(4px);white-space:nowrap;background:rgba(13,44,84,.94);color:#f7f3ec;font:600 12px/1.1 Inter,system-ui,sans-serif;letter-spacing:.01em;padding:5px 10px;border-radius:9999px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;box-shadow:0 8px 22px rgba(0,0,0,.42)}
+.vf-mk.sel .vf-mk-dot{transform:scale(1.3);box-shadow:0 0 0 6px rgba(232,99,26,.28),0 0 22px var(--c)}
+.vf-mk-label{position:absolute;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%) translateY(4px);white-space:nowrap;background:rgba(13,44,84,.94);color:#f7f3ec;font:600 12px/1.1 Fraunces,Georgia,serif;letter-spacing:.01em;padding:5px 10px;border-radius:9999px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;box-shadow:0 8px 22px rgba(0,0,0,.42)}
 .vf-mk-label::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:rgba(13,44,84,.94)}
-.vf-mk:hover .vf-mk-label,.vf-mk.activo .vf-mk-label,.vf-mk.origen .vf-mk-label{opacity:1;transform:translateX(-50%) translateY(0)}
+.vf-mk:hover .vf-mk-label,.vf-mk.activo .vf-mk-label,.vf-mk.cerca .vf-mk-label,.vf-mk.sel .vf-mk-label,.vf-mk.origen .vf-mk-label{opacity:1;transform:translateX(-50%) translateY(0)}
 .vf-mk.origen .vf-mk-dot{background:${COLOR.coral}}
 `;
 
 function injectCSS() {
-  if (typeof document === "undefined") return;
-  if (document.getElementById("vf-globo-mk")) return;
+  if (typeof document === "undefined" || document.getElementById("vf-globo-mk")) return;
   const s = document.createElement("style");
   s.id = "vf-globo-mk";
   s.textContent = MARKER_CSS;
   document.head.appendChild(s);
 }
 
-export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: () => void }) {
-  const { openPackage, activePackageId } = useUI();
+/** Textura de avión (vista superior) dibujada en canvas — sin asset externo. */
+function makePlaneTexture(): THREE.CanvasTexture {
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const x = c.getContext("2d")!;
+  x.translate(32, 32);
+  x.shadowColor = COLOR.coral;
+  x.shadowBlur = 7;
+  x.fillStyle = "#f7f3ec";
+  x.beginPath();
+  x.moveTo(0, -22);
+  x.quadraticCurveTo(4, -12, 4, -3);
+  x.lineTo(22, 7);
+  x.lineTo(22, 11);
+  x.lineTo(4, 7);
+  x.lineTo(4, 15);
+  x.lineTo(11, 21);
+  x.lineTo(11, 24);
+  x.lineTo(0, 21);
+  x.lineTo(-11, 24);
+  x.lineTo(-11, 21);
+  x.lineTo(-4, 15);
+  x.lineTo(-4, 7);
+  x.lineTo(-22, 11);
+  x.lineTo(-22, 7);
+  x.lineTo(-4, -3);
+  x.quadraticCurveTo(-4, -12, 0, -22);
+  x.closePath();
+  x.fill();
+  const t = new THREE.CanvasTexture(c);
+  return t;
+}
+
+export function DestinosGlobe({
+  destinos,
+  rutas,
+  origen,
+  activoId,
+  comando,
+  comandoNonce,
+  avionId,
+  pausado,
+  inView,
+  onReady,
+  onHover,
+  onSelect,
+}: DestinosGlobeProps) {
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const timers = useRef<number[]>([]);
-  const markerMap = useRef<Map<PuntoDato, HTMLElement>>(new Map());
+  const markerByKey = useRef<Map<string, HTMLElement>>(new Map());
+  const prevSelKey = useRef<string | null>(null);
+  const cercaRef = useRef(false);
   const coarseRef = useRef(false);
   const resumeTimer = useRef<number | null>(null);
+  const planeRef = useRef<{ sprite: THREE.Sprite; raf: number } | null>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [ready, setReady] = useState(false);
   const [paises, setPaises] = useState<object[]>([]);
+  const [arcosMostrados, setArcosMostrados] = useState(0);
 
   const quality = useAdaptiveQuality(inView && ready);
 
-  // --- Datos memoizados (estables) ----------------------------------------
-  const arcs = useMemo<ArcoDato[]>(
-    () => [...buildArcos(DESTINOS), ...buildArcosCrucero(RUTAS_CRUCERO)],
-    [],
-  );
-  const puntos = useMemo<PuntoDato[]>(() => buildPuntos(DESTINOS, RUTAS_CRUCERO), []);
-  const rutas = useMemo<RutaDato[]>(() => buildRutas(RUTAS_CRUCERO), []);
-  const rings = useMemo(() => [{ lat: ORIGEN.lat, lng: ORIGEN.lng }], []);
-  const destinoMap = useMemo(() => new Map(DESTINOS.map((d) => [d.id, d])), []);
-
-  // Esfera "océano" navy: material Phong sutil (sin textura realista → liviano,
-  // y los labels blancos se leen sobre el navy oscuro).
+  // --- Material y refs estables -------------------------------------------
   const globeMaterial = useMemo(
     () =>
       new THREE.MeshPhongMaterial({
@@ -93,15 +150,34 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
       }),
     [],
   );
-
-  // Continentes en hexágonos ivory; Colombia un poco más brillante (es casa).
   const hexColor = useCallback((obj: object) => {
     const props = (obj as { properties?: { NAME?: string; ADMIN?: string } }).properties;
     const n = props?.NAME || props?.ADMIN || "";
     return n === "Colombia" ? "rgba(247,243,236,0.78)" : "rgba(247,243,236,0.5)";
   }, []);
 
-  // --- Cargar fronteras de países (lazy, al montar) -----------------------
+  const onHoverRef = useRef(onHover);
+  onHoverRef.current = onHover;
+  const onSelectRef = useRef(onSelect);
+  onSelectRef.current = onSelect;
+  const autorotarRef = useRef(quality.autorotar);
+  autorotarRef.current = quality.autorotar;
+  const pausadoRef = useRef(pausado);
+  pausadoRef.current = pausado;
+
+  // --- Datos memoizados (recalculan al cambiar filtro/origen) -------------
+  const arcos = useMemo<ArcoDato[]>(
+    () => [...buildArcos(destinos, origen), ...buildArcosCrucero(rutas, origen)],
+    [destinos, rutas, origen],
+  );
+  const puntos = useMemo<PuntoDato[]>(
+    () => buildPuntos(destinos, rutas, origen),
+    [destinos, rutas, origen],
+  );
+  const rutasDato = useMemo<RutaDato[]>(() => buildRutas(rutas), [rutas]);
+  const rings = useMemo(() => [{ lat: origen.lat, lng: origen.lng }], [origen]);
+
+  // --- Cargar fronteras/continentes (lazy) --------------------------------
   useEffect(() => {
     let vivo = true;
     fetch("/globe/countries-110m.geojson")
@@ -115,7 +191,7 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     };
   }, []);
 
-  // --- Dimensionar con ResizeObserver (debounce 150 ms) -------------------
+  // --- ResizeObserver (debounce 150 ms) -----------------------------------
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -133,51 +209,18 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     };
   }, []);
 
-  // --- Acciones de clic (vía ref para no recrear los marcadores HTML) -----
-  const volverAlGeneral = useCallback(() => {
+  // --- Clic en un marcador → zambullida + avisar a la sección -------------
+  const handlePointClick = useCallback((pt: PuntoDato) => {
     const g = globeRef.current;
     if (!g) return;
-    g.pointOfView(POV_GENERAL, 1000);
-    g.controls().autoRotate = quality.autorotar;
-  }, [quality.autorotar]);
-
-  const abrir = useCallback(
-    (refId: string) => {
-      const d = destinoMap.get(refId);
-      if (d) {
-        if (d.paqueteId) openPackage(d.paqueteId);
-        else {
-          window.open(waLink(`Hola Vuela Fácil, quiero cotizar un viaje a ${d.nombre}.`), "_blank", "noopener");
-          timers.current.push(window.setTimeout(volverAlGeneral, 600));
-        }
-        return;
-      }
-      const c = RUTAS_CRUCERO.find((r) => r.id === refId);
-      if (c) {
-        if (c.paqueteId) openPackage(c.paqueteId);
-        else {
-          window.open(waLink(`Hola Vuela Fácil, quiero cotizar el ${c.nombre}.`), "_blank", "noopener");
-          timers.current.push(window.setTimeout(volverAlGeneral, 600));
-        }
-      }
-    },
-    [destinoMap, openPackage, volverAlGeneral],
-  );
-
-  const handlePointClick = useCallback(
-    (pt: PuntoDato) => {
-      const g = globeRef.current;
-      if (!g) return;
-      if (pt.tipo === "origen") {
-        g.pointOfView(POV_GENERAL, 900);
-        return;
-      }
-      g.controls().autoRotate = false;
-      g.pointOfView({ lat: pt.lat, lng: pt.lng, altitude: POV_ZOOM_ALT }, 1100);
-      if (pt.refId) timers.current.push(window.setTimeout(() => abrir(pt.refId as string), 750));
-    },
-    [abrir],
-  );
+    if (pt.tipo === "origen") {
+      g.pointOfView(POV_GENERAL, 900);
+      return;
+    }
+    g.controls().autoRotate = false;
+    g.pointOfView({ lat: pt.lat, lng: pt.lng, altitude: POV_ZOOM_ALT }, 1100);
+    if (pt.refId) onSelectRef.current?.(pt.refId, pt.tipo === "puerto" ? "puerto" : "destino");
+  }, []);
   const clickRef = useRef(handlePointClick);
   clickRef.current = handlePointClick;
 
@@ -204,20 +247,20 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
       e.stopPropagation();
       clickRef.current(pt);
     });
-    markerMap.current.set(pt, el);
+    if (pt.tipo === "destino" && pt.refId) {
+      el.addEventListener("mouseenter", () => onHoverRef.current?.(pt.refId!));
+      el.addEventListener("mouseleave", () => onHoverRef.current?.(null));
+    }
+    markerByKey.current.set(pt.key, el);
     return el;
   }, []);
 
   // --- Setup imperativo al estar listo ------------------------------------
-  const autorotarRef = useRef(quality.autorotar);
-  autorotarRef.current = quality.autorotar;
-
   const handleReady = useCallback(() => {
     const g = globeRef.current;
     if (!g) return;
     injectCSS();
 
-    // Iluminación suave (reemplaza la default) para que lea como esfera; sin sombras.
     const hemi = new THREE.HemisphereLight(0xbcd4ff, 0x081428, 0.95);
     const dir = new THREE.DirectionalLight(0xffffff, 0.35);
     dir.position.set(1, 0.5, 0.8);
@@ -229,7 +272,7 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
 
     g.pointOfView(POV_GENERAL, 0);
     const c = g.controls();
-    c.enableZoom = !coarse; // desktop: zoom con rueda; móvil: revelado por cercanía
+    c.enableZoom = !coarse;
     c.enableDamping = true;
     c.dampingFactor = 0.08;
     c.autoRotate = true;
@@ -237,7 +280,6 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     c.minDistance = 140;
     c.maxDistance = 420;
 
-    // Pausar autorotación mientras el usuario interactúa; reanudar al soltar.
     c.addEventListener("start", () => {
       if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
       c.autoRotate = false;
@@ -245,7 +287,7 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     c.addEventListener("end", () => {
       if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
       resumeTimer.current = window.setTimeout(() => {
-        if (!activePackageId) c.autoRotate = autorotarRef.current;
+        if (!pausadoRef.current) c.autoRotate = autorotarRef.current;
       }, 3500);
     });
 
@@ -255,7 +297,43 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onReady]);
 
-  // --- Móvil: revelar la etiqueta del destino que queda al frente ---------
+  // --- Comando imperativo de cámara ---------------------------------------
+  useEffect(() => {
+    const g = globeRef.current;
+    if (!g || !ready || !comando) return;
+    if (comando.kind === "fly") {
+      g.controls().autoRotate = false;
+      g.pointOfView({ lat: comando.lat, lng: comando.lng, altitude: comando.alt }, 1000);
+    } else if (comando.kind === "colombia") {
+      g.controls().autoRotate = false;
+      g.pointOfView(POV_COLOMBIA, 1200);
+    } else if (comando.kind === "reset") {
+      g.pointOfView(POV_GENERAL, 1000);
+      g.controls().autoRotate = autorotarRef.current;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comandoNonce, ready]);
+
+  // --- Highlight sincronizado (rail → globo) ------------------------------
+  useEffect(() => {
+    const prev = prevSelKey.current;
+    if (prev) markerByKey.current.get(prev)?.classList.remove("sel");
+    const k = activoId ? `d:${activoId}` : null;
+    if (k) markerByKey.current.get(k)?.classList.add("sel");
+    prevSelKey.current = k;
+  }, [activoId, puntos]);
+
+  // --- Revelado de labels por zoom (desktop) ------------------------------
+  const onZoom = useCallback((pov: { altitude: number }) => {
+    const cerca = pov.altitude < 1.3;
+    if (cerca === cercaRef.current) return;
+    cercaRef.current = cerca;
+    for (const [k, el] of markerByKey.current) {
+      if (k.startsWith("d:")) el.classList.toggle("cerca", cerca);
+    }
+  }, []);
+
+  // --- Móvil: revelar la etiqueta del destino al frente -------------------
   useEffect(() => {
     if (!ready || !inView || !coarseRef.current) return;
     const id = window.setInterval(() => {
@@ -266,7 +344,7 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
       let best: PuntoDato | null = null;
       let bestCos = -1;
       for (const pt of puntos) {
-        if (pt.tipo === "puerto") continue; // solo destinos/origen revelan ref
+        if (pt.tipo === "puerto") continue;
         const p = g.getCoords(pt.lat, pt.lng);
         const len = Math.hypot(p.x, p.y, p.z) || 1;
         const cos = (p.x * cam.x + p.y * cam.y + p.z * cam.z) / (len * camLen);
@@ -275,20 +353,76 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
           best = pt;
         }
       }
-      for (const [pt, el] of markerMap.current) {
-        if (pt.tipo === "origen") continue; // Pereira siempre etiquetada
-        el.classList.toggle("activo", pt === best && bestCos > 0.55);
+      for (const pt of puntos) {
+        if (pt.tipo === "origen") continue;
+        markerByKey.current.get(pt.key)?.classList.toggle("activo", pt === best && bestCos > 0.55);
       }
     }, 220);
     return () => window.clearInterval(id);
   }, [ready, inView, puntos]);
 
-  // --- Restaurar la vista al cerrar el modal ------------------------------
-  const prevActive = useRef<string | null>(activePackageId);
+  // --- Reveal escalonado de arcos ("rutas encendiéndose") -----------------
   useEffect(() => {
-    if (prevActive.current && !activePackageId && ready) volverAlGeneral();
-    prevActive.current = activePackageId;
-  }, [activePackageId, ready, volverAlGeneral]);
+    if (!ready || !inView) return;
+    setArcosMostrados(0);
+    let n = 0;
+    const id = window.setInterval(() => {
+      n += 1;
+      setArcosMostrados(n);
+      if (n >= arcos.length) window.clearInterval(id);
+    }, 120);
+    return () => window.clearInterval(id);
+  }, [arcos, ready, inView]);
+
+  // --- Avión recorriendo el arco del destino activo -----------------------
+  useEffect(() => {
+    const g = globeRef.current;
+    if (!g || !ready) return;
+
+    const teardown = () => {
+      if (planeRef.current) {
+        cancelAnimationFrame(planeRef.current.raf);
+        const { sprite } = planeRef.current;
+        g.scene().remove(sprite);
+        (sprite.material.map as THREE.Texture | null)?.dispose();
+        sprite.material.dispose();
+        planeRef.current = null;
+      }
+    };
+    teardown();
+
+    const destino = avionId ? destinos.find((d) => d.id === avionId) : null;
+    const ruta = avionId ? rutas.find((r) => r.id === avionId) : null;
+    const to: Coord | null = destino
+      ? { nombre: destino.nombre, lat: destino.lat, lng: destino.lng }
+      : ruta
+        ? ruta.embarque
+        : null;
+    if (!to || !quality.arcosAnimados) return teardown;
+
+    const tex = makePlaneTexture();
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+    const sprite = new THREE.Sprite(mat);
+    const r = g.getGlobeRadius();
+    sprite.scale.setScalar(r * 0.07);
+    g.scene().add(sprite);
+
+    const dur = 4200;
+    let start = performance.now();
+    const tick = (now: number) => {
+      const t = ((now - start) % dur) / dur;
+      const lat = origen.lat + (to.lat - origen.lat) * t;
+      const lng = origen.lng + (to.lng - origen.lng) * t;
+      const alt = Math.sin(t * Math.PI) * 0.45; // joroba del arco
+      const p = g.getCoords(lat, lng, alt);
+      sprite.position.set(p.x, p.y, p.z);
+      planeRef.current!.raf = requestAnimationFrame(tick);
+    };
+    planeRef.current = { sprite, raf: requestAnimationFrame(tick) };
+    void start;
+
+    return teardown;
+  }, [avionId, ready, destinos, rutas, origen, quality.arcosAnimados]);
 
   // --- Pausar/reanudar render (viewport + pestaña) ------------------------
   useEffect(() => {
@@ -308,21 +442,27 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     const g = globeRef.current;
     if (!g || !ready) return;
     g.renderer().setPixelRatio(quality.dpr);
-    g.controls().autoRotate = quality.autorotar && !activePackageId;
-  }, [quality.dpr, quality.autorotar, ready, activePackageId]);
+    g.controls().autoRotate = quality.autorotar && !pausado;
+  }, [quality.dpr, quality.autorotar, ready, pausado]);
 
   // --- Limpieza ------------------------------------------------------------
   useEffect(() => {
     const pending = timers.current;
+    const plane = planeRef;
     return () => {
       pending.forEach((id) => window.clearTimeout(id));
       if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
+      if (plane.current) {
+        cancelAnimationFrame(plane.current.raf);
+        (plane.current.sprite.material.map as THREE.Texture | null)?.dispose();
+        plane.current.sprite.material.dispose();
+      }
       globeMaterial.dispose();
     };
   }, [globeMaterial]);
 
   return (
-    <div ref={wrapRef} className="absolute inset-0">
+    <div ref={wrapRef} className="absolute inset-0" aria-hidden="true">
       {size.w > 0 && (
         <Globe
           ref={globeRef}
@@ -335,15 +475,16 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
           atmosphereColor={COLOR.coral}
           atmosphereAltitude={0.15}
           onGlobeReady={handleReady}
-          // Continentes en hexágonos ivory (estilo cartográfico, no textura real)
+          onZoom={onZoom}
+          // Continentes en hexágonos ivory
           hexPolygonsData={paises}
           hexPolygonResolution={3}
           hexPolygonMargin={0.3}
           hexPolygonAltitude={0.005}
           hexPolygonColor={hexColor}
           hexPolygonsTransitionDuration={0}
-          // Arcos de vuelo
-          arcsData={arcs}
+          // Arcos de vuelo (reveal escalonado)
+          arcsData={arcos.slice(0, arcosMostrados)}
           arcStartLat="startLat"
           arcStartLng="startLng"
           arcEndLat="endLat"
@@ -353,9 +494,9 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
           arcDashLength={0.4}
           arcDashGap={0.2}
           arcDashAnimateTime={quality.arcosAnimados ? 2500 : 0}
-          arcsTransitionDuration={0}
+          arcsTransitionDuration={700}
           // Rutas de crucero
-          pathsData={rutas}
+          pathsData={rutasDato}
           pathPoints="coords"
           pathPointLat={(p) => (p as number[])[0]}
           pathPointLng={(p) => (p as number[])[1]}
@@ -365,7 +506,7 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
           pathDashGap={0.25}
           pathDashAnimateTime={quality.arcosAnimados ? 4000 : 0}
           pathTransitionDuration={0}
-          // Marcadores HTML (origen, destinos, puertos)
+          // Marcadores HTML
           htmlElementsData={puntos}
           htmlLat="lat"
           htmlLng="lng"
@@ -375,7 +516,7 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
             el.style.opacity = isVisible ? "1" : "0";
             el.style.pointerEvents = isVisible ? "auto" : "none";
           }}
-          // Pulso en Pereira
+          // Pulso en el origen
           ringsData={quality.efectos ? rings : []}
           ringLat="lat"
           ringLng="lng"

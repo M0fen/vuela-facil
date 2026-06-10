@@ -38,8 +38,24 @@ export interface RutaCrucero {
   puertos: Coord[];
 }
 
-/** Pereira: origen de todos los vuelos. */
+/** Pereira: origen por defecto de los vuelos. */
 export const ORIGEN: Coord = { nombre: "Pereira", lat: 4.8133, lng: -75.6961 };
+
+/** Orígenes de vuelo seleccionables ("Volar desde"). */
+export const ORIGENES: { id: string; nombre: string; lat: number; lng: number }[] = [
+  { id: "pereira", nombre: "Pereira", lat: 4.8133, lng: -75.6961 },
+  { id: "bogota", nombre: "Bogotá", lat: 4.711, lng: -74.0721 },
+  { id: "medellin", nombre: "Medellín", lat: 6.2442, lng: -75.5812 },
+];
+
+/** Encuadre para "Ver destinos en Colombia" (separa el racimo). */
+export const POV_COLOMBIA = { lat: 4.6, lng: -73.8, altitude: 1.0 } as const;
+
+/** Comando imperativo de cámara que la sección envía al globo. */
+export type ComandoGlobo =
+  | { kind: "fly"; lat: number; lng: number; alt: number }
+  | { kind: "colombia" }
+  | { kind: "reset" };
 
 // --- Colores de marca por tipo (tokens de @theme) --------------------------
 
@@ -91,12 +107,14 @@ export interface ArcoDato {
 }
 
 export interface PuntoDato {
+  /** Clave única estable (para mapear marcador↔DOM sin colisiones). */
+  key: string;
   lat: number;
   lng: number;
   size: number;
   color: string;
   tipo: "origen" | "destino" | "puerto";
-  /** id del destino o del crucero (para clic); ausente solo en el origen. */
+  /** id del destino o del crucero (para clic/highlight); ausente solo en el origen. */
   refId?: string;
   label: string;
   destacado?: boolean;
@@ -109,11 +127,11 @@ export interface RutaDato {
   refId: string;
 }
 
-/** Arcos ORIGEN→destino (vuelos). */
-export function buildArcos(destinos: Destino[]): ArcoDato[] {
+/** Arcos origen→destino (vuelos). El origen es configurable ("Volar desde"). */
+export function buildArcos(destinos: Destino[], origen: Coord = ORIGEN): ArcoDato[] {
   return destinos.map((d) => ({
-    startLat: ORIGEN.lat,
-    startLng: ORIGEN.lng,
+    startLat: origen.lat,
+    startLng: origen.lng,
     endLat: d.lat,
     endLng: d.lng,
     color: [COLOR.coral, colorDestino(d.tipo)],
@@ -121,11 +139,11 @@ export function buildArcos(destinos: Destino[]): ArcoDato[] {
   }));
 }
 
-/** Arco ORIGEN→embarque para cada crucero (el viaje en avión al puerto). */
-export function buildArcosCrucero(rutas: RutaCrucero[]): ArcoDato[] {
+/** Arco origen→embarque para cada crucero (el viaje en avión al puerto). */
+export function buildArcosCrucero(rutas: RutaCrucero[], origen: Coord = ORIGEN): ArcoDato[] {
   return rutas.map((r) => ({
-    startLat: ORIGEN.lat,
-    startLng: ORIGEN.lng,
+    startLat: origen.lat,
+    startLng: origen.lng,
     endLat: r.embarque.lat,
     endLng: r.embarque.lng,
     color: [COLOR.coral, COLOR.amber],
@@ -133,20 +151,26 @@ export function buildArcosCrucero(rutas: RutaCrucero[]): ArcoDato[] {
   }));
 }
 
-/** Puntos: origen (Pereira), destinos y puertos de crucero. */
-export function buildPuntos(destinos: Destino[], rutas: RutaCrucero[]): PuntoDato[] {
+/** Puntos: origen, destinos y puertos de crucero. */
+export function buildPuntos(
+  destinos: Destino[],
+  rutas: RutaCrucero[],
+  origen: Coord = ORIGEN,
+): PuntoDato[] {
   const puntos: PuntoDato[] = [
     {
-      lat: ORIGEN.lat,
-      lng: ORIGEN.lng,
+      key: "origen",
+      lat: origen.lat,
+      lng: origen.lng,
       size: 0.9,
       color: COLOR.coral,
       tipo: "origen",
-      label: ORIGEN.nombre,
+      label: origen.nombre,
     },
   ];
   for (const d of destinos) {
     puntos.push({
+      key: `d:${d.id}`,
       lat: d.lat,
       lng: d.lng,
       size: d.destacado ? 0.7 : 0.5,
@@ -158,8 +182,9 @@ export function buildPuntos(destinos: Destino[], rutas: RutaCrucero[]): PuntoDat
     });
   }
   for (const r of rutas) {
-    for (const p of r.puertos) {
+    r.puertos.forEach((p, i) => {
       puntos.push({
+        key: `p:${r.id}:${i}`,
         lat: p.lat,
         lng: p.lng,
         size: 0.35,
@@ -168,7 +193,7 @@ export function buildPuntos(destinos: Destino[], rutas: RutaCrucero[]): PuntoDat
         refId: r.id, // clic en un puerto → abre el crucero
         label: p.nombre,
       });
-    }
+    });
   }
   return puntos;
 }
