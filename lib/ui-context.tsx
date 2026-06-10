@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Categoria } from "./types";
+import { recordVisto } from "./vistos";
 
 export type Filtro = "Todos" | Categoria;
 
@@ -27,7 +28,10 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [filtro, setFiltro] = useState<Filtro>("Todos");
   const [activePackageId, setActivePackageId] = useState<string | null>(null);
 
-  const openPackage = useCallback((id: string) => setActivePackageId(id), []);
+  const openPackage = useCallback((id: string) => {
+    recordVisto(id);
+    setActivePackageId(id);
+  }, []);
 
   const closePackage = useCallback(() => setActivePackageId(null), []);
 

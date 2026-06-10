@@ -3,6 +3,9 @@ import { Hero } from "@/components/Hero";
 import { TrustBar } from "@/components/TrustBar";
 import { Categorias } from "@/components/Categorias";
 import { Paquetes } from "@/components/Paquetes";
+import { Quiz } from "@/components/Quiz";
+import { RecomendadosTemporada } from "@/components/RecomendadosTemporada";
+import { VistosRecientemente } from "@/components/VistosRecientemente";
 import { OfferBanner } from "@/components/OfferBanner";
 import { Confianza } from "@/components/Confianza";
 import { Testimonios } from "@/components/Testimonios";
@@ -29,10 +32,13 @@ export default async function Home() {
         <Hero />
         <TrustBar />
         <Categorias />
+        <Quiz paquetes={paquetes} />
         <Paquetes paquetes={paquetes} />
         <OfferBanner promo={promo} />
         <Confianza />
+        <RecomendadosTemporada paquetes={paquetes} />
         <Testimonios testimonios={testimonios} />
+        <VistosRecientemente paquetes={paquetes} />
         <StoryEjeCafetero />
         <CapturaContacto />
       </main>

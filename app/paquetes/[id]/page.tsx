@@ -8,6 +8,9 @@ import { FloatingWA } from "@/components/FloatingWA";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { Icon } from "@/components/icons";
 import { Stars } from "@/components/ui";
+import { PackageMini } from "@/components/PackageMini";
+import { VistosRecientemente } from "@/components/VistosRecientemente";
+import { TrackView } from "@/components/TrackView";
 import { NEGOCIO } from "@/lib/data";
 import { getPaquete, getPaquetes, getTestimonios } from "@/lib/store";
 import {
@@ -61,6 +64,19 @@ export default async function PaquetePage({
   if (!pkg) notFound();
 
   const testimonios = await getTestimonios();
+  const todos = await getPaquetes();
+
+  // "También te puede gustar": misma categoría primero, luego mejor calificados.
+  const otros = todos.filter((p) => p.id !== pkg.id);
+  const mismaCat = otros
+    .filter((p) => p.categoria === pkg.categoria)
+    .sort((a, b) => b.calificacion - a.calificacion);
+  const relacionados = (
+    mismaCat.length >= 3
+      ? mismaCat
+      : [...mismaCat, ...otros.filter((p) => p.categoria !== pkg.categoria).sort((a, b) => b.calificacion - a.calificacion)]
+  ).slice(0, 3);
+
   const galeria = galeriaDe(pkg);
   const resumen = resumenDe(pkg);
   const itinerario = itinerarioDe(pkg);
@@ -414,8 +430,24 @@ export default async function PaquetePage({
             </div>
           </aside>
         </div>
+
+        {/* También te puede gustar */}
+        {relacionados.length > 0 && (
+          <section className="max-w-[1100px] mx-auto px-5 md:px-8 pb-4">
+            <h2 className="font-serif text-navy text-[24px] md:text-[28px] mb-5">
+              También te puede gustar
+            </h2>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {relacionados.map((p) => (
+                <PackageMini key={p.id} p={p} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
+      <VistosRecientemente paquetes={todos} excluir={pkg.id} />
+      <TrackView id={pkg.id} />
       <Footer />
       <FloatingWA />
       <StickyWhatsApp />
