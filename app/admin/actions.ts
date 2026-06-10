@@ -17,7 +17,7 @@ import {
 } from "@/lib/store";
 import { requireAdmin } from "./guard";
 
-const ESTADOS_RESERVA: EstadoReserva[] = ["pendiente", "confirmada", "cancelada"];
+const ESTADOS_RESERVA: EstadoReserva[] = ["pendiente", "en_proceso", "confirmada", "cancelada"];
 
 const CATEGORIAS: Categoria[] = [
   "Playa",
@@ -217,4 +217,16 @@ export async function deleteReservaAction(formData: FormData): Promise<void> {
   await requireAdmin();
   await deleteReserva(str(formData, "id"));
   redirect("/admin/reservas");
+}
+
+/** Cambio rápido de estado desde la lista (sin tocar las notas). */
+export async function cambiarEstadoReservaAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  const estadoRaw = str(formData, "estado") as EstadoReserva;
+  if (ESTADOS_RESERVA.includes(estadoRaw)) {
+    await updateReserva(id, { estado: estadoRaw });
+  }
+  const from = str(formData, "from");
+  redirect(from.startsWith("/admin/reservas") ? from : "/admin/reservas");
 }

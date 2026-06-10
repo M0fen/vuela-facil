@@ -1,8 +1,18 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import type { EstadoReserva } from "@/lib/types";
 
+export const ESTADOS: EstadoReserva[] = ["pendiente", "en_proceso", "confirmada", "cancelada"];
+
+export const ESTADO_LABEL: Record<EstadoReserva, string> = {
+  pendiente: "Pendiente",
+  en_proceso: "En proceso",
+  confirmada: "Confirmada",
+  cancelada: "Cancelada",
+};
+
 const ESTADO_STYLES: Record<EstadoReserva, string> = {
   pendiente: "bg-amber/15 text-[#b8730a] border-amber/30",
+  en_proceso: "bg-sky/15 text-[#2b6ea3] border-sky/30",
   confirmada: "bg-emerald/10 text-emerald-700 border-emerald/30",
   cancelada: "bg-coral/10 text-coral border-coral/30",
 };
@@ -10,10 +20,31 @@ const ESTADO_STYLES: Record<EstadoReserva, string> = {
 export function EstadoBadge({ estado }: { estado: EstadoReserva }) {
   return (
     <span
-      className={`inline-flex px-2.5 py-0.5 rounded-full border text-[11px] font-semibold capitalize ${ESTADO_STYLES[estado]}`}
+      className={`inline-flex px-2.5 py-0.5 rounded-full border text-[11px] font-semibold ${ESTADO_STYLES[estado]}`}
     >
-      {estado}
+      {ESTADO_LABEL[estado]}
     </span>
+  );
+}
+
+export function EstadoSelect({
+  defaultValue,
+  name = "estado",
+}: {
+  defaultValue?: EstadoReserva;
+  name?: string;
+}) {
+  return (
+    <label className="block">
+      <span className={labelCls}>Estado</span>
+      <select name={name} defaultValue={defaultValue} className={inputCls}>
+        {ESTADOS.map((e) => (
+          <option key={e} value={e}>
+            {ESTADO_LABEL[e]}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 

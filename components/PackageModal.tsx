@@ -51,13 +51,21 @@ export function PackageModal({ paquetes }: { paquetes: Paquete[] }) {
 
   const total = pkg.precio * travelers;
   const fechaSel = pkg.salidas[selectedDate] || pkg.salidas[0];
-  const waMsg = `Hola Vuela Fácil 👋
-Quiero RESERVAR el paquete:
-${nombre.trim() ? `👤 ${nombre.trim()}\n` : ""}✈️ *${pkg.destino}* (${pkg.duracion})
-📅 Salida: ${fechaSel}
-👥 Viajeros: ${travelers}
-💰 Total estimado: ${formatCOP(total)}
-Ref: ${pkg.id}`;
+  const waMsg = `✈️ *Vuela Fácil Travel*
+_Solicitud de reserva_
+
+Hola, quiero reservar este plan:
+
+*${pkg.destino}*
+${pkg.duracion}
+
+• Cliente: ${nombre.trim() || "—"}
+• Salida: ${fechaSel}
+• Viajeros: ${travelers}
+• Total estimado: ${formatCOP(total)}
+• Referencia: ${pkg.id}
+
+Quedo atento(a) a la confirmación. ¡Gracias!`;
 
   const puedeReservar = nombre.trim().length > 1 && telefono.trim().length >= 7;
 

@@ -4,7 +4,7 @@ import { Icon } from "@/components/icons";
 import { getReserva } from "@/lib/store";
 import { formatCOP } from "@/lib/utils";
 import { updateReservaAction, deleteReservaAction } from "../../../actions";
-import { Card, Area, Select, EstadoBadge, btnPrimary, btnDanger } from "../../ui";
+import { Card, Area, EstadoBadge, EstadoSelect, btnPrimary, btnDanger } from "../../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -71,12 +71,7 @@ export default async function ReservaDetalle({
           <Card title="Notas internas y estado" icon={Icon.Shield}>
             <form action={updateReservaAction} className="space-y-4">
               <input type="hidden" name="id" value={r.id} />
-              <Select
-                label="Estado"
-                name="estado"
-                options={["pendiente", "confirmada", "cancelada"]}
-                defaultValue={r.estado}
-              />
+              <EstadoSelect defaultValue={r.estado} />
               <Area
                 label="Notas del asesor (privadas)"
                 name="notas"

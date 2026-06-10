@@ -77,10 +77,17 @@ export function faqsDe(p: Paquete): FAQ[] {
 
 /** Mensaje de WhatsApp con el resumen del viaje prellenado para el asesor. */
 export function resumenWhatsApp(p: Paquete): string {
-  return `Hola Vuela Fácil 👋
-Quiero cotizar el paquete:
-✈️ *${p.destino}* (${p.duracion})
-💰 Desde ${formatCOP(p.precio)} por persona
-📅 Salidas: ${p.salidas.join(", ")}
-Ref: ${p.id}`;
+  return `✈️ *Vuela Fácil Travel*
+_Solicitud de cotización_
+
+Hola, quiero cotizar este plan:
+
+*${p.destino}*
+${p.duracion}
+
+• Desde: ${formatCOP(p.precio)} por persona
+• Salidas: ${p.salidas.join(", ")}
+• Referencia: ${p.id}
+
+Quedo atento(a) a la información. ¡Gracias!`;
 }

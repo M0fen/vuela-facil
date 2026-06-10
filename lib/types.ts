@@ -60,7 +60,7 @@ export interface Lead {
   createdAt: string;
 }
 
-export type EstadoReserva = "pendiente" | "confirmada" | "cancelada";
+export type EstadoReserva = "pendiente" | "en_proceso" | "confirmada" | "cancelada";
 
 export interface Reserva {
   id: string;

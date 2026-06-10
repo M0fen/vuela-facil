@@ -3,13 +3,15 @@ import { Icon } from "@/components/icons";
 import type { EstadoReserva } from "@/lib/types";
 import { listReservas } from "@/lib/store";
 import { formatCOP } from "@/lib/utils";
-import { PageHeader, EstadoBadge } from "../ui";
+import { cambiarEstadoReservaAction } from "../../actions";
+import { PageHeader, EstadoBadge, ESTADOS, ESTADO_LABEL } from "../ui";
 
 export const dynamic = "force-dynamic";
 
 const FILTROS: { label: string; value: string }[] = [
   { label: "Todas", value: "todas" },
   { label: "Pendientes", value: "pendiente" },
+  { label: "En proceso", value: "en_proceso" },
   { label: "Confirmadas", value: "confirmada" },
   { label: "Canceladas", value: "cancelada" },
 ];
@@ -31,6 +33,7 @@ export default async function ReservasAdmin({
   const todas = await listReservas();
   const activo = estado && FILTROS.some((f) => f.value === estado) ? estado : "todas";
   const reservas = activo === "todas" ? todas : todas.filter((r) => r.estado === activo);
+  const fromUrl = activo === "todas" ? "/admin/reservas" : `/admin/reservas?estado=${activo}`;
 
   const conteo = (e: EstadoReserva) => todas.filter((r) => r.estado === e).length;
 
@@ -70,36 +73,66 @@ export default async function ReservasAdmin({
           <span className="inline-flex w-12 h-12 rounded-2xl bg-coral/10 text-coral items-center justify-center mb-3">
             <Icon.Calendar className="w-6 h-6" />
           </span>
-          <p className="text-navy/55 text-[14px]">
-            No hay reservas {activo !== "todas" ? `${activo}s` : "todavía"}.
-          </p>
+          <p className="text-navy/55 text-[14px]">No hay reservas en esta vista.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {reservas.map((r) => (
-            <Link
+            <div
               key={r.id}
-              href={`/admin/reservas/${r.id}`}
-              className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-navy/8 shadow-[0_1px_0_rgba(13,44,84,0.04)] hover:border-coral/30 hover:shadow-[0_12px_30px_-24px_rgba(13,44,84,0.4)] transition-all"
+              className="p-4 rounded-2xl bg-white border border-navy/8 shadow-[0_1px_0_rgba(13,44,84,0.04)]"
             >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-serif text-navy text-[16px]">{r.destino}</span>
-                  <EstadoBadge estado={r.estado} />
+              <div className="flex items-start gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-serif text-navy text-[16px]">{r.destino}</span>
+                    <EstadoBadge estado={r.estado} />
+                  </div>
+                  <div className="text-[12px] text-navy/55 mt-1">
+                    {r.nombre} · {r.telefono} · {r.viajeros}{" "}
+                    {r.viajeros === 1 ? "viajero" : "viajeros"} · salida {r.fecha}
+                  </div>
                 </div>
-                <div className="text-[12px] text-navy/55 mt-1">
-                  {r.nombre} · {r.telefono} · {r.viajeros}{" "}
-                  {r.viajeros === 1 ? "viajero" : "viajeros"} · salida {r.fecha}
+                <div className="text-right shrink-0">
+                  <div className="font-semibold text-navy text-[14px]">
+                    {formatCOP(r.totalEstimado)}
+                  </div>
+                  <div className="text-[11px] text-navy/45">{fechaCorta(r.createdAt)}</div>
                 </div>
               </div>
-              <div className="text-right shrink-0">
-                <div className="font-semibold text-navy text-[14px]">
-                  {formatCOP(r.totalEstimado)}
+
+              <div className="mt-3 pt-3 border-t border-navy/8 flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[11px] text-navy/40 mr-1">Marcar:</span>
+                  {ESTADOS.map((e) => {
+                    const activoEstado = r.estado === e;
+                    return (
+                      <form key={e} action={cambiarEstadoReservaAction}>
+                        <input type="hidden" name="id" value={r.id} />
+                        <input type="hidden" name="estado" value={e} />
+                        <input type="hidden" name="from" value={fromUrl} />
+                        <button
+                          disabled={activoEstado}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-colors ${
+                            activoEstado
+                              ? "bg-navy text-white border-navy cursor-default"
+                              : "bg-white text-navy/60 border-navy/15 hover:border-navy hover:text-navy"
+                          }`}
+                        >
+                          {ESTADO_LABEL[e]}
+                        </button>
+                      </form>
+                    );
+                  })}
                 </div>
-                <div className="text-[11px] text-navy/45">{fechaCorta(r.createdAt)}</div>
+                <Link
+                  href={`/admin/reservas/${r.id}`}
+                  className="inline-flex items-center gap-1 text-coral text-[12px] font-semibold hover:gap-2 transition-all"
+                >
+                  Ver detalle <Icon.Arrow className="w-3.5 h-3.5" />
+                </Link>
               </div>
-              <Icon.Arrow className="w-4 h-4 text-navy/25 shrink-0" />
-            </Link>
+            </div>
           ))}
         </div>
       )}
