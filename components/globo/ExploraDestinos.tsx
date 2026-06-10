@@ -226,7 +226,7 @@ export function ExploraDestinos({
               role="group"
               aria-label="Origen del vuelo"
             >
-              <span className="px-2 text-[12px] text-ivory/50 self-center">Volar desde</span>
+              <span className="px-2 text-[12px] text-ivory/70 self-center">Volar desde</span>
               {ORIGENES.map((o) => (
                 <button
                   key={o.id}
@@ -290,7 +290,7 @@ export function ExploraDestinos({
               </button>
             )}
 
-            <p className="absolute bottom-3 left-0 right-0 text-center text-ivory/55 text-[11px] tracking-wide pointer-events-none">
+            <p className="absolute bottom-3 left-0 right-0 text-center text-ivory/70 text-[11px] tracking-wide pointer-events-none">
               {!puedeGlobo
                 ? "Toca un destino en la lista"
                 : globoListo
@@ -422,7 +422,7 @@ function RailCard({
         )}
       </div>
       <div className="font-serif text-ivory text-[17px] leading-tight mt-1.5">{nombre}</div>
-      <div className="text-ivory/55 text-[12px]">{pais}</div>
+      <div className="text-ivory/70 text-[12px]">{pais}</div>
       <div className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-semibold text-coral">
         {cta}
         <Icon.Arrow className="w-3.5 h-3.5 transition group-hover:translate-x-0.5" />

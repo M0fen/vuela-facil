@@ -14,7 +14,15 @@
 // calidad adaptativa y dispose en unmount.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import * as THREE from "three";
+import {
+  CanvasTexture,
+  Color,
+  DirectionalLight,
+  HemisphereLight,
+  MeshPhongMaterial,
+  Sprite,
+  SpriteMaterial,
+} from "three";
 import Globe, { type GlobeMethods } from "react-globe.gl";
 import {
   type ArcoDato,
@@ -65,7 +73,7 @@ const MARKER_CSS = `
 .vf-mk.sel .vf-mk-dot{transform:scale(1.3);box-shadow:0 0 0 6px rgba(232,99,26,.28),0 0 22px var(--c)}
 .vf-mk-label{position:absolute;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%) translateY(4px);white-space:nowrap;background:rgba(13,44,84,.94);color:#f7f3ec;font:600 12px/1.1 Fraunces,Georgia,serif;letter-spacing:.01em;padding:5px 10px;border-radius:9999px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;box-shadow:0 8px 22px rgba(0,0,0,.42)}
 .vf-mk-label::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:rgba(13,44,84,.94)}
-.vf-mk:hover .vf-mk-label,.vf-mk.activo .vf-mk-label,.vf-mk.cerca .vf-mk-label,.vf-mk.sel .vf-mk-label,.vf-mk.origen .vf-mk-label{opacity:1;transform:translateX(-50%) translateY(0)}
+.vf-mk:hover .vf-mk-label,.vf-mk.activo .vf-mk-label,.vf-mk.sel .vf-mk-label,.vf-mk.origen .vf-mk-label{opacity:1;transform:translateX(-50%) translateY(0)}
 .vf-mk.origen .vf-mk-dot{background:${COLOR.coral}}
 `;
 
@@ -78,7 +86,7 @@ function injectCSS() {
 }
 
 /** Textura de avión (vista superior) dibujada en canvas — sin asset externo. */
-function makePlaneTexture(): THREE.CanvasTexture {
+function makePlaneTexture(): CanvasTexture {
   const c = document.createElement("canvas");
   c.width = c.height = 64;
   const x = c.getContext("2d")!;
@@ -106,8 +114,7 @@ function makePlaneTexture(): THREE.CanvasTexture {
   x.quadraticCurveTo(-4, -12, 0, -22);
   x.closePath();
   x.fill();
-  const t = new THREE.CanvasTexture(c);
-  return t;
+  return new CanvasTexture(c);
 }
 
 export function DestinosGlobe({
@@ -131,9 +138,9 @@ export function DestinosGlobe({
   const markerByKey = useRef<Map<string, HTMLElement>>(new Map());
   const prevSelKey = useRef<string | null>(null);
   const altitudeRef = useRef(2.2);
-  const coarseRef = useRef(false);
   const resumeTimer = useRef<number | null>(null);
-  const planeRef = useRef<{ sprite: THREE.Sprite; raf: number } | null>(null);
+  const planeRef = useRef<{ sprite: Sprite; raf: number } | null>(null);
+  const planeTexRef = useRef<CanvasTexture | null>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [ready, setReady] = useState(false);
   const [paises, setPaises] = useState<object[]>([]);
@@ -144,12 +151,12 @@ export function DestinosGlobe({
   // --- Material y refs estables -------------------------------------------
   const globeMaterial = useMemo(
     () =>
-      new THREE.MeshPhongMaterial({
-        color: new THREE.Color("#0d2c54"),
-        emissive: new THREE.Color("#0a2342"),
+      new MeshPhongMaterial({
+        color: new Color("#0d2c54"),
+        emissive: new Color("#0a2342"),
         emissiveIntensity: 0.35,
         shininess: 6,
-        specular: new THREE.Color("#13386b"),
+        specular: new Color("#13386b"),
       }),
     [],
   );
@@ -278,14 +285,13 @@ export function DestinosGlobe({
     if (!g) return;
     injectCSS();
 
-    const hemi = new THREE.HemisphereLight(0xbcd4ff, 0x081428, 0.95);
-    const dir = new THREE.DirectionalLight(0xffffff, 0.35);
+    const hemi = new HemisphereLight(0xbcd4ff, 0x081428, 0.95);
+    const dir = new DirectionalLight(0xffffff, 0.35);
     dir.position.set(1, 0.5, 0.8);
     g.lights([hemi, dir]);
 
     const coarse =
-      typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
-    coarseRef.current = !!coarse;
+      typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches;
 
     g.pointOfView(POV_GENERAL, 0);
     const c = g.controls();
@@ -331,8 +337,14 @@ export function DestinosGlobe({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [comandoNonce, ready]);
 
-  // --- Highlight sincronizado (rail → globo) ------------------------------
+  // --- Highlight sincronizado (rail → globo) + poda de marcadores stale ----
   useEffect(() => {
+    // Al cambiar el set de puntos (filtro/origen), elimina del mapa los
+    // marcadores cuyos DOM ya removió la librería (evita fuga de memoria).
+    const vigentes = new Set(puntos.map((p) => p.key));
+    for (const key of markerByKey.current.keys()) {
+      if (!vigentes.has(key)) markerByKey.current.delete(key);
+    }
     const prev = prevSelKey.current;
     if (prev) markerByKey.current.get(prev)?.classList.remove("sel");
     const k = activoId ? `d:${activoId}` : null;
@@ -383,8 +395,10 @@ export function DestinosGlobe({
   }, [ready, inView, puntos]);
 
   // --- Reveal escalonado de arcos ("rutas encendiéndose") -----------------
+  // Se dispara al estar listo y al cambiar el set de arcos (filtro/origen);
+  // NO depende de inView para no re-encenderse en cada scroll.
   useEffect(() => {
-    if (!ready || !inView) return;
+    if (!ready) return;
     setArcosMostrados(0);
     let n = 0;
     const id = window.setInterval(() => {
@@ -393,7 +407,8 @@ export function DestinosGlobe({
       if (n >= arcos.length) window.clearInterval(id);
     }, 120);
     return () => window.clearInterval(id);
-  }, [arcos, ready, inView]);
+    // Sin `inView`: no re-encender los arcos cada vez que se entra/sale del scroll.
+  }, [arcos, ready]);
 
   // --- Avión recorriendo el arco del destino activo -----------------------
   useEffect(() => {
@@ -405,8 +420,7 @@ export function DestinosGlobe({
         cancelAnimationFrame(planeRef.current.raf);
         const { sprite } = planeRef.current;
         g.scene().remove(sprite);
-        (sprite.material.map as THREE.Texture | null)?.dispose();
-        sprite.material.dispose();
+        sprite.material.dispose(); // la textura es compartida → se libera al desmontar
         planeRef.current = null;
       }
     };
@@ -421,15 +435,15 @@ export function DestinosGlobe({
         : null;
     if (!to || !quality.arcosAnimados) return teardown;
 
-    const tex = makePlaneTexture();
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
-    const sprite = new THREE.Sprite(mat);
-    const r = g.getGlobeRadius();
-    sprite.scale.setScalar(r * 0.07);
+    // Textura del avión creada una sola vez y reutilizada en cada selección.
+    if (!planeTexRef.current) planeTexRef.current = makePlaneTexture();
+    const mat = new SpriteMaterial({ map: planeTexRef.current, transparent: true, depthWrite: false });
+    const sprite = new Sprite(mat);
+    sprite.scale.setScalar(g.getGlobeRadius() * 0.07);
     g.scene().add(sprite);
 
     const dur = 4200;
-    let start = performance.now();
+    const start = performance.now();
     const tick = (now: number) => {
       const t = ((now - start) % dur) / dur;
       const lat = origen.lat + (to.lat - origen.lat) * t;
@@ -440,7 +454,6 @@ export function DestinosGlobe({
       planeRef.current!.raf = requestAnimationFrame(tick);
     };
     planeRef.current = { sprite, raf: requestAnimationFrame(tick) };
-    void start;
 
     return teardown;
   }, [avionId, ready, destinos, rutas, origen, quality.arcosAnimados]);
@@ -470,14 +483,15 @@ export function DestinosGlobe({
   useEffect(() => {
     const pending = timers.current;
     const plane = planeRef;
+    const planeTex = planeTexRef;
     return () => {
       pending.forEach((id) => window.clearTimeout(id));
       if (resumeTimer.current) window.clearTimeout(resumeTimer.current);
       if (plane.current) {
         cancelAnimationFrame(plane.current.raf);
-        (plane.current.sprite.material.map as THREE.Texture | null)?.dispose();
         plane.current.sprite.material.dispose();
       }
+      planeTex.current?.dispose();
       globeMaterial.dispose();
     };
   }, [globeMaterial]);
@@ -499,7 +513,7 @@ export function DestinosGlobe({
           onZoom={onZoom}
           // Continentes en hexágonos ivory
           hexPolygonsData={paises}
-          hexPolygonResolution={quality.cap === "bajo" ? 3 : 4}
+          hexPolygonResolution={quality.cap === "alto" ? 4 : 3}
           hexPolygonMargin={0.2}
           hexPolygonAltitude={hexAltitude}
           hexPolygonColor={hexColor}

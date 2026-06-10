@@ -71,6 +71,8 @@ export function MapPicker({ initialLat, initialLng }: { initialLat?: number; ini
         });
         mapRef.current = map;
         markerRef.current = marker;
+        // El contenedor puede reflowar dentro del Card → recalcula el tamaño.
+        window.setTimeout(() => map.invalidateSize(), 200);
       })
       .catch(() => {});
     return () => {

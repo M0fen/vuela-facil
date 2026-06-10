@@ -6,12 +6,22 @@
 // de <ExploraDestinos>. No usa hooks → server-component puro, sin coste de JS.
 
 import { DESTINOS, RUTAS_CRUCERO } from "@/lib/destinos";
-import { COLOR, ORIGEN, colorDestino, proyectar } from "@/lib/geo";
+import { COLOR, MAPA_BOUNDS, ORIGEN, colorDestino, proyectar } from "@/lib/geo";
 
 const W = 1000;
 const H = 560;
 
 const o = proyectar(ORIGEN.lng, ORIGEN.lat, W, H);
+
+// El póster enmarca Américas + Europa: descarta destinos fuera del encuadre
+// (Dubái, Galápagos, etc.) para no dibujar arcos que se salen del marco.
+const DESTINOS_MAPA = DESTINOS.filter(
+  (d) =>
+    d.lng >= MAPA_BOUNDS.minLng &&
+    d.lng <= MAPA_BOUNDS.maxLng &&
+    d.lat >= MAPA_BOUNDS.minLat &&
+    d.lat <= MAPA_BOUNDS.maxLat,
+);
 
 /** Arco como curva cuadrática elevada sobre la línea recta origen→destino. */
 function arcoPath(x1: number, y1: number, x2: number, y2: number): string {
@@ -83,7 +93,7 @@ export function DestinosMapa2D({ className }: { className?: string }) {
       })}
 
       {/* Arcos de vuelo origen → destino */}
-      {DESTINOS.map((dst) => {
+      {DESTINOS_MAPA.map((dst) => {
         const p = proyectar(dst.lng, dst.lat, W, H);
         return (
           <path
@@ -99,7 +109,7 @@ export function DestinosMapa2D({ className }: { className?: string }) {
       })}
 
       {/* Puntos de destino */}
-      {DESTINOS.map((dst) => {
+      {DESTINOS_MAPA.map((dst) => {
         const p = proyectar(dst.lng, dst.lat, W, H);
         const c = colorDestino(dst.tipo);
         return (
