@@ -17,6 +17,7 @@ import { FloatingWA } from "@/components/FloatingWA";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { AIAssistant } from "@/components/AIAssistant";
 import { PackageModal } from "@/components/PackageModal";
+import { ExploraDestinos } from "@/components/globo/ExploraDestinos";
 import { getPaquetes, getPromo, getTestimonios, getGuiasPublicadas } from "@/lib/store";
 
 export default async function Home() {
@@ -33,6 +34,7 @@ export default async function Home() {
       <main>
         <Hero />
         <TrustBar />
+        <ExploraDestinos />
         <Categorias />
         <Quiz paquetes={paquetes} />
         <Paquetes paquetes={paquetes} />
