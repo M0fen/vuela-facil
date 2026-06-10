@@ -31,6 +31,7 @@ import {
   buildPuntos,
   buildRutas,
 } from "@/lib/geo";
+import { PAISES_CON_DESTINOS } from "@/lib/destinos";
 import { useAdaptiveQuality } from "@/hooks/useAdaptiveQuality";
 
 const POV_GENERAL = { lat: 8, lng: -75, altitude: 2.2 };
@@ -127,7 +128,7 @@ export function DestinosGlobe({
   const timers = useRef<number[]>([]);
   const markerByKey = useRef<Map<string, HTMLElement>>(new Map());
   const prevSelKey = useRef<string | null>(null);
-  const cercaRef = useRef(false);
+  const altitudeRef = useRef(2.2);
   const coarseRef = useRef(false);
   const resumeTimer = useRef<number | null>(null);
   const planeRef = useRef<{ sprite: THREE.Sprite; raf: number } | null>(null);
@@ -150,10 +151,18 @@ export function DestinosGlobe({
       }),
     [],
   );
+  // Realce por país: Colombia (cálida) y países con destinos brillan; resto tenue.
   const hexColor = useCallback((obj: object) => {
-    const props = (obj as { properties?: { NAME?: string; ADMIN?: string } }).properties;
-    const n = props?.NAME || props?.ADMIN || "";
-    return n === "Colombia" ? "rgba(247,243,236,0.78)" : "rgba(247,243,236,0.5)";
+    const iso = (obj as { properties?: { ISO_A3?: string } }).properties?.ISO_A3 ?? "";
+    if (iso === "COL") return "rgba(250,231,212,0.9)"; // ivory cálido (toque coral)
+    if (PAISES_CON_DESTINOS.has(iso)) return "rgba(251,247,239,0.8)";
+    return "rgba(247,243,236,0.4)";
+  }, []);
+  // "Glow" barato (sin bloom): un poco más de altura en los países con destinos.
+  const hexAltitude = useCallback((obj: object) => {
+    const iso = (obj as { properties?: { ISO_A3?: string } }).properties?.ISO_A3 ?? "";
+    if (iso === "COL") return 0.013;
+    return PAISES_CON_DESTINOS.has(iso) ? 0.008 : 0.005;
   }, []);
 
   const onHoverRef = useRef(onHover);
@@ -323,39 +332,43 @@ export function DestinosGlobe({
     prevSelKey.current = k;
   }, [activoId, puntos]);
 
-  // --- Revelado de labels por zoom (desktop) ------------------------------
+  // --- Zoom: solo registra la altitud (alimenta el declutter de labels) ---
   const onZoom = useCallback((pov: { altitude: number }) => {
-    const cerca = pov.altitude < 1.3;
-    if (cerca === cercaRef.current) return;
-    cercaRef.current = cerca;
-    for (const [k, el] of markerByKey.current) {
-      if (k.startsWith("d:")) el.classList.toggle("cerca", cerca);
-    }
+    altitudeRef.current = pov.altitude;
   }, []);
 
-  // --- Móvil: revelar la etiqueta del destino al frente -------------------
+  // --- Declutter de labels: revela los destinos del frente, con tope por
+  //     zoom y anti-solapamiento (collision). Funciona en desktop y móvil. ---
   useEffect(() => {
-    if (!ready || !inView || !coarseRef.current) return;
+    if (!ready || !inView) return;
     const id = window.setInterval(() => {
       const g = globeRef.current;
       if (!g || document.hidden) return;
       const cam = g.camera().position;
       const camLen = Math.hypot(cam.x, cam.y, cam.z) || 1;
-      let best: PuntoDato | null = null;
-      let bestCos = -1;
+      const cands: { pt: PuntoDato; cos: number; x: number; y: number }[] = [];
       for (const pt of puntos) {
-        if (pt.tipo === "puerto") continue;
+        if (pt.tipo !== "destino") continue;
         const p = g.getCoords(pt.lat, pt.lng);
         const len = Math.hypot(p.x, p.y, p.z) || 1;
         const cos = (p.x * cam.x + p.y * cam.y + p.z * cam.z) / (len * camLen);
-        if (cos > bestCos) {
-          bestCos = cos;
-          best = pt;
-        }
+        if (cos < 0.25) continue; // descarta el lado lejano del globo
+        const s = g.getScreenCoords(pt.lat, pt.lng);
+        cands.push({ pt, cos, x: s.x, y: s.y });
       }
+      cands.sort((a, b) => b.cos - a.cos); // los más centrados primero
+      const alt = altitudeRef.current;
+      const N = alt > 1.8 ? 4 : alt > 1.2 ? 7 : 12;
+      const kept: typeof cands = [];
+      for (const c of cands) {
+        if (kept.length >= N) break;
+        const choca = kept.some((k) => Math.abs(k.x - c.x) < 74 && Math.abs(k.y - c.y) < 26);
+        if (!choca) kept.push(c);
+      }
+      const keptKeys = new Set(kept.map((k) => k.pt.key));
       for (const pt of puntos) {
-        if (pt.tipo === "origen") continue;
-        markerByKey.current.get(pt.key)?.classList.toggle("activo", pt === best && bestCos > 0.55);
+        if (pt.tipo !== "destino") continue;
+        markerByKey.current.get(pt.key)?.classList.toggle("activo", keptKeys.has(pt.key));
       }
     }, 220);
     return () => window.clearInterval(id);
@@ -478,9 +491,9 @@ export function DestinosGlobe({
           onZoom={onZoom}
           // Continentes en hexágonos ivory
           hexPolygonsData={paises}
-          hexPolygonResolution={3}
-          hexPolygonMargin={0.3}
-          hexPolygonAltitude={0.005}
+          hexPolygonResolution={quality.cap === "bajo" ? 3 : 4}
+          hexPolygonMargin={0.2}
+          hexPolygonAltitude={hexAltitude}
           hexPolygonColor={hexColor}
           hexPolygonsTransitionDuration={0}
           // Arcos de vuelo (reveal escalonado)
