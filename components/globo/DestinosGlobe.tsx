@@ -14,7 +14,6 @@
 // con altitude baja) y luego abre el paquete (modal) o WhatsApp de cotización.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import * as THREE from "three";
 import Globe, { type GlobeMethods } from "react-globe.gl";
 import { useUI } from "@/lib/ui-context";
 import { waLink } from "@/lib/utils";
@@ -55,10 +54,11 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
   const rings = useMemo(() => [{ lat: ORIGEN.lat, lng: ORIGEN.lng }], []);
   const destinoMap = useMemo(() => new Map(DESTINOS.map((d) => [d.id, d])), []);
 
-  const globeMaterial = useMemo(
-    () => new THREE.MeshBasicMaterial({ color: new THREE.Color("#15315c") }),
-    [],
-  );
+  // Textura base de la Tierra: alta fidelidad (blue marble) solo en equipos
+  // potentes; en el resto (sobre todo móvil) la versión liviana de 244 KB.
+  // El relieve (bump) se omite en gama baja. El cap es estable → no recarga.
+  const baseTextura =
+    quality.cap === "alto" ? "/globe/earth-blue-marble.jpg" : "/globe/earth-day.jpg";
 
   // --- Dimensionar con ResizeObserver (debounce 150 ms) -------------------
   useEffect(() => {
@@ -184,9 +184,8 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
     const pending = timers.current;
     return () => {
       pending.forEach((id) => window.clearTimeout(id));
-      globeMaterial.dispose();
     };
-  }, [globeMaterial]);
+  }, []);
 
   return (
     <div ref={wrapRef} className="absolute inset-0">
@@ -197,10 +196,11 @@ export function DestinosGlobe({ inView, onReady }: { inView: boolean; onReady?: 
           height={size.h}
           backgroundColor="rgba(0,0,0,0)"
           rendererConfig={{ alpha: true, antialias: quality.antialias, powerPreference: "high-performance" }}
-          globeMaterial={globeMaterial}
-          showAtmosphere={quality.efectos}
-          atmosphereColor={COLOR.coral}
-          atmosphereAltitude={0.18}
+          globeImageUrl={baseTextura}
+          bumpImageUrl={quality.efectos ? "/globe/earth-topology.png" : undefined}
+          showAtmosphere
+          atmosphereColor={COLOR.sky}
+          atmosphereAltitude={0.16}
           onGlobeReady={handleReady}
           // Arcos de vuelo
           arcsData={arcs}
