@@ -24,6 +24,14 @@ Checklist de lo que falta de tu lado. Marca con `x` lo que vayas completando.
 - [ ] **Probar un pago real** (sandbox primero). La integración no se pudo testear sin llaves.
 - [ ] (Opcional) **Addi / Sistecrédito** directo: integración aparte. La mensajería ya está lista.
 
+## 🟪 Para activar avisos por correo (Resend) — Fase 2 (OPCIONAL)
+- [ ] Crear cuenta en **Resend** (https://resend.com) y copiar la API key.
+- [ ] Configurar en Vercel / `.env.local`:
+  - [ ] `RESEND_API_KEY`
+  - [ ] `NOTIFY_EMAIL` (correo donde recibirás cada lead y reserva)
+  - [ ] `NOTIFY_FROM` (opcional; remitente con dominio verificado)
+- [ ] Sin estas variables no se envía nada: el panel y WhatsApp siguen igual.
+
 ## 🟩 Operación / cuenta (no bloquean, pero conviene)
 - [ ] Habilitar la pestaña **Analytics** en Vercel (vistas de página).
 - [ ] **Rotar** los secretos que pasaron por el chat: `ADMIN_PASSWORD`, tokens de Blob y DeepSeek.
@@ -33,7 +41,7 @@ Checklist de lo que falta de tu lado. Marca con `x` lo que vayas completando.
 - [ ] **Logo que despega**: entregar el avión como capa aparte (PNG/SVG transparente) para animarlo.
 
 ## 🔜 Próximas fases del plan competitivo (cuando quieras)
-- [ ] Fase 2 — Reseñas de Google + `AggregateRating` + CRM/seguimiento de cotizaciones (email).
+- [x] Fase 2 — `AggregateRating` + `Review` JSON-LD + CRM/seguimiento de cotizaciones + avisos por correo. *(Reseñas de Google embebidas: pendiente conectar la cuenta real.)*
 - [ ] Fase 3 — Landings comerciales por destino y temática + schema (SEO a escala).
 - [ ] Fase 4 — PWA + WhatsApp Business + favoritos persistentes.
 - [ ] Fase 5 — Referidos formal + fidelización.
