@@ -159,7 +159,15 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
                   type="month"
                   value={fecha}
                   onChange={(e) => setFecha(e.target.value)}
-                  className={fieldInput}
+                  onClick={(e) => {
+                    const el = e.currentTarget as HTMLInputElement & { showPicker?: () => void };
+                    try {
+                      el.showPicker?.();
+                    } catch {
+                      /* showPicker no disponible: el input sigue siendo usable */
+                    }
+                  }}
+                  className={`${fieldInput} field-date`}
                   aria-label="Mes de salida"
                 />
               </Campo>

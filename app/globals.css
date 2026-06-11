@@ -278,3 +278,14 @@ html {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Campo de mes del buscador: ocultamos el indicador de calendario nativo (a la
+   derecha) para no duplicar el ícono coral de la izquierda. El campo abre el
+   selector al tocarlo (showPicker). */
+.field-date {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.field-date::-webkit-calendar-picker-indicator {
+  display: none;
+}
