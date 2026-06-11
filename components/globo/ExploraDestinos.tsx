@@ -30,6 +30,7 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { SectionEyebrow, Stars } from "@/components/ui";
 import { Icon } from "@/components/icons";
 import { DestinosMapa2D } from "./DestinosMapa2D";
+import { DepartureBoard } from "./DepartureBoard";
 
 const DestinosGlobe = dynamic(() => import("./DestinosGlobe"), { ssr: false, loading: () => null });
 
@@ -325,8 +326,18 @@ export function ExploraDestinos({
             )}
           </div>
 
-          {/* Rail sincronizado (en móvil es la grilla principal de destinos) */}
-          <div className="lg:max-h-[680px] lg:overflow-y-auto lg:pr-1">
+          {/* Tablero de salidas (Solari) — solo móvil */}
+          <DepartureBoard
+            key={filtro}
+            className="lg:hidden"
+            destinos={destinosFiltrados}
+            rutas={rutasFiltradas}
+            paqueteById={paqueteById}
+            onVerPlan={openPackage}
+          />
+
+          {/* Rail sincronizado con el globo — solo escritorio */}
+          <div className="hidden lg:block lg:max-h-[680px] lg:overflow-y-auto lg:pr-1">
             <h3 className="text-ivory/80 text-xs uppercase tracking-[0.2em] font-semibold mb-3">
               {destinosFiltrados.length + rutasFiltradas.length} destinos
             </h3>

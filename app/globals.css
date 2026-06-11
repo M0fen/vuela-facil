@@ -178,6 +178,30 @@ html {
   animation: slideUp 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
+/* Tablero de salidas (split-flap / Solari): las filas "voltean" al entrar. */
+.flap-board {
+  perspective: 900px;
+}
+@keyframes flapIn {
+  0% {
+    transform: rotateX(-90deg);
+    opacity: 0;
+  }
+  55% {
+    transform: rotateX(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(0);
+    opacity: 1;
+  }
+}
+.flap-row {
+  transform-origin: top center;
+  backface-visibility: hidden;
+  animation: flapIn 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
 /* Latido suave para puntos/indicadores de estado. */
 @keyframes pulseSoft {
   0%, 100% { opacity: 1; }
