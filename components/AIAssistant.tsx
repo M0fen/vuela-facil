@@ -204,7 +204,7 @@ export function AIAssistant() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="Abrir asistente de viajes"
-        className="relative flex items-center gap-3 pl-2 pr-4 py-2 rounded-full bg-white border border-navy/10 shadow-[0_15px_30px_-5px_rgba(13,44,84,0.25)] hover:shadow-[0_20px_40px_-5px_rgba(13,44,84,0.35)] transition-shadow"
+        className="relative flex items-center gap-0 sm:gap-3 p-1 sm:pl-2 sm:pr-4 sm:py-2 rounded-full bg-white border border-navy/10 shadow-[0_15px_30px_-5px_rgba(13,44,84,0.25)] hover:shadow-[0_20px_40px_-5px_rgba(13,44,84,0.35)] transition-shadow"
     >
         <span className="relative w-10 h-10 rounded-full bg-gradient-to-br from-navy to-[#163b6e] flex items-center justify-center text-white font-serif">
           L
