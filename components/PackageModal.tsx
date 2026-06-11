@@ -10,8 +10,17 @@ import { itinerarioDe, noIncluyeDe } from "@/lib/paquete-helpers";
 import { formatCOP, waLink, descuentoPct } from "@/lib/utils";
 import { useUI } from "@/lib/ui-context";
 import { crearReserva } from "@/app/reserva-actions";
+import { iniciarAbono } from "@/app/pago-actions";
+import { FinanciacionPerks } from "./Financiacion";
+import { FINANCIACION } from "@/lib/data";
 
-export function PackageModal({ paquetes }: { paquetes: Paquete[] }) {
+export function PackageModal({
+  paquetes,
+  pagosActivos = false,
+}: {
+  paquetes: Paquete[];
+  pagosActivos?: boolean;
+}) {
   const { activePackageId, closePackage } = useUI();
   const [selectedDate, setSelectedDate] = useState(0);
   const [travelers, setTravelers] = useState(2);
@@ -85,6 +94,30 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
     } catch {
       // No bloqueamos el handoff a WhatsApp si falla el guardado.
     }
+    setEnviando(false);
+    setHecho(true);
+    window.open(waLink(waMsg), "_blank", "noopener");
+  };
+
+  const abonoMonto = Math.round((total * FINANCIACION.abonoPct) / 100);
+
+  const separarOnline = async () => {
+    if (!puedeReservar || enviando) return;
+    setEnviando(true);
+    const res = await iniciarAbono({
+      paqueteId: pkg.id,
+      destino: pkg.destino,
+      fecha: fechaSel,
+      viajeros: travelers,
+      totalEstimado: total,
+      nombre: nombre.trim(),
+      telefono: telefono.trim(),
+    });
+    if (res.ok && res.url) {
+      window.location.href = res.url; // → checkout de Wompi
+      return;
+    }
+    // Sin pasarela configurada o error → no bloqueamos: caemos a WhatsApp.
     setEnviando(false);
     setHecho(true);
     window.open(waLink(waMsg), "_blank", "noopener");
@@ -233,10 +266,8 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
                 <div className="font-serif text-navy text-[34px] leading-none mt-1">
                   {formatCOP(pkg.precio)}
                 </div>
-                <div className="text-[12px] text-emerald-700 font-medium mt-1">
-                  o 12 cuotas sin interés
-                </div>
-                <div className="text-[11px] text-navy/50 mt-1.5">
+                <FinanciacionPerks className="mt-2.5" />
+                <div className="text-[11px] text-navy/50 mt-2">
                   Impuestos y tasas incluidos · sin cargos sorpresa
                 </div>
 
@@ -354,6 +385,15 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
                           className="w-full px-4 py-3 rounded-xl border border-navy/15 outline-none focus:border-coral text-navy text-[14px] placeholder:text-navy/40"
                         />
                       </div>
+                      {pagosActivos && (
+                        <button
+                          onClick={separarOnline}
+                          disabled={!puedeReservar || enviando}
+                          className="block w-full text-center px-6 py-3.5 rounded-full bg-navy text-white font-semibold hover:bg-navy/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Separa con {formatCOP(abonoMonto)} ({FINANCIACION.abonoPct}%) · pago en línea
+                        </button>
+                      )}
                       <button
                         onClick={reservar}
                         disabled={!puedeReservar || enviando}

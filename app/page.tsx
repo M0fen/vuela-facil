@@ -19,6 +19,7 @@ import { AIAssistant } from "@/components/AIAssistant";
 import { PackageModal } from "@/components/PackageModal";
 import { ExploraDestinos } from "@/components/globo/ExploraDestinos";
 import { getPaquetes, getPromo, getTestimonios, getGuiasPublicadas, getDestinos } from "@/lib/store";
+import { pagosActivos } from "@/lib/pagos";
 
 export default async function Home() {
   const [paquetes, promo, testimonios, guias, destinos] = await Promise.all([
@@ -52,7 +53,7 @@ export default async function Home() {
       <FloatingWA />
       <StickyWhatsApp />
       <AIAssistant />
-      <PackageModal paquetes={paquetes} />
+      <PackageModal paquetes={paquetes} pagosActivos={pagosActivos()} />
     </div>
   );
 }
