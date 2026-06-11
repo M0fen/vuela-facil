@@ -72,6 +72,19 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
     [paquetes, categoria, destino, presupuestoIdx],
   );
 
+  const sinResultados = coincidencias === 0;
+
+  // Pestaña y destino son excluyentes para no producir filtros contradictorios
+  // (p. ej. "Playa" + "Cancún"): elegir uno limpia el otro.
+  const elegirCategoria = (t: Filtro) => {
+    setCategoria(t);
+    setDestino("");
+  };
+  const elegirDestino = (value: string) => {
+    setDestino(value);
+    if (value) setCategoria("Todos");
+  };
+
   const handleSearch = () => {
     setBusqueda(busqueda);
     scrollTo("#paquetes");
@@ -117,7 +130,7 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
               {tabs.map((t) => (
                 <button
                   key={t}
-                  onClick={() => setCategoria(t)}
+                  onClick={() => elegirCategoria(t)}
                   aria-pressed={categoria === t}
                   className={`px-4 py-3 text-[13px] md:text-[14px] font-semibold whitespace-nowrap rounded-t-lg transition-colors relative focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/50 ${
                     categoria === t ? "text-navy" : "text-navy/55 hover:text-navy/80"
@@ -132,7 +145,7 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-12 gap-0 md:gap-px bg-navy/5">
               <Campo icon={Icon.Pin} label="Destino" className="md:col-span-4">
-                <select value={destino} onChange={(e) => setDestino(e.target.value)} className={fieldInput} aria-label="Destino">
+                <select value={destino} onChange={(e) => elegirDestino(e.target.value)} className={fieldInput} aria-label="Destino">
                   <option value="">¿A dónde sueñas ir?</option>
                   {destinos.map((d) => (
                     <option key={d} value={d}>
@@ -179,10 +192,14 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
               <div className="flex flex-wrap items-center gap-2 px-2 text-[12px] text-navy/65">
                 <span
                   key={coincidencias}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald/10 text-emerald-700 font-semibold animate-[fadeIn_0.3s_ease-out]"
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold animate-[fadeIn_0.3s_ease-out] ${
+                    sinResultados ? "bg-amber/15 text-[#b8730a]" : "bg-emerald/10 text-emerald-700"
+                  }`}
                 >
                   <Icon.Search className="w-3.5 h-3.5" />
-                  {coincidencias} {coincidencias === 1 ? "plan coincide" : "planes coinciden"}
+                  {sinResultados
+                    ? "Sin resultados exactos · te lo armamos"
+                    : `${coincidencias} ${coincidencias === 1 ? "plan coincide" : "planes coinciden"}`}
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-navy/5">
                   <Icon.Sparkle className="w-3.5 h-3.5 text-coral" /> Cuotas sin interés
@@ -191,22 +208,24 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
                   <Icon.Shield className="w-3.5 h-3.5 text-navy" /> RNT vigente
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full md:w-auto">
                 <a
                   href={waLink(waMsg)}
                   target="_blank"
                   rel="noopener noreferrer"
                   data-wa="hero-buscador"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-4 py-4 rounded-full text-[#1f8a5b] text-[13px] font-semibold hover:bg-emerald/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald/40"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-4 rounded-full border border-emerald/30 text-[#1f8a5b] text-[13px] font-semibold hover:bg-emerald/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald/40 shrink-0"
                 >
                   <Icon.Whatsapp className="w-4 h-4" /> Cotizar
                 </a>
                 <button
                   onClick={handleSearch}
-                  className="group inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-gradient-to-r from-coral to-amber text-white text-[15px] font-semibold tracking-wide shadow-[0_14px_30px_-10px_rgba(232,99,26,0.6)] hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.7)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  className="group flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-gradient-to-r from-coral to-amber text-white text-[15px] font-semibold tracking-wide shadow-[0_14px_30px_-10px_rgba(232,99,26,0.6)] hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.7)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                 >
                   <Icon.Search className="w-5 h-5" />
-                  {coincidencias > 0 ? `Ver ${coincidencias} ${coincidencias === 1 ? "viaje" : "viajes"}` : "Buscar viaje"}
+                  {sinResultados
+                    ? "Cotizar a la medida"
+                    : `Ver ${coincidencias} ${coincidencias === 1 ? "viaje" : "viajes"}`}
                   <Icon.Arrow className="w-5 h-5 -mr-1 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
