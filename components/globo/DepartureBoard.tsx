@@ -7,12 +7,35 @@ import { etiquetaTipo, type Destino, type RutaCrucero } from "@/lib/geo";
 import type { Paquete } from "@/lib/types";
 
 // Tablero de salidas split-flap / Solari (estilo aeropuerto real) para móvil.
-// Cada destino se compone de fichas por carácter (ámbar sobre negro, con la
-// línea de pliegue al centro) que "voltean" al entrar y al cambiar de filtro.
-// Además, un latido vivo: cada cierto tiempo una ficha al azar vuelve a girar,
-// como un panel real que se actualiza. Tap con plan → modal; sin plan → WhatsApp.
+// Cada destino se compone de fichas por carácter (ámbar sobre negro) con un
+// pliegue mecánico vertical real: dos mitades de fondo + dos solapas que giran
+// en la costura central. Al entrar y al cambiar de filtro voltean; además, un
+// latido vivo: cada cierto tiempo una ficha al azar vuelve a girar.
+// Tap con plan → modal; sin plan → cotiza por WhatsApp.
 
 const VISIBLES = 7; // filas mostradas antes de "Ver más"
+
+/** Una ficha split-flap: dos mitades de fondo + dos solapas que pliegan en la
+ *  costura central. Al (re)montarse reproduce el giro vertical una vez. */
+function FlapChar({ ch, delay }: { ch: string; delay: number }) {
+  const c = ch === " " ? " " : ch;
+  return (
+    <span className="flap text-[13px]" style={{ "--d": `${delay}s` } as React.CSSProperties}>
+      <span className="flap-half flap-top">
+        <b>{c}</b>
+      </span>
+      <span className="flap-half flap-bottom">
+        <b>{c}</b>
+      </span>
+      <span className="flap-leaf flap-leaf-top">
+        <b>{c}</b>
+      </span>
+      <span className="flap-leaf flap-leaf-bottom">
+        <b>{c}</b>
+      </span>
+    </span>
+  );
+}
 
 /** Texto en fichas split-flap. La ficha en `flipCol` re-gira cuando cambia `nonce`. */
 function FlapText({
@@ -30,14 +53,12 @@ function FlapText({
   return (
     <span className="flex flex-wrap gap-[2px]" aria-hidden="true">
       {chars.map((c, i) => (
-        <span
-          // Al cambiar la key, React remonta la ficha → vuelve a reproducir el giro.
+        <FlapChar
+          // Al cambiar la key, React remonta la ficha y vuelve a girar.
           key={i === flipCol ? `${i}-${nonce}` : i}
-          className="flap-cell text-[13px]"
-          style={{ animationDelay: `${i === flipCol ? 0 : baseDelay + i * 0.025}s` }}
-        >
-          {c === " " ? " " : c}
-        </span>
+          ch={c}
+          delay={i === flipCol ? 0 : baseDelay + i * 0.03}
+        />
       ))}
     </span>
   );
@@ -96,7 +117,7 @@ export function DepartureBoard({
   const visibles = expandido ? filas : filas.slice(0, VISIBLES);
   const ocultas = filas.length - visibles.length;
 
-  // Latido: cada ~2.2 s una ficha al azar (de las visibles) vuelve a girar.
+  // Latido: cada ~2.4 s una ficha al azar (de las visibles) vuelve a girar.
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -109,7 +130,7 @@ export function DepartureBoard({
       const col = Math.floor(Math.random() * largo);
       nonceRef.current += 1;
       setFlip({ row, col, nonce: nonceRef.current });
-    }, 2200);
+    }, 2400);
 
     return () => clearInterval(id);
   }, [visibles.length]);

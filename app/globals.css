@@ -188,54 +188,122 @@ html {
   animation: slideUp 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-/* Tablero de salidas split-flap / Solari (estilo aeropuerto real). */
+/* Tablero de salidas split-flap / Solari realista.
+   Cada ficha = dos mitades estáticas (el carácter "de fondo") + dos solapas que
+   pliegan sobre la costura central: la de arriba cae (0°→-90°) y, justo después,
+   la de abajo entra (90°→0°). Sin desvanecidos: pura mecánica vertical. */
 .flap-board {
-  perspective: 600px;
+  /* la perspectiva vive en cada ficha (.flap) para un pliegue 3D nítido */
 }
-/* Ficha por carácter: dos mitades con línea de pliegue al centro. */
-.flap-cell {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 0.96em;
-  height: 1.42em;
-  border-radius: 2px;
+
+.flap {
+  position: relative;
+  display: inline-block;
+  width: 0.92em;
+  height: 1.4em;
+  border-radius: 3px;
   font-family: var(--font-mono, ui-monospace, "SFMono-Regular", Menlo, monospace);
   font-weight: 700;
   line-height: 1;
-  color: #f4c044;
-  background:
-    linear-gradient(180deg, #2a2a2c 0%, #202021 49.5%, #0e0e0f 50.5%, #161617 100%);
+  perspective: 220px;
+  background: #0b0b0c;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
     0 1px 0 rgba(0, 0, 0, 0.6);
-  position: relative;
-  transform-origin: center;
-  animation: flapChar 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
-/* La línea de pliegue (el "doblez" de la solapa). */
-.flap-cell::after {
-  content: "";
+
+/* Mitades (estáticas y solapas comparten el recorte del glifo) */
+.flap-half,
+.flap-leaf {
   position: absolute;
   left: 0;
   right: 0;
-  top: 50%;
-  height: 1px;
-  transform: translateY(-0.5px);
-  background: rgba(0, 0, 0, 0.7);
+  height: 0.7em;
+  overflow: hidden;
+  text-align: center;
 }
-@keyframes flapChar {
+.flap-half > b,
+.flap-leaf > b {
+  display: block;
+  height: 1.4em;
+  line-height: 1.4em;
+  color: #f4c044;
+  font-weight: 700;
+}
+
+/* Fondo (lo que queda detrás de las solapas) */
+.flap-top {
+  top: 0;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #2b2b2d 0%, #202022 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+}
+.flap-bottom {
+  bottom: 0;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(180deg, #161618 0%, #0c0c0d 100%);
+}
+.flap-bottom > b {
+  transform: translateY(-0.7em);
+}
+
+/* Solapas que giran en la costura central */
+.flap-leaf {
+  backface-visibility: hidden;
+  z-index: 2;
+}
+.flap-leaf-top {
+  top: 0;
+  transform-origin: center bottom;
+  transform: rotateX(0deg);
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #2b2b2d 0%, #202022 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+  animation: leafTop 0.3s cubic-bezier(0.45, 0.05, 0.55, 1) var(--d, 0s) both;
+}
+.flap-leaf-bottom {
+  bottom: 0;
+  transform-origin: center top;
+  transform: rotateX(0deg);
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(180deg, #1a1a1c 0%, #0c0c0d 100%);
+  animation: leafBottom 0.24s cubic-bezier(0.3, 1.5, 0.5, 1) calc(var(--d, 0s) + 0.28s) both;
+}
+.flap-leaf-bottom > b {
+  transform: translateY(-0.7em);
+}
+/* Sombra de caída sobre la solapa superior (da volumen al pliegue) */
+.flap-leaf-top::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 35%, rgba(0, 0, 0, 0.55) 100%);
+  opacity: 0;
+  animation: leafShade 0.3s ease-in var(--d, 0s) both;
+}
+
+@keyframes leafTop {
   0% {
-    transform: rotateX(-90deg);
-    opacity: 0;
+    transform: rotateX(0deg);
   }
-  55% {
-    transform: rotateX(12deg);
-    opacity: 1;
+  100% {
+    transform: rotateX(-90deg);
+  }
+}
+@keyframes leafBottom {
+  0% {
+    transform: rotateX(90deg);
   }
   100% {
     transform: rotateX(0deg);
-    opacity: 1;
+  }
+}
+@keyframes leafShade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.85;
   }
 }
 
@@ -263,6 +331,16 @@ html {
     animation: none !important;
   }
   .hero-kenburns {
+    animation: none !important;
+  }
+  /* Sin movimiento: solapas en reposo (carácter completo, sin sombra de caída). */
+  .flap-leaf-top,
+  .flap-leaf-bottom {
+    transform: rotateX(0deg) !important;
+    animation: none !important;
+  }
+  .flap-leaf-top::after {
+    opacity: 0 !important;
     animation: none !important;
   }
 }
