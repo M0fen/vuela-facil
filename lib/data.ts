@@ -179,6 +179,37 @@ export const FINANCIACION: Financiacion = {
 };
 
 // ---------------------------------------------------------------------------
+// REFERIDOS y FIDELIZACIÓN (Fase 5). Programa "gana–gana" gestionado por el
+// asesor, sin apps ni cuentas: la atribución viaja en el enlace/mensaje de
+// WhatsApp. ⚠️ Los montos exactos del beneficio los define el negocio (ver
+// PENDIENTES); aquí el copy es general a propósito para no prometer cifras.
+// ---------------------------------------------------------------------------
+export const REFERIDOS = {
+  /** Beneficio para quien llega referido (su primer viaje). */
+  beneficioAmigo: "un descuento de bienvenida en tu primer viaje",
+  /** Beneficio para quien refiere, cuando su amigo viaja. */
+  beneficioReferente: "un bono para tu próximo viaje",
+  pasos: [
+    "Comparte tu enlace (o tu nombre) con quien quieras invitar.",
+    "Tu amigo nos escribe por WhatsApp y menciona que lo refieres tú.",
+    "Recibe su descuento de bienvenida al reservar su primer viaje.",
+    "Cuando viaje, tú recibes tu bono. Sin límite de amigos referidos.",
+  ],
+} as const;
+
+export const CLUB = {
+  nombre: "Club Vuela Fácil",
+  intro:
+    "No necesitas apps ni acumular puntos: tu asesor te reconoce viaje a viaje. Mientras más viajas con nosotros, mejor te tratamos.",
+  beneficios: [
+    { titulo: "Asesor dedicado", desc: "Desde tu segundo viaje, la misma persona que ya conoce tus gustos." },
+    { titulo: "Prioridad en cupos", desc: "Te avisamos primero en salidas grupales y promos relámpago." },
+    { titulo: "Detalle de cumpleaños", desc: "Un beneficio especial en el mes de tu cumpleaños." },
+    { titulo: "Viajero frecuente", desc: "Condiciones preferenciales que mejoran viaje a viaje." },
+  ],
+} as const;
+
+// ---------------------------------------------------------------------------
 // PROMO — escasez REAL. El countdown del OfferBanner se ata a `promoEnds`.
 // Cuando la promo termine (o `activa = false`), edita esto: el banner pasa solo
 // a un mensaje perenne sin reloj. Nunca dejes una fecha falsa que se reinicie.

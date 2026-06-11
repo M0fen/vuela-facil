@@ -8,6 +8,7 @@ export type LeadState = { ok: boolean; error?: string };
 export async function submitLead(_prev: LeadState, formData: FormData): Promise<LeadState> {
   const email = String(formData.get("email") ?? "").trim();
   const telefono = String(formData.get("telefono") ?? "").trim();
+  const referidoPor = String(formData.get("referidoPor") ?? "").trim().slice(0, 40);
 
   if (!email || !email.includes("@")) {
     return { ok: false, error: "Ingresa un correo válido." };
@@ -15,7 +16,7 @@ export async function submitLead(_prev: LeadState, formData: FormData): Promise<
 
   try {
     const origen = "Tribu Vuela Fácil (newsletter)";
-    await addLead({ email, telefono, origen });
+    await addLead({ email, telefono, origen, referidoPor });
     await notificarNuevoLead({ email, telefono, origen });
     return { ok: true };
   } catch {

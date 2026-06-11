@@ -144,13 +144,19 @@ export async function saveDestinos(destinos: Destino[]): Promise<void> {
 
 // --- Leads (un archivo por lead) -------------------------------------------
 
-export async function addLead(input: { email: string; telefono?: string; origen: string }): Promise<Lead> {
+export async function addLead(input: {
+  email: string;
+  telefono?: string;
+  origen: string;
+  referidoPor?: string;
+}): Promise<Lead> {
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const lead: Lead = {
     id,
     email: input.email,
     telefono: input.telefono?.trim() || undefined,
     origen: input.origen,
+    referidoPor: input.referidoPor?.trim() || undefined,
     estado: "nuevo",
     createdAt: new Date().toISOString(),
   };

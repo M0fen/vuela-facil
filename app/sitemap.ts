@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const infoPaths = [
     "/nosotros",
     "/financiacion",
+    "/referidos",
     "/faq",
     "/pqrs",
     "/terminos",
@@ -26,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE}${p}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
-      priority: p === "/nosotros" || p === "/financiacion" ? 0.6 : 0.3,
+      priority: ["/nosotros", "/financiacion", "/referidos"].includes(p) ? 0.6 : 0.3,
     })),
     ...LANDINGS.map((l) => ({
       url: `${BASE}/viajes/${l.slug}`,
