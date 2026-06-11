@@ -17,7 +17,7 @@ import {
 } from "@/lib/buscador";
 import type { Paquete } from "@/lib/types";
 
-function PackageCard({ p }: { p: Paquete }) {
+function PackageCard({ p, index = 0 }: { p: Paquete; index?: number }) {
   const { openPackage } = useUI();
   const msg = `Hola Vuela Fácil 👋 Quiero información del paquete *${p.destino}* (${p.duracion}) — ref ${p.id}.`;
 
@@ -27,7 +27,8 @@ function PackageCard({ p }: { p: Paquete }) {
         if ((e.target as HTMLElement).closest("a,button")) return;
         openPackage(p.id);
       }}
-      className="group bg-white rounded-3xl overflow-hidden border border-navy/8 hover:border-navy/20 hover:shadow-[0_30px_60px_-30px_rgba(13,44,84,0.35)] transition-all duration-300 flex flex-col cursor-pointer"
+      style={{ animationDelay: `${Math.min(index, 8) * 0.06}s` }}
+      className="card-in group bg-white rounded-3xl overflow-hidden border border-navy/8 hover:border-navy/20 hover:shadow-[0_30px_60px_-30px_rgba(13,44,84,0.35)] hover:-translate-y-1 transition-[transform,box-shadow,border-color] duration-300 flex flex-col cursor-pointer"
     >
       <div className="relative aspect-[5/4] overflow-hidden">
         <Image
@@ -208,9 +209,12 @@ export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
         </div>
 
         {list.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
-            {list.map((p) => (
-              <PackageCard key={p.id} p={p} />
+          <div
+            key={`${busqueda.categoria}|${busqueda.destino}|${busqueda.presupuestoMin}|${busqueda.presupuestoMax}`}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7"
+          >
+            {list.map((p, i) => (
+              <PackageCard key={p.id} p={p} index={i} />
             ))}
           </div>
         ) : (

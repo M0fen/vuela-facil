@@ -86,32 +86,32 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
 
   return (
     <section className="relative min-h-[100svh] w-full overflow-hidden">
-      <div className="absolute inset-0">
-        <Image src={IMG.hero} alt="Destino aspiracional" fill priority sizes="100vw" className="object-cover scale-105" />
+      <div className="absolute inset-0 overflow-hidden">
+        <Image src={IMG.hero} alt="Destino aspiracional" fill priority sizes="100vw" className="object-cover hero-kenburns" />
         <div className="absolute inset-0 bg-gradient-to-b from-navy/70 via-navy/30 to-navy/85" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy/40 via-transparent to-transparent" />
       </div>
 
       <div className="relative z-10 max-w-[1320px] mx-auto px-5 md:px-8 pt-[140px] md:pt-[160px] pb-16">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/12 backdrop-blur-md border border-white/20 text-white/95 text-[12px] tracking-[0.18em] uppercase mb-6">
+          <div className="hero-in inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/12 backdrop-blur-md border border-white/20 text-white/95 text-[12px] tracking-[0.18em] uppercase mb-6" style={{ animationDelay: "0.05s" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-coral animate-pulse" />
             Pereira · Eje Cafetero · desde 2014
           </div>
-          <h1 className="font-serif text-white text-[44px] leading-[1.02] md:text-[72px] md:leading-[1.02] tracking-[-0.02em]">
+          <h1 className="hero-in font-serif text-white text-[44px] leading-[1.02] md:text-[72px] md:leading-[1.02] tracking-[-0.02em]" style={{ animationDelay: "0.15s" }}>
             El mundo es <em className="italic text-amber">más fácil</em>
             <br />
             cuando alguien <br className="hidden md:block" />
             lo planea por ti.
           </h1>
-          <p className="mt-6 text-white/90 text-[16px] md:text-[18px] max-w-xl leading-relaxed">
+          <p className="hero-in mt-6 text-white/90 text-[16px] md:text-[18px] max-w-xl leading-relaxed" style={{ animationDelay: "0.28s" }}>
             Diseñamos viajes a la medida por Colombia y el mundo. Tiquetes, hoteles, cruceros y
             experiencias — con asesoría humana en Pereira y reserva 100% por WhatsApp.
           </p>
         </div>
 
         {/* Buscador real: filtra el catálogo y arma tu cotización por WhatsApp */}
-        <div className="mt-12 md:mt-14">
+        <div className="hero-in mt-12 md:mt-14" style={{ animationDelay: "0.4s" }}>
           <div className="bg-white/95 backdrop-blur-xl rounded-2xl md:rounded-3xl shadow-[0_30px_80px_-20px_rgba(13,44,84,0.45)] border border-white/40 overflow-hidden">
             <div className="flex border-b border-navy/10 px-3 md:px-5 pt-3 gap-1 overflow-x-auto no-scrollbar">
               {tabs.map((t) => (
@@ -177,7 +177,10 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
             </div>
             <div className="bg-white p-3 md:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2 px-2 text-[12px] text-navy/65">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald/10 text-emerald-700 font-semibold">
+                <span
+                  key={coincidencias}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald/10 text-emerald-700 font-semibold animate-[fadeIn_0.3s_ease-out]"
+                >
                   <Icon.Search className="w-3.5 h-3.5" />
                   {coincidencias} {coincidencias === 1 ? "plan coincide" : "planes coinciden"}
                 </span>
@@ -215,7 +218,7 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
           </p>
         </div>
 
-        <div className="mt-10 md:mt-14 grid grid-cols-3 gap-4 md:gap-10 max-w-2xl text-white/90">
+        <div className="hero-in mt-10 md:mt-14 grid grid-cols-3 gap-4 md:gap-10 max-w-2xl text-white/90" style={{ animationDelay: "0.55s" }}>
           {(
             [
               [`${NEGOCIO.anios} años`, "diseñando viajes"],

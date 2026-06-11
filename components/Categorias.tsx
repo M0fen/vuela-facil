@@ -10,6 +10,7 @@ import { useReveal } from "@/hooks/useReveal";
 
 export function Categorias() {
   const ref = useReveal<HTMLElement>();
+  const gridRef = useReveal<HTMLDivElement>();
 
   return (
     <section
@@ -31,7 +32,7 @@ export function Categorias() {
           Ver todos los destinos <Icon.Arrow className="w-4 h-4" />
         </a>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+      <div ref={gridRef} className="reveal-stagger grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         {CATEGORIAS.map((c, i) => (
           <Link
             key={c.id}
