@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
-import type { EstadoReserva } from "@/lib/types";
+import type { EstadoLead, EstadoReserva } from "@/lib/types";
 
 export const ESTADOS: EstadoReserva[] = ["pendiente", "en_proceso", "confirmada", "cancelada"];
 
@@ -23,6 +23,36 @@ export function EstadoBadge({ estado }: { estado: EstadoReserva }) {
       className={`inline-flex px-2.5 py-0.5 rounded-full border text-[11px] font-semibold ${ESTADO_STYLES[estado]}`}
     >
       {ESTADO_LABEL[estado]}
+    </span>
+  );
+}
+
+// --- Leads (CRM) ------------------------------------------------------------
+
+export const ESTADOS_LEAD: EstadoLead[] = ["nuevo", "contactado", "cotizado", "ganado", "perdido"];
+
+export const ESTADO_LEAD_LABEL: Record<EstadoLead, string> = {
+  nuevo: "Nuevo",
+  contactado: "Contactado",
+  cotizado: "Cotizado",
+  ganado: "Ganado",
+  perdido: "Perdido",
+};
+
+const ESTADO_LEAD_STYLES: Record<EstadoLead, string> = {
+  nuevo: "bg-coral/10 text-coral border-coral/30",
+  contactado: "bg-sky/15 text-[#2b6ea3] border-sky/30",
+  cotizado: "bg-amber/15 text-[#b8730a] border-amber/30",
+  ganado: "bg-emerald/10 text-emerald-700 border-emerald/30",
+  perdido: "bg-navy/5 text-navy/50 border-navy/15",
+};
+
+export function EstadoLeadBadge({ estado }: { estado: EstadoLead }) {
+  return (
+    <span
+      className={`inline-flex px-2.5 py-0.5 rounded-full border text-[11px] font-semibold ${ESTADO_LEAD_STYLES[estado]}`}
+    >
+      {ESTADO_LEAD_LABEL[estado]}
     </span>
   );
 }

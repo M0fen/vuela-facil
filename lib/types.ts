@@ -50,12 +50,18 @@ export interface Paquete {
   mapaQuery?: string;
 }
 
+export type EstadoLead = "nuevo" | "contactado" | "cotizado" | "ganado" | "perdido";
+
 export interface Lead {
   id: string;
   email: string;
   telefono?: string;
   /** De dónde vino el lead (sección/landing). */
   origen: string;
+  /** Etapa en el pipeline de seguimiento (CRM). */
+  estado?: EstadoLead;
+  /** Notas internas del asesor. */
+  notas?: string;
   /** ISO date string. */
   createdAt: string;
 }

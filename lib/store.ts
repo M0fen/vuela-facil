@@ -1,7 +1,7 @@
 import "server-only";
 import { put, list, del } from "@vercel/blob";
 import { unstable_cache, revalidateTag } from "next/cache";
-import type { Analytics, EstadoReserva, Guia, Lead, Paquete, Promo, Reserva, Testimonio } from "./types";
+import type { Analytics, EstadoLead, EstadoReserva, Guia, Lead, Paquete, Promo, Reserva, Testimonio } from "./types";
 import type { Destino } from "./geo";
 import { GUIAS, PAQUETES, PROMO, TESTIMONIOS } from "./data";
 import { DESTINOS } from "./destinos";
@@ -151,6 +151,7 @@ export async function addLead(input: { email: string; telefono?: string; origen:
     email: input.email,
     telefono: input.telefono?.trim() || undefined,
     origen: input.origen,
+    estado: "nuevo",
     createdAt: new Date().toISOString(),
   };
   await put(`${LEADS_PREFIX}${id}.json`, JSON.stringify(lead, null, 2), putOpts);
@@ -172,6 +173,25 @@ export async function listLeads(): Promise<Lead[]> {
   } catch {
     return [];
   }
+}
+
+export async function getLead(id: string): Promise<Lead | null> {
+  const leads = await listLeads();
+  return leads.find((l) => l.id === id) ?? null;
+}
+
+export async function updateLead(
+  id: string,
+  patch: { estado?: EstadoLead; notas?: string },
+): Promise<void> {
+  const actual = await getLead(id);
+  if (!actual) return;
+  const merged: Lead = {
+    ...actual,
+    estado: patch.estado ?? actual.estado ?? "nuevo",
+    notas: patch.notas !== undefined ? patch.notas.trim() || undefined : actual.notas,
+  };
+  await put(`${LEADS_PREFIX}${id}.json`, JSON.stringify(merged, null, 2), putOpts);
 }
 
 export async function deleteLead(id: string): Promise<void> {

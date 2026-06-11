@@ -117,6 +117,17 @@ export default async function PaquetePage({
       bestRating: 5,
       worstRating: 1,
     },
+    review: reseñas.slice(0, 6).map((t) => ({
+      "@type": "Review",
+      author: { "@type": "Person", name: t.nombre },
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: t.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      reviewBody: t.texto,
+    })),
     provider: {
       "@type": "TravelAgency",
       name: "Vuela Fácil Travel",
