@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { FloatingWA } from "@/components/FloatingWA";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { Icon } from "@/components/icons";
 import { SectionEyebrow } from "@/components/ui";
@@ -245,7 +244,6 @@ export default async function LandingPage({
       </main>
 
       <Footer />
-      <FloatingWA />
       <StickyWhatsApp />
     </div>
   );

@@ -378,8 +378,8 @@ export function ExploraDestinos({
           </div>
         </div>
 
-        {/* Leyenda de tipos (accesibilidad: color + etiqueta) */}
-        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+        {/* Leyenda de tipos (solo escritorio; el tablero móvil es monocromo) */}
+        <div className="mt-6 hidden lg:flex flex-wrap items-center gap-x-5 gap-y-2">
           {TIPOS_LEYENDA.map((t) => (
             <span key={t} className="inline-flex items-center gap-1.5 text-[12px] text-ivory/70">
               <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: colorDestino(t) }} />

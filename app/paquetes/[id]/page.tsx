@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { FloatingWA } from "@/components/FloatingWA";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { Icon } from "@/components/icons";
 import { Stars } from "@/components/ui";
@@ -460,7 +459,6 @@ export default async function PaquetePage({
       <VistosRecientemente paquetes={todos} excluir={pkg.id} />
       <TrackView id={pkg.id} />
       <Footer />
-      <FloatingWA />
       <StickyWhatsApp />
     </div>
   );

@@ -1,9 +1,9 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { FloatingWA } from "@/components/FloatingWA";
 
 // Layout compartido de las páginas de información y legales: header sólido
-// (sin hero detrás), contenido centrado y footer.
+// (sin hero detrás), contenido centrado y footer. El asistente flotante (Lía +
+// asesor) está montado globalmente en el layout raíz.
 export default function InfoLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-ivory min-h-screen">
@@ -12,7 +12,6 @@ export default function InfoLayout({ children }: { children: React.ReactNode }) 
         <div className="max-w-[860px] mx-auto px-5 md:px-8 py-12 md:py-16">{children}</div>
       </main>
       <Footer />
-      <FloatingWA />
     </div>
   );
 }

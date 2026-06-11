@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { FloatingWA } from "@/components/FloatingWA";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { GuiaCard } from "@/components/GuiaCard";
 import { SectionEyebrow } from "@/components/ui";
@@ -55,7 +54,6 @@ export default async function GuiasIndex() {
         </section>
       </main>
       <Footer />
-      <FloatingWA />
       <StickyWhatsApp />
     </div>
   );

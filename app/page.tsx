@@ -12,9 +12,7 @@ import { Testimonios } from "@/components/Testimonios";
 import { StoryEjeCafetero } from "@/components/StoryEjeCafetero";
 import { CapturaContacto } from "@/components/CapturaContacto";
 import { Footer } from "@/components/Footer";
-import { FloatingWA } from "@/components/FloatingWA";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
-import { AIAssistant } from "@/components/AIAssistant";
 import { PackageModal } from "@/components/PackageModal";
 import { ExploraDestinos } from "@/components/globo/ExploraDestinos";
 import { getPaquetes, getPromo, getTestimonios, getGuiasPublicadas, getDestinos } from "@/lib/store";
@@ -48,9 +46,7 @@ export default async function Home() {
         <CapturaContacto />
       </main>
       <Footer />
-      <FloatingWA />
       <StickyWhatsApp />
-      <AIAssistant />
       <PackageModal paquetes={paquetes} pagosActivos={pagosActivos()} />
     </div>
   );

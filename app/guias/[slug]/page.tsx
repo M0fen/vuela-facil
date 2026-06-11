@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { FloatingWA } from "@/components/FloatingWA";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { PackageMini } from "@/components/PackageMini";
 import { Icon } from "@/components/icons";
@@ -127,7 +126,6 @@ export default async function GuiaArticulo({
         </article>
       </main>
       <Footer />
-      <FloatingWA />
       <StickyWhatsApp />
     </div>
   );

@@ -178,28 +178,55 @@ html {
   animation: slideUp 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-/* Tablero de salidas (split-flap / Solari): las filas "voltean" al entrar. */
+/* Tablero de salidas split-flap / Solari (estilo aeropuerto real). */
 .flap-board {
-  perspective: 900px;
+  perspective: 600px;
 }
-@keyframes flapIn {
+/* Ficha por carácter: dos mitades con línea de pliegue al centro. */
+.flap-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.96em;
+  height: 1.42em;
+  border-radius: 2px;
+  font-family: var(--font-mono, ui-monospace, "SFMono-Regular", Menlo, monospace);
+  font-weight: 700;
+  line-height: 1;
+  color: #f4c044;
+  background:
+    linear-gradient(180deg, #2a2a2c 0%, #202021 49.5%, #0e0e0f 50.5%, #161617 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 1px 0 rgba(0, 0, 0, 0.6);
+  position: relative;
+  transform-origin: center;
+  animation: flapChar 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+/* La línea de pliegue (el "doblez" de la solapa). */
+.flap-cell::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-0.5px);
+  background: rgba(0, 0, 0, 0.7);
+}
+@keyframes flapChar {
   0% {
     transform: rotateX(-90deg);
     opacity: 0;
   }
   55% {
-    transform: rotateX(10deg);
+    transform: rotateX(12deg);
     opacity: 1;
   }
   100% {
-    transform: rotateX(0);
+    transform: rotateX(0deg);
     opacity: 1;
   }
-}
-.flap-row {
-  transform-origin: top center;
-  backface-visibility: hidden;
-  animation: flapIn 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 /* Latido suave para puntos/indicadores de estado. */

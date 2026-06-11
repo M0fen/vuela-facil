@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "./icons";
 import { Stars } from "./ui";
 import type { Paquete } from "@/lib/types";
@@ -28,6 +28,8 @@ export function PackageModal({
   const [telefono, setTelefono] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [hecho, setHecho] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
+  const nombreRef = useRef<HTMLInputElement>(null);
 
   const pkg = activePackageId ? paquetes.find((p) => p.id === activePackageId) ?? null : null;
 
@@ -99,6 +101,16 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
     window.open(waLink(waMsg), "_blank", "noopener");
   };
 
+  // Desde la barra fija móvil: si faltan datos, lleva al formulario; si no, reserva.
+  const reservarDesdeBarra = () => {
+    if (puedeReservar) {
+      reservar();
+    } else {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => nombreRef.current?.focus(), 350);
+    }
+  };
+
   const abonoMonto = Math.round((total * FINANCIACION.abonoPct) / 100);
 
   const separarOnline = async () => {
@@ -136,7 +148,7 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
         onClick={closePackage}
         className="absolute inset-0 bg-navy/70 backdrop-blur-sm animate-[fadeIn_.25s_ease-out]"
       />
-      <div className="relative bg-white w-full md:max-w-[1100px] md:max-h-[92vh] md:rounded-3xl shadow-2xl overflow-hidden flex flex-col md:m-6 animate-[slideUp_.35s_cubic-bezier(.2,.7,.2,1)]">
+      <div className="relative bg-white w-full h-[100dvh] md:h-auto md:max-w-[1100px] md:max-h-[92vh] md:rounded-3xl shadow-2xl overflow-hidden flex flex-col md:m-6 animate-[slideUp_.35s_cubic-bezier(.2,.7,.2,1)]">
         <button
           onClick={closePackage}
           aria-label="Cerrar"
@@ -145,8 +157,8 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
           <Icon.Close className="w-5 h-5" />
         </button>
 
-        <div className="overflow-y-auto flex-1">
-          <div className="relative h-[260px] md:h-[340px] overflow-hidden">
+        <div className="overflow-y-auto overscroll-contain flex-1">
+          <div className="relative h-[220px] sm:h-[260px] md:h-[340px] overflow-hidden">
             <Image
               src={pkg.imagen}
               alt={pkg.destino}
@@ -168,7 +180,7 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur">
                   <Stars rating={pkg.calificacion} className="w-3.5 h-3.5" /> {pkg.calificacion}{" "}
-                  <span className="opacity-70">({pkg.reviews} reseñas verificadas)</span>
+                  <span className="opacity-70">({pkg.reviews} reseñas de viajeros)</span>
                 </span>
                 {pkg.etiqueta && (
                   <span className="px-3 py-1 rounded-full bg-gradient-to-r from-coral to-amber text-white font-semibold tracking-wider uppercase text-[10px]">
@@ -369,8 +381,9 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
                     </div>
                   ) : (
                     <>
-                      <div className="space-y-2">
+                      <div ref={formRef} className="space-y-2 scroll-mt-4">
                         <input
+                          ref={nombreRef}
                           value={nombre}
                           onChange={(e) => setNombre(e.target.value)}
                           placeholder="Tu nombre"
@@ -422,6 +435,24 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
             </aside>
           </div>
         </div>
+
+        {/* Barra fija de acción (solo móvil): el CTA de reserva siempre alcanzable */}
+        {!hecho && (
+          <div className="md:hidden shrink-0 border-t border-navy/10 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center gap-3">
+            <div className="leading-tight shrink-0">
+              <div className="text-[10px] uppercase tracking-wider text-navy/50">Total</div>
+              <div className="font-serif text-navy text-[20px]">{formatCOP(total)}</div>
+            </div>
+            <button
+              onClick={reservarDesdeBarra}
+              disabled={enviando}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 px-5 py-3.5 rounded-full bg-[#25D366] text-white font-semibold tracking-wide shadow-[0_12px_24px_-8px_rgba(37,211,102,0.55)] disabled:opacity-50 transition-colors"
+            >
+              <Icon.Whatsapp className="w-4 h-4" />
+              {enviando ? "Registrando…" : "Reservar"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

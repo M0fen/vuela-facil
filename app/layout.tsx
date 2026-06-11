@@ -5,6 +5,7 @@ import { UIProvider } from "@/lib/ui-context";
 import { WhatsAppTracker } from "@/components/WhatsAppTracker";
 import { PWARegister } from "@/components/PWARegister";
 import { ReferralBanner } from "@/components/ReferralBanner";
+import { AIAssistant } from "@/components/AIAssistant";
 import { NEGOCIO, TESTIMONIOS } from "@/lib/data";
 import { WHATSAPP_NUMERO } from "@/lib/utils";
 import "./globals.css";
@@ -101,6 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
         <UIProvider>{children}</UIProvider>
+        <AIAssistant />
         <ReferralBanner />
         <WhatsAppTracker />
         <PWARegister />
