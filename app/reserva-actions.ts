@@ -1,6 +1,7 @@
 "use server";
 
 import { addReserva } from "@/lib/store";
+import { notificarNuevaReserva } from "@/lib/email";
 
 export type ReservaResult = { ok: boolean; id?: string; error?: string };
 
@@ -20,6 +21,14 @@ export async function crearReserva(input: {
   }
   try {
     const r = await addReserva(input);
+    await notificarNuevaReserva({
+      destino: r.destino,
+      nombre: r.nombre,
+      telefono: r.telefono,
+      viajeros: r.viajeros,
+      fecha: r.fecha,
+      totalEstimado: r.totalEstimado,
+    });
     return { ok: true, id: r.id };
   } catch {
     return { ok: false, error: "No se pudo registrar la reserva." };

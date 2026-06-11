@@ -3,9 +3,13 @@ import { Fraunces, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { UIProvider } from "@/lib/ui-context";
 import { WhatsAppTracker } from "@/components/WhatsAppTracker";
-import { NEGOCIO } from "@/lib/data";
+import { NEGOCIO, TESTIMONIOS } from "@/lib/data";
 import { WHATSAPP_NUMERO } from "@/lib/utils";
 import "./globals.css";
+
+// Calificación agregada honesta, derivada de los testimonios reales.
+const ratingPromedio =
+  Math.round((TESTIMONIOS.reduce((s, t) => s + t.rating, 0) / TESTIMONIOS.length) * 10) / 10;
 
 const orgJsonLd = {
   "@context": "https://schema.org",
@@ -30,6 +34,13 @@ const orgJsonLd = {
   priceRange: "$$",
   openingHours: "Mo-Sa 08:00-20:00",
   identifier: { "@type": "PropertyValue", name: "RNT", value: NEGOCIO.rnt },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: ratingPromedio,
+    reviewCount: TESTIMONIOS.length,
+    bestRating: 5,
+    worstRating: 1,
+  },
   sameAs: [NEGOCIO.instagram, NEGOCIO.facebook].filter(Boolean),
 };
 

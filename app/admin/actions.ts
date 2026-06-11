@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Categoria, EstadoReserva, Guia, Paquete, Promo, Testimonio } from "@/lib/types";
+import type { Categoria, EstadoLead, EstadoReserva, Guia, Paquete, Promo, Testimonio } from "@/lib/types";
 import type { Destino, TipoDestino } from "@/lib/geo";
 import {
   readPaquetes,
@@ -16,6 +16,7 @@ import {
   readDestinos,
   saveDestinos,
   deleteLead,
+  updateLead,
   updateReserva,
   deleteReserva,
   uploadImage,
@@ -23,6 +24,7 @@ import {
 import { requireAdmin } from "./guard";
 
 const ESTADOS_RESERVA: EstadoReserva[] = ["pendiente", "en_proceso", "confirmada", "cancelada"];
+const ESTADOS_LEAD: EstadoLead[] = ["nuevo", "contactado", "cotizado", "ganado", "perdido"];
 
 const TIPOS_DESTINO: TipoDestino[] = ["playa", "naturaleza", "ciudad", "aventura", "internacional"];
 
@@ -308,11 +310,30 @@ export async function deleteTestimonioAction(formData: FormData): Promise<void> 
   redirect("/admin/testimonios");
 }
 
-// --- Leads -----------------------------------------------------------------
+// --- Leads (CRM) -----------------------------------------------------------
 
 export async function deleteLeadAction(formData: FormData): Promise<void> {
   await requireAdmin();
   await deleteLead(str(formData, "id"));
+  redirect("/admin/leads");
+}
+
+/** Cambio rápido de etapa del lead desde la lista. */
+export async function cambiarEstadoLeadAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  const estadoRaw = str(formData, "estado") as EstadoLead;
+  if (ESTADOS_LEAD.includes(estadoRaw)) {
+    await updateLead(id, { estado: estadoRaw });
+  }
+  const from = str(formData, "from");
+  redirect(from.startsWith("/admin/leads") ? from : "/admin/leads");
+}
+
+/** Guarda las notas internas del lead. */
+export async function guardarNotaLeadAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  await updateLead(str(formData, "id"), { notas: str(formData, "notas") });
   redirect("/admin/leads");
 }
 

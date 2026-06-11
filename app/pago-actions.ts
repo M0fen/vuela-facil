@@ -2,6 +2,7 @@
 
 import { FINANCIACION } from "@/lib/data";
 import { addReserva } from "@/lib/store";
+import { notificarNuevaReserva } from "@/lib/email";
 import { urlCheckoutWompi, siteUrl } from "@/lib/pagos";
 
 export type AbonoResult = { ok: boolean; url?: string | null; reservaId?: string; error?: string };
@@ -28,6 +29,14 @@ export async function iniciarAbono(input: {
     const reserva = await addReserva({
       ...input,
       mensaje: `Abono ${FINANCIACION.abonoPct}% (pago en línea)`,
+    });
+    await notificarNuevaReserva({
+      destino: reserva.destino,
+      nombre: reserva.nombre,
+      telefono: reserva.telefono,
+      viajeros: reserva.viajeros,
+      fecha: reserva.fecha,
+      totalEstimado: reserva.totalEstimado,
     });
     const montoCents = Math.round((input.totalEstimado * FINANCIACION.abonoPct) / 100) * 100;
     const url = urlCheckoutWompi({

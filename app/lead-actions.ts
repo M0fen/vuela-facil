@@ -1,6 +1,7 @@
 "use server";
 
 import { addLead } from "@/lib/store";
+import { notificarNuevoLead } from "@/lib/email";
 
 export type LeadState = { ok: boolean; error?: string };
 
@@ -13,7 +14,9 @@ export async function submitLead(_prev: LeadState, formData: FormData): Promise<
   }
 
   try {
-    await addLead({ email, telefono, origen: "Tribu Vuela Fácil (newsletter)" });
+    const origen = "Tribu Vuela Fácil (newsletter)";
+    await addLead({ email, telefono, origen });
+    await notificarNuevoLead({ email, telefono, origen });
     return { ok: true };
   } catch {
     return { ok: false, error: "No se pudo guardar. Intenta de nuevo o escríbenos por WhatsApp." };
