@@ -1,103 +1,150 @@
-# Guía del operador — Vuela Fácil Travel
+# Guía para manejar tu página — Vuela Fácil Travel 🌎
 
-Guía sencilla para manejar el sitio y el panel de administración. No necesitas saber programar.
+¡Hola! 👋 Esta guía es para ti. No necesitas saber nada de tecnología: aquí te
+explicamos, paso a pasito y con calma, cómo manejar tu página y tu panel. Si en
+algún momento te trabas, no pasa nada — al final están los teléfonos de ayuda.
 
----
-
-## 1. Cómo entrar al panel
-
-1. Abre el navegador y ve a: **`https://TU-DOMINIO/admin`**
-   *(reemplaza `TU-DOMINIO` por la dirección real del sitio).*
-2. Escribe la **contraseña** de administrador.
-3. Listo: verás el panel con el menú a la izquierda.
-
-> 🔒 La contraseña la maneja quien configuró el sitio. Si la cambias, pídele que la actualice.
+Tómalo con tranquilidad. No vas a dañar nada por explorar. 😊
 
 ---
 
-## 2. Qué puedes hacer en el panel
+## 1. Cómo entrar a tu panel (la forma fácil)
 
-El menú tiene estas secciones:
+Tu panel es el lugar donde controlas todo lo que se ve en la página.
 
-| Sección | Para qué sirve |
+**La manera más sencilla de entrar:**
+
+1. Abre tu página normal en el navegador.
+2. Baja hasta el **final de todo** (el pie de página, la franja azul oscura).
+3. Verás un enlace que dice **🛡️ ¿Eres colaborador?** → haz clic ahí.
+4. Te pedirá una **contraseña**. Escríbela y listo: ya estás dentro. 🎉
+
+> 💡 ¿Prefieres ir directo? También puedes escribir tu dirección y agregarle
+> `/admin` al final (por ejemplo `tu-pagina.com/admin`). Pero con el botón del
+> final es más fácil y no hay que memorizar nada.
+
+> 🔒 La contraseña la creó la persona que armó el sitio. Guárdala en un lugar
+> seguro. Si algún día quieres cambiarla, pídele ayuda a esa persona.
+
+---
+
+## 2. ¿Qué puedes hacer aquí adentro?
+
+Al entrar verás un menú al lado. Cada opción controla una parte de la página:
+
+| Si quieres… | Entra a… |
 |---|---|
-| **Paquetes** | Crear, editar o quitar los viajes que se muestran en la página. |
-| **Destinos** | Los puntos del globo/mapa (“Explora el mundo desde Pereira”). |
-| **Promo** | El banner de oferta con cuenta regresiva. |
-| **Testimonios** | Las reseñas de viajeros que aparecen en la página. |
-| **Guías** | El blog de viajes (artículos). |
-| **Leads** | Los contactos que llegan por el formulario (con seguimiento). |
-| **Reservas** | Las solicitudes de reserva que hacen desde un paquete. |
+| Cambiar o agregar **viajes/planes** | **Paquetes** |
+| Ajustar los puntos del **mapa/globo** | **Destinos** |
+| Poner una **oferta** con cuenta regresiva | **Promo** |
+| Mostrar **opiniones de clientes** | **Testimonios** |
+| Escribir **artículos de viaje** (blog) | **Guías** |
+| Ver **quién te escribió** por el formulario | **Leads** |
+| Ver las **solicitudes de reserva** | **Reservas** |
 
-Cualquier cambio que guardes aparece en el sitio **al instante** (no hay que “publicar” aparte).
-
----
-
-## 3. Editar o crear un paquete (lo más común)
-
-1. Entra a **Paquetes** → botón **“Nuevo paquete”** (o toca uno existente para editar).
-2. Llena los campos:
-   - **Destino**, **País**, **Duración** (ej: “4 días · 3 noches”).
-   - **Precio** (solo el número, en pesos; sin puntos ni símbolos).
-   - **Precio antes** (opcional): si lo pones mayor al precio, se muestra tachado con el % de ahorro.
-   - **Categoría**: Playa, Eje Cafetero, Cruceros, Internacional, Aventura o Luna de Miel.
-   - **Incluye / Salidas**: una línea por ítem (Enter para separar).
-   - **Imagen**: sube una foto desde tu computador.
-3. Pulsa **Guardar**.
-
-> 💡 Para que un destino aparezca en el **buscador del inicio** y en las **landings** (`/viajes/...`), basta con que el paquete tenga su **categoría** bien puesta.
+✨ **Lo mejor:** todo lo que guardes aparece en la página **al instante**. No
+tienes que “publicar” ni hacer nada más. Guardas y ya está arriba.
 
 ---
 
-## 4. Manejar Leads (contactos) — seguimiento
+## 3. Lo que más vas a hacer: editar o crear un viaje
 
-En **Leads** ves a todos los que dejaron su correo/WhatsApp. Cada contacto tiene una **etapa**:
+Es como llenar un formulario. Tranquilo, es fácil:
 
-**Nuevo → Contactado → Cotizado → Ganado / Perdido**
+1. Entra a **Paquetes**.
+2. Para **cambiar uno** que ya existe → tócalo. Para **crear uno nuevo** → botón
+   **“Nuevo paquete”**.
+3. Llena las casillas:
+   - **Destino** y **País** (ej: “San Andrés”, “Colombia”).
+   - **Duración** (ej: “4 días · 3 noches”).
+   - **Precio**: solo el número, sin puntos ni el signo $ (ej: escribe `1890000`).
+   - **Precio antes** *(opcional)*: si pones uno más alto que el precio, se ve
+     tachado y muestra el descuento. Ideal para ofertas.
+   - **Categoría**: elige una (Playa, Eje Cafetero, Cruceros, etc.).
+   - **Incluye** y **Salidas**: escribe una cosa por línea (dale Enter para la
+     siguiente).
+   - **Imagen**: sube una foto bonita desde tu computador.
+4. Pulsa **Guardar**. ¡Listo! Ya está en tu página. 🙌
 
-- Toca los botones de etapa para mover el contacto según vayas avanzando.
-- Escribe **notas internas** (presupuesto, fechas, lo que hablaron) y **Guardar**.
-- Si dejaron WhatsApp, hay un **enlace directo** para escribirles.
-- Si vino **referido**, aparece marcado “Referido por …”.
-
-> Usa los filtros de arriba (Nuevos, Contactados…) para no perder ningún contacto sin atender.
-
----
-
-## 5. Manejar Reservas
-
-En **Reservas** llegan las solicitudes hechas desde un paquete (con destino, fecha, viajeros y total estimado). Igual que los leads, puedes cambiar su **estado** (Pendiente → En proceso → Confirmada / Cancelada) y exportarlas a CSV.
-
----
-
-## 6. Cómo funciona la página para el cliente (resumen)
-
-- Todo termina en **WhatsApp**: casi todos los botones abren un chat con un mensaje ya escrito.
-- **Lía** (el asistente con burbuja flotante) responde dudas con IA y siempre ofrece “hablar con un asesor” por WhatsApp.
-- El **buscador del inicio** filtra los paquetes por destino, categoría y presupuesto, y arma una cotización por WhatsApp.
-- En **celular**, la sección de destinos se ve como un **tablero de salidas de aeropuerto**; en computador, como un **globo 3D**.
-- La página se puede **instalar como app** desde el navegador (PWA).
+> 💡 Con solo elegir bien la **Categoría**, ese viaje aparece automáticamente en
+> el buscador del inicio y en las páginas de cada tema. Tú no haces nada extra.
 
 ---
 
-## 7. Cosas que NO se tocan desde el panel (las hace el técnico)
+## 4. Tus contactos (Leads): que no se te escape ningún cliente
+
+En **Leads** aparece todo el que dejó sus datos en la página. Piensa en esto
+como tu **lista de clientes por atender**.
+
+Cada contacto pasa por etapas, y tú lo vas moviendo según hablas con la persona:
+
+**Nuevo → Contactado → Cotizado → ¡Ganado! / Perdido**
+
+- Toca los botones para mover al cliente de una etapa a la siguiente.
+- Escribe **notas** (lo que hablaron, fechas, presupuesto) y **Guarda**. Así no
+  se te olvida nada.
+- Si dejó su WhatsApp, hay un **botón para escribirle directo**.
+- Si llegó **recomendado por un amigo**, aparece marcado.
+
+> 💡 Usa los filtros de arriba (Nuevos, Contactados…) para revisar primero a
+> quienes aún no has atendido. Un cliente respondido a tiempo es un cliente feliz. 😉
+
+---
+
+## 5. Tus reservas
+
+En **Reservas** llegan las solicitudes que la gente hace desde un viaje (con su
+destino, fecha y número de viajeros). Funcionan igual que los contactos: las vas
+moviendo de **Pendiente → En proceso → Confirmada / Cancelada**, y puedes
+descargarlas en un archivo si lo necesitas.
+
+---
+
+## 6. ¿Cómo funciona la página para tu cliente? (para que estés tranquilo)
+
+- **Todo lleva a WhatsApp.** Casi todos los botones abren un chat **con un mensaje
+  ya escrito**, para que el cliente solo te dé enviar. Así te llegan listos. 📲
+- **Lía**, la asistente con la burbujita que flota, responde dudas sola con
+  inteligencia artificial, y siempre ofrece **“hablar con un asesor”** (o sea, contigo).
+- El **buscador del inicio** ayuda al cliente a filtrar viajes y te manda la
+  solicitud por WhatsApp.
+- En **celular**, los destinos se ven como un **tablero de aeropuerto**; en
+  **computador**, como un **globo terráqueo** que gira. Las dos cosas son normales.
+- Tu página se puede **instalar como una app** en el teléfono. Es una opción extra
+  que ofrece el navegador.
+
+---
+
+## 7. Cositas que es mejor no tocar (las hace el técnico)
+
+No te preocupes por estas — no salen en tu panel. Si necesitas cambiar alguna,
+solo avísale a quien te ayuda con el sitio:
 
 - Datos legales y de contacto (RNT, NIT, dirección, correos, número de WhatsApp).
-- Textos legales (Términos, Privacidad, Reembolsos).
-- Activar pagos en línea (Wompi) o correos automáticos (Resend).
-- Colores, tipografías y estructura general.
-
-Para cualquiera de estos, contacta a quien administra el código. La lista de pendientes técnicos está en **`PENDIENTES.md`**.
+- Los textos de Términos, Privacidad y Reembolsos.
+- Activar pagos en línea o correos automáticos.
+- Colores, letras y la forma general de la página.
 
 ---
 
-## 8. Problemas frecuentes
+## 8. Si algo se ve raro (soluciones rápidas)
 
-- **No veo un cambio que guardé:** recarga con **Ctrl + Shift + R** (refresco forzado).
-- **No carga una imagen nueva:** revisa que el archivo no sea muy pesado (idealmente menos de ~2 MB) y vuelve a subirla.
-- **El globo no aparece en el celular:** es a propósito — en celular se muestra el tablero de destinos (más rápido y claro).
-- **Olvidé la contraseña del panel:** la restablece quien administra el código.
+- **Guardé un cambio y no lo veo:** aprieta a la vez las teclas
+  **Ctrl + Shift + R** (eso “refresca” la página). Casi siempre se arregla así.
+- **No me sube una foto:** puede estar muy pesada. Usa una más liviana (menos de
+  ~2 MB) e inténtalo otra vez.
+- **El globo no aparece en el celular:** es a propósito 😊. En el celular se
+  muestra el tablero de destinos, que es más rápido y claro.
+- **Olvidé la contraseña del panel:** no te preocupes, la restablece la persona
+  que administra el sitio.
 
 ---
 
-📞 **Soporte WhatsApp del negocio:** +57 311 449 4224
+## ¿Necesitas ayuda? Aquí estamos 💙
+
+Si te quedas trabado en algo, respira, no se dañó nada. Escribe o llama:
+
+📞 **WhatsApp del negocio:** +57 311 449 4224
+
+Y si es un tema técnico (algo de los del punto 7), contacta a quien administra el
+sitio. ¡Lo estás haciendo muy bien! 🌟

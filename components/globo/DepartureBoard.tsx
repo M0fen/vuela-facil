@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/icons";
 import { formatCOP, waLink } from "@/lib/utils";
 import { etiquetaTipo, type Destino, type RutaCrucero } from "@/lib/geo";
@@ -37,28 +37,14 @@ function FlapChar({ ch, delay }: { ch: string; delay: number }) {
   );
 }
 
-/** Texto en fichas split-flap. La ficha en `flipCol` re-gira cuando cambia `nonce`. */
-function FlapText({
-  text,
-  baseDelay = 0,
-  flipCol = -1,
-  nonce = 0,
-}: {
-  text: string;
-  baseDelay?: number;
-  flipCol?: number;
-  nonce?: number;
-}) {
+/** Texto en fichas split-flap. Al (re)montar el componente (cambiando su `key`)
+ *  todas sus fichas caen en cascada, como una fila de salidas que se actualiza. */
+function FlapText({ text, baseDelay = 0 }: { text: string; baseDelay?: number }) {
   const chars = text.toUpperCase().slice(0, 18).split("");
   return (
     <span className="flex flex-wrap gap-[2px]" aria-hidden="true">
       {chars.map((c, i) => (
-        <FlapChar
-          // Al cambiar la key, React remonta la ficha y vuelve a girar.
-          key={i === flipCol ? `${i}-${nonce}` : i}
-          ch={c}
-          delay={i === flipCol ? 0 : baseDelay + i * 0.03}
-        />
+        <FlapChar key={i} ch={c} delay={baseDelay + i * 0.03} />
       ))}
     </span>
   );
@@ -87,10 +73,10 @@ export function DepartureBoard({
   className?: string;
 }) {
   const [expandido, setExpandido] = useState(false);
-  // Latido del panel: ficha (fila, columna) que vuelve a girar, con un nonce que
-  // fuerza el remontaje. Se reinicia al cambiar de filtro (la sección remonta con key).
-  const [flip, setFlip] = useState({ row: -1, col: -1, nonce: 0 });
-  const nonceRef = useRef(0);
+  // Latido del panel: cada cierto tiempo una FILA al azar vuelve a caer en
+  // cascada (como un vuelo que se actualiza). El nonce fuerza el remontaje de
+  // esa fila. Se reinicia al cambiar de filtro (la sección remonta con key).
+  const [replay, setReplay] = useState({ row: -1, nonce: 0 });
 
   const filas: Fila[] = useMemo(
     () => [
@@ -117,20 +103,17 @@ export function DepartureBoard({
   const visibles = expandido ? filas : filas.slice(0, VISIBLES);
   const ocultas = filas.length - visibles.length;
 
-  // Latido: cada ~2.4 s una ficha al azar (de las visibles) vuelve a girar.
+  // Latido: cada ~4.5 s una fila al azar (de las visibles) vuelve a caer en
+  // cascada. Una sola a la vez → movimiento tranquilo, no ruidoso.
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (visibles.length === 0) return;
+    if (visibles.length <= 1) return;
 
     const id = setInterval(() => {
       const row = Math.floor(Math.random() * visibles.length);
-      const largo = Math.min(visibles[row].nombre.length, 18);
-      if (largo === 0) return;
-      const col = Math.floor(Math.random() * largo);
-      nonceRef.current += 1;
-      setFlip({ row, col, nonce: nonceRef.current });
-    }, 2400);
+      setReplay((r) => ({ row, nonce: r.nonce + 1 }));
+    }, 4500);
 
     return () => clearInterval(id);
   }, [visibles.length]);
@@ -167,10 +150,10 @@ export function DepartureBoard({
               <>
                 <span className="min-w-0 flex-1">
                   <FlapText
+                    // Al re-caer esta fila, cambia la key → vuelve a cascada.
+                    key={replay.row === i ? replay.nonce : 0}
                     text={f.nombre}
                     baseDelay={baseDelay}
-                    flipCol={flip.row === i ? flip.col : -1}
-                    nonce={flip.nonce}
                   />
                   <span className="block font-mono text-[10px] text-white/35 tracking-wide mt-1.5 truncate uppercase">
                     {f.sub}

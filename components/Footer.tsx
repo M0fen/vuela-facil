@@ -160,10 +160,17 @@ export function Footer() {
           <div>
             © {new Date().getFullYear()} Vuela Fácil Travel S.A.S. · Todos los derechos reservados.
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <a href="/privacidad" className="hover:text-white transition-colors">Privacidad</a>
             <a href="/cookies" className="hover:text-white transition-colors">Cookies</a>
             <a href="/terminos" className="hover:text-white transition-colors">Términos</a>
+            <a
+              href="/admin"
+              className="inline-flex items-center gap-1.5 text-white/55 hover:text-white transition-colors"
+            >
+              <Icon.Shield className="w-3.5 h-3.5" />
+              ¿Eres colaborador?
+            </a>
           </div>
         </div>
       </div>

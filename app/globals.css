@@ -259,7 +259,7 @@ html {
   border-radius: 3px 3px 0 0;
   background: linear-gradient(180deg, #2b2b2d 0%, #202022 100%);
   border-bottom: 1px solid rgba(0, 0, 0, 0.6);
-  animation: leafTop 0.3s cubic-bezier(0.45, 0.05, 0.55, 1) var(--d, 0s) both;
+  animation: leafTop 0.34s cubic-bezier(0.4, 0.0, 0.5, 1) var(--d, 0s) both;
 }
 .flap-leaf-bottom {
   bottom: 0;
@@ -267,7 +267,7 @@ html {
   transform: rotateX(0deg);
   border-radius: 0 0 3px 3px;
   background: linear-gradient(180deg, #1a1a1c 0%, #0c0c0d 100%);
-  animation: leafBottom 0.24s cubic-bezier(0.3, 1.5, 0.5, 1) calc(var(--d, 0s) + 0.28s) both;
+  animation: leafBottom 0.28s cubic-bezier(0.22, 0.85, 0.35, 1.06) calc(var(--d, 0s) + 0.3s) both;
 }
 .flap-leaf-bottom > b {
   transform: translateY(-0.7em);
@@ -303,7 +303,7 @@ html {
     opacity: 0;
   }
   100% {
-    opacity: 0.85;
+    opacity: 0.32;
   }
 }
 

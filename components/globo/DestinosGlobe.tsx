@@ -13,7 +13,7 @@
 // setState por frame, ResizeObserver con debounce, pausa fuera de viewport,
 // calidad adaptativa y dispose en unmount.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   CanvasTexture,
   Color,
@@ -215,12 +215,20 @@ export function DestinosGlobe({
     };
   }, []);
 
-  // --- ResizeObserver (debounce 150 ms) -----------------------------------
-  useEffect(() => {
+  // --- Medición del contenedor --------------------------------------------
+  // Síncrona (useLayoutEffect): toma el tamaño con el layout ya resuelto, ANTES
+  // del primer paint, para que el globo monte a su tamaño definitivo y no "salte"
+  // a una posición rara. Los cambios posteriores (resize) van con debounce.
+  useLayoutEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
     let t = 0;
-    const apply = () => setSize({ w: el.clientWidth, h: el.clientHeight });
+    const apply = () => {
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+      // Evita re-render si no cambió (no remonta el canvas innecesariamente).
+      setSize((s) => (s.w === w && s.h === h ? s : { w, h }));
+    };
     apply();
     const ro = new ResizeObserver(() => {
       window.clearTimeout(t);
@@ -315,6 +323,11 @@ export function DestinosGlobe({
     });
 
     g.renderer().setPixelRatio(quality.dpr);
+    // Reafirma la posición tras un frame: garantiza que el primer fotograma
+    // visible ya esté centrado en Colombia (y no en el POV por defecto).
+    requestAnimationFrame(() => {
+      globeRef.current?.pointOfView(POV_GENERAL, 0);
+    });
     setReady(true);
     onReady?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
