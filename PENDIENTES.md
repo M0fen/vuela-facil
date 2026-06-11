@@ -2,9 +2,13 @@
 
 Checklist de lo que falta de tu lado. Marca con `x` lo que vayas completando.
 
+## 🟥 CRÍTICO — número de WhatsApp en Vercel
+- [ ] **Actualizar `NEXT_PUBLIC_WHATSAPP_NUMERO` en Vercel** → Settings → Environment Variables a **`573114494224`** y re-desplegar. El código y `.env.local` ya usan el número nuevo, pero **la variable de Vercel manda**: si quedó el viejo (`573145452095`), los enlaces de WhatsApp en producción seguirán yendo al número equivocado.
+
 ## 🟥 Antes de publicar Fase 0 (datos reales en `lib/data.ts` → `NEGOCIO`)
-- [ ] **RNT** real del MinCIT (hoy `RNT 00000`).
-- [ ] **NIT** real (hoy `PENDIENTE-NIT`).
+- [x] **WhatsApp** real: `573114494224` (display `+57 311 449 4224`). *(Falta actualizar la env var en Vercel, ver arriba.)*
+- [x] **NIT** real: `902057889-8`.
+- [~] **RNT**: puesto como **"RNT vigente"** + fecha de inscripción **20 de abril de 2026** (en el footer). Si tienes el **número de RNT** (formato "RNT 12345"), dímelo y lo muestro como número.
 - [ ] **Razón social** correcta (hoy `Vuela Fácil Travel S.A.S.`).
 - [ ] **Correo de contacto** real (hoy `hola@vuelafacil.com`).
 - [ ] **Correo de Habeas Data** real (hoy `datos@vuelafacil.com`).
