@@ -3,6 +3,7 @@ import { Fraunces, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { UIProvider } from "@/lib/ui-context";
 import { WhatsAppTracker } from "@/components/WhatsAppTracker";
+import { PWARegister } from "@/components/PWARegister";
 import { NEGOCIO, TESTIMONIOS } from "@/lib/data";
 import { WHATSAPP_NUMERO } from "@/lib/utils";
 import "./globals.css";
@@ -64,6 +65,16 @@ export const metadata: Metadata = {
   description:
     "Diseñamos viajes a la medida por Colombia y el mundo desde Pereira. Tiquetes, hoteles, paquetes y cruceros con asesoría humana y reserva por WhatsApp.",
   metadataBase: new URL("https://vuelafacil.com"),
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Vuela Fácil",
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "Vuela Fácil Travel · Agencia de Viajes en Pereira",
     description:
@@ -77,6 +88,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: "#0d2c54",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -89,6 +101,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <UIProvider>{children}</UIProvider>
         <WhatsAppTracker />
+        <PWARegister />
         <Analytics />
       </body>
     </html>

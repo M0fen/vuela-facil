@@ -32,6 +32,12 @@ Checklist de lo que falta de tu lado. Marca con `x` lo que vayas completando.
   - [ ] `NOTIFY_FROM` (opcional; remitente con dominio verificado)
 - [ ] Sin estas variables no se envía nada: el panel y WhatsApp siguen igual.
 
+## 📱 WhatsApp Business / PWA — Fase 4 (lado tuyo, opcional)
+- [ ] Pasar el número a **WhatsApp Business** (gratis): cuenta verificada, **horario de atención**, **mensaje de ausencia** y **respuestas rápidas**. El sitio ya muestra "En línea / Fuera de horario" según Lun–Sáb 8 a.m.–8 p.m.
+- [ ] (Opcional) **Catálogo** de WhatsApp Business con los paquetes destacados.
+- [ ] (Opcional) Reemplazar el ícono SVG por **PNG 192×192 y 512×512** para máxima compatibilidad de instalación en iOS antiguo (hoy se usa `/public/icon.svg`, suficiente para Android/Chrome).
+- [ ] Si cambias el horario de atención, ajústalo en `lib/horario.ts` (y `NEGOCIO.horario`).
+
 ## 🟩 Operación / cuenta (no bloquean, pero conviene)
 - [ ] Habilitar la pestaña **Analytics** en Vercel (vistas de página).
 - [ ] **Rotar** los secretos que pasaron por el chat: `ADMIN_PASSWORD`, tokens de Blob y DeepSeek.
@@ -43,5 +49,5 @@ Checklist de lo que falta de tu lado. Marca con `x` lo que vayas completando.
 ## 🔜 Próximas fases del plan competitivo (cuando quieras)
 - [x] Fase 2 — `AggregateRating` + `Review` JSON-LD + CRM/seguimiento de cotizaciones + avisos por correo. *(Reseñas de Google embebidas: pendiente conectar la cuenta real.)*
 - [ ] Fase 3 — Landings comerciales por destino y temática + schema (SEO a escala).
-- [ ] Fase 4 — PWA + WhatsApp Business + favoritos persistentes.
+- [x] Fase 4 — PWA (instalable + offline) + indicador "En línea" de WhatsApp por horario. *(Favoritos descartados a propósito: no queremos cuentas/perfiles.)*
 - [ ] Fase 5 — Referidos formal + fidelización.
