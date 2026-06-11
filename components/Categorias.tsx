@@ -1,15 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Icon } from "./icons";
 import { SectionEyebrow } from "./ui";
 import { CATEGORIAS } from "@/lib/data";
+import { CATEGORIA_A_LANDING } from "@/lib/landings";
 import { useReveal } from "@/hooks/useReveal";
-import { useUI } from "@/lib/ui-context";
 
 export function Categorias() {
   const ref = useReveal<HTMLElement>();
-  const { setFiltro, scrollTo } = useUI();
 
   return (
     <section
@@ -33,13 +33,10 @@ export function Categorias() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         {CATEGORIAS.map((c, i) => (
-          <button
+          <Link
             key={c.id}
-            onClick={() => {
-              setFiltro(c.nombre);
-              scrollTo("#paquetes");
-            }}
-            className={`group relative overflow-hidden rounded-2xl md:rounded-3xl aspect-[4/5] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/60 focus-visible:ring-offset-2 focus-visible:ring-offset-ivory ${
+            href={`/viajes/${CATEGORIA_A_LANDING[c.nombre]}`}
+            className={`group relative overflow-hidden rounded-2xl md:rounded-3xl aspect-[4/5] text-left block focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/60 focus-visible:ring-offset-2 focus-visible:ring-offset-ivory ${
               i === 0 ? "md:col-span-2 md:aspect-[8/5]" : ""
             }`}
           >
@@ -60,7 +57,7 @@ export function Categorias() {
                 Ver paquetes <Icon.Arrow className="w-4 h-4" />
               </div>
             </div>
-          </button>
+          </Link>
         ))}
       </div>
     </section>

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getPaquetes, getGuiasPublicadas } from "@/lib/store";
+import { LANDINGS } from "@/lib/landings";
 
 const BASE = "https://vuelafacil.com";
 
@@ -26,6 +27,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: p === "/nosotros" || p === "/financiacion" ? 0.6 : 0.3,
+    })),
+    ...LANDINGS.map((l) => ({
+      url: `${BASE}/viajes/${l.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
     })),
     ...paquetes.map((p) => ({
       url: `${BASE}/paquetes/${p.id}`,
