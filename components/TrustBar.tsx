@@ -31,7 +31,7 @@ export function TrustBar() {
               </li>
             ))}
           </ul>
-          <div className="flex items-center gap-2 lg:shrink-0">
+          <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
             <span className="text-[11px] uppercase tracking-wider text-navy/55 font-semibold mr-1">
               Pagos
             </span>
