@@ -15,7 +15,7 @@ import type { Paquete } from "@/lib/types";
 function FlapText({ text, baseDelay = 0 }: { text: string; baseDelay?: number }) {
   const chars = text.toUpperCase().slice(0, 18).split("");
   return (
-    <span className="inline-flex gap-[2px]" aria-hidden="true">
+    <span className="flex flex-wrap gap-[2px]" aria-hidden="true">
       {chars.map((c, i) => (
         <span
           key={i}
@@ -100,7 +100,7 @@ export function DepartureBoard({
             const baseDelay = Math.min(i, 14) * 0.06;
             const inner = (
               <>
-                <span className="min-w-0">
+                <span className="min-w-0 flex-1">
                   <FlapText text={f.nombre} baseDelay={baseDelay} />
                   <span className="block font-mono text-[10px] text-white/35 tracking-wide mt-1.5 truncate uppercase">
                     {f.sub}

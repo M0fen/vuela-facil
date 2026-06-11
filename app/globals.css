@@ -21,10 +21,10 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-}
-
-body {
-  overflow-x: hidden;
+  /* Barrera anti scroll horizontal en móvil. `clip` no crea contenedor de
+     scroll (no rompe position: sticky como sí lo haría `hidden`). */
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 html {
