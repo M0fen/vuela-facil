@@ -85,9 +85,17 @@ export function ExploraDestinos({
       setPuedeGlobo(false);
       return;
     }
-    const cores = navigator.hardwareConcurrency ?? 4;
-    const mem = (navigator as { deviceMemory?: number }).deviceMemory ?? 4;
-    setPuedeGlobo(!(cores <= 2 || mem <= 2));
+    // El globo 3D solo en escritorio: en móvil se ve apretado y consume batería/
+    // datos. Allí mostramos la grilla de destinos (limpia y rápida).
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const evaluar = () => {
+      const cores = navigator.hardwareConcurrency ?? 4;
+      const mem = (navigator as { deviceMemory?: number }).deviceMemory ?? 4;
+      setPuedeGlobo(mq.matches && !(cores <= 2 || mem <= 2));
+    };
+    evaluar();
+    mq.addEventListener("change", evaluar);
+    return () => mq.removeEventListener("change", evaluar);
   }, [reduced]);
 
   const montarGlobo = puedeGlobo && entered;
@@ -195,7 +203,7 @@ export function ExploraDestinos({
             Explora el mundo desde Pereira
           </h2>
           <p className="text-ivory/85 mt-3 md:text-lg">
-            Cada destino es un vuelo que sale de casa. Tócalo en el globo o en la lista:
+            Cada destino es un vuelo que sale de casa. Elige uno de la lista:
             te mostramos el plan o lo cotizamos por WhatsApp al instante.
           </p>
         </div>
@@ -220,7 +228,7 @@ export function ExploraDestinos({
             ))}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             <div
               className="inline-flex rounded-full border border-ivory/20 p-1"
               role="group"
@@ -248,7 +256,7 @@ export function ExploraDestinos({
         <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] items-start">
           <div
             ref={ref}
-            className="relative rounded-3xl overflow-hidden ring-1 ring-ivory/10 shadow-2xl shadow-black/30 aspect-[1000/620] lg:aspect-[1000/680]"
+            className="relative hidden lg:block rounded-3xl overflow-hidden ring-1 ring-ivory/10 shadow-2xl shadow-black/30 aspect-[1000/620] lg:aspect-[1000/680]"
           >
             <DestinosMapa2D
               className={`w-full h-full block transition-opacity duration-500 ${
@@ -317,14 +325,14 @@ export function ExploraDestinos({
             )}
           </div>
 
-          {/* Rail sincronizado (versión accesible + SEO) */}
+          {/* Rail sincronizado (en móvil es la grilla principal de destinos) */}
           <div className="lg:max-h-[680px] lg:overflow-y-auto lg:pr-1">
             <h3 className="text-ivory/80 text-xs uppercase tracking-[0.2em] font-semibold mb-3">
               {destinosFiltrados.length + rutasFiltradas.length} destinos
             </h3>
-            <ul className="flex gap-3 overflow-x-auto pb-2 snap-x lg:flex-col lg:overflow-x-visible lg:overflow-y-visible">
+            <ul className="grid grid-cols-2 gap-3 lg:flex lg:flex-col">
               {destinosFiltrados.map((d) => (
-                <li key={d.id} className="shrink-0 w-[210px] snap-start lg:w-auto">
+                <li key={d.id} className="lg:w-auto">
                   <RailCard
                     activo={activoId === d.id}
                     color={colorDestino(d.tipo)}
@@ -340,7 +348,7 @@ export function ExploraDestinos({
                 </li>
               ))}
               {rutasFiltradas.map((r) => (
-                <li key={r.id} className="shrink-0 w-[210px] snap-start lg:w-auto">
+                <li key={r.id} className="lg:w-auto">
                   <RailCard
                     activo={false}
                     color="#f4a93c"

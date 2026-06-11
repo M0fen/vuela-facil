@@ -55,11 +55,11 @@ export function OfferBanner({ promo }: { promo: Promo }) {
             <span className="w-2 h-2 rounded-full bg-amber animate-pulse" />
             {mostrarReloj ? promo.eyebrow : "Acompañamiento humano todo el año"}
           </div>
-          <h3 className="font-serif text-white text-[32px] md:text-[48px] leading-[1.05] tracking-[-0.02em]">
+          <h2 className="font-serif text-white text-[32px] md:text-[48px] leading-[1.05] tracking-[-0.02em]">
             {promo.tituloLinea1} <em className="italic text-amber">{promo.destacado}</em>
             <br />
             <span className="text-white/85">{promo.tituloLinea2}</span>
-          </h3>
+          </h2>
           <p className="text-white/75 mt-4 max-w-xl">{promo.descripcion}</p>
         </div>
         <div className="md:col-span-5">

@@ -1,6 +1,6 @@
 import { Icon } from "./icons";
 import { Logo } from "./ui";
-import { NEGOCIO } from "@/lib/data";
+import { NEGOCIO, MEDIOS_PAGO } from "@/lib/data";
 import { waLink } from "@/lib/utils";
 
 type Enlace = { label: string; href: string; ext?: boolean };
@@ -130,10 +130,10 @@ export function Footer() {
               Pago seguro
             </div>
             <div className="grid grid-cols-3 gap-1.5">
-              {["VISA", "MC", "AmEx", "PSE", "NEQUI", "ADDI"].map((p) => (
+              {MEDIOS_PAGO.map((p) => (
                 <div
                   key={p}
-                  className="aspect-[3/2] rounded-md bg-white/8 border border-white/10 flex items-center justify-center text-[10px] font-bold tracking-wider text-white/70"
+                  className="aspect-[3/2] rounded-md bg-white/8 border border-white/10 flex items-center justify-center text-[10px] font-bold tracking-wide text-white/75 uppercase"
                 >
                   {p}
                 </div>
@@ -154,7 +154,7 @@ export function Footer() {
             </div>
           </div>
         </div>
-        <div className="pt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-[12px] text-white/55">
+        <div className="pt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-[12px] text-white/70">
           <div>
             © {new Date().getFullYear()} Vuela Fácil Travel S.A.S. · Todos los derechos reservados.
           </div>

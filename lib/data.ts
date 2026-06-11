@@ -178,6 +178,9 @@ export const FINANCIACION: Financiacion = {
   medios: ["PSE", "Tarjetas", "Nequi", "Bancolombia"],
 };
 
+/** Métodos de pago aceptados. Fuente única para los badges de todo el sitio. */
+export const MEDIOS_PAGO = ["Visa", "Mastercard", "AmEx", "PSE", "Nequi", "Daviplata", "Addi"] as const;
+
 // ---------------------------------------------------------------------------
 // REFERIDOS y FIDELIZACIÓN (Fase 5). Programa "gana–gana" gestionado por el
 // asesor, sin apps ni cuentas: la atribución viaja en el enlace/mensaje de

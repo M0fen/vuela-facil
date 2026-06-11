@@ -1,5 +1,5 @@
 import { Icon } from "./icons";
-import { NEGOCIO } from "@/lib/data";
+import { NEGOCIO, MEDIOS_PAGO } from "@/lib/data";
 
 /**
  * Barra de confianza discreta, justo debajo del hero. Reúne señales reales
@@ -12,8 +12,6 @@ const ITEMS = [
   { icon: Icon.Users, label: `${NEGOCIO.viajeros} viajeros`, sub: "felices" },
   { icon: Icon.Clock, label: `Respuesta ${NEGOCIO.tiempoRespuesta}`, sub: "por WhatsApp" },
 ];
-
-const PAGOS = ["Visa", "Mastercard", "PSE", "Nequi", "Addi"];
 
 export function TrustBar() {
   return (
@@ -28,16 +26,16 @@ export function TrustBar() {
                 </span>
                 <span className="leading-tight">
                   <span className="block text-[13px] font-semibold text-navy">{label}</span>
-                  <span className="block text-[11px] text-navy/55">{sub}</span>
+                  <span className="block text-[11px] text-navy/65">{sub}</span>
                 </span>
               </li>
             ))}
           </ul>
           <div className="flex items-center gap-2 lg:shrink-0">
-            <span className="text-[11px] uppercase tracking-wider text-navy/45 font-semibold mr-1">
+            <span className="text-[11px] uppercase tracking-wider text-navy/55 font-semibold mr-1">
               Pagos
             </span>
-            {PAGOS.map((p) => (
+            {MEDIOS_PAGO.map((p) => (
               <span
                 key={p}
                 className="px-2.5 py-1 rounded-full bg-navy/5 border border-navy/10 text-[11px] text-navy/60"

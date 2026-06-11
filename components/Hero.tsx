@@ -223,7 +223,7 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
             [
               [`${NEGOCIO.anios} años`, "diseñando viajes"],
               [NEGOCIO.viajeros, "viajeros felices"],
-              ["98%", "vuelven con nosotros"],
+              ["100%", "por WhatsApp"],
             ] as const
           ).map(([n, l]) => (
             <div key={l}>

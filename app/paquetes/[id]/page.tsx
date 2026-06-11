@@ -332,7 +332,7 @@ export default async function PaquetePage({
               <div className="flex items-center gap-2 mb-5">
                 <Stars rating={pkg.calificacion} />
                 <span className="text-navy font-semibold text-[14px]">{pkg.calificacion}</span>
-                <span className="text-navy/55 text-[13px]">· {pkg.reviews} reseñas verificadas</span>
+                <span className="text-navy/60 text-[13px]">· {pkg.reviews} reseñas de viajeros</span>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 {reseñas.map((t) => (

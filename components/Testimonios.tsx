@@ -26,8 +26,8 @@ export function Testimonios({ testimonios }: { testimonios: Testimonio[] }) {
           <div className="mt-5 inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-navy/8">
             <Stars rating={promedio} />
             <span className="text-navy font-semibold text-[14px]">{promedio.toFixed(1)}</span>
-            <span className="text-navy/55 text-[13px]">
-              · {testimonios.length} reseñas verificadas
+            <span className="text-navy/60 text-[13px]">
+              · {testimonios.length} reseñas de viajeros
             </span>
           </div>
         </div>

@@ -39,12 +39,12 @@ export default async function Home() {
         <OfferBanner promo={promo} />
         <ExploraDestinos paquetes={paquetes} destinos={destinos} />
         <Categorias />
-        <Quiz paquetes={paquetes} />
-        <Confianza />
-        <RecomendadosTemporada paquetes={paquetes} />
         <Testimonios testimonios={testimonios} />
-        <GuiasHome guias={guias} />
+        <Confianza />
+        <Quiz paquetes={paquetes} />
         <StoryEjeCafetero />
+        <RecomendadosTemporada paquetes={paquetes} />
+        <GuiasHome guias={guias} />
         <CapturaContacto />
       </main>
       <Footer />

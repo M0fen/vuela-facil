@@ -13,6 +13,13 @@ Checklist de lo que falta de tu lado. Marca con `x` lo que vayas completando.
 - [ ] **Facebook**: URL real o dejar vacío (campo `facebook`).
 - [ ] **Revisión legal por un abogado** de `/terminos`, `/privacidad` y `/reembolsos` (son plantillas base).
 
+## ✅ Verificar afirmaciones de marketing (auditoría de contenido)
+Dejé el copy honesto y conservador; confirma los datos reales para poder ser más específicos:
+- [ ] **Marcas con las que reservas** (sección "Reservamos con las marcas que ya conoces" en `components/Confianza.tsx`): confirma cuáles son ciertas. Hoy: Avianca, LATAM, Wingo, Royal Caribbean, Decameron, Iberostar, AssistCard. Quité el encabezado "aliados estratégicos / operamos con marcas líderes" para no afirmar una alianza formal. Si tienes acuerdos reales, podemos decirlo explícitamente.
+- [ ] **N.º real de destinos** (antes decía "+40 destinos · 5 continentes", lo retiré por inflado). Si quieres mostrar una cifra, dime la real.
+- [ ] **% de recompra** (antes el hero decía "98% vuelven con nosotros", sin fuente → lo cambié a "100% por WhatsApp"). Si tienes el dato real medido, lo reponemos.
+- [ ] **"Reseñas verificadas"** → lo cambié a "reseñas de viajeros". Cuando conectes reseñas reales de Google, vuelve a ser "verificadas".
+
 ## 🟦 Para activar el pago online (Wompi) — Fase 1
 - [ ] Crear cuenta de comercio en **Wompi** (https://comercios.wompi.co).
 - [ ] Configurar en Vercel / `.env.local`:
