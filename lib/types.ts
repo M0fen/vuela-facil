@@ -62,6 +62,8 @@ export interface Lead {
   estado?: EstadoLead;
   /** Notas internas del asesor. */
   notas?: string;
+  /** Nombre de quien lo refirió (programa de referidos), si aplica. */
+  referidoPor?: string;
   /** ISO date string. */
   createdAt: string;
 }

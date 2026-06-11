@@ -10,9 +10,9 @@ const COLS: { t: string; l: Enlace[] }[] = [
     t: "Compañía",
     l: [
       { label: "Nosotros", href: "/nosotros" },
-      { label: "Nuestro equipo", href: "/nosotros#equipo" },
       { label: "Blog de viajes", href: "/guias" },
       { label: "Financiación", href: "/financiacion" },
+      { label: "Refiere y gana", href: "/referidos" },
       { label: "Política de tratamiento", href: "/privacidad" },
     ],
   },

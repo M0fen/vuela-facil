@@ -130,6 +130,11 @@ export default async function LeadsAdmin({
                       <span className="px-2 py-0.5 rounded-full bg-navy/5 border border-navy/10 text-navy/55 text-[11px]">
                         {l.origen}
                       </span>
+                      {l.referidoPor && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-coral/10 border border-coral/25 text-coral text-[11px] font-semibold">
+                          <Icon.Sparkle className="w-3 h-3" /> Referido por {l.referidoPor}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="text-right shrink-0">

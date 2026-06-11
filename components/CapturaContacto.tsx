@@ -4,17 +4,15 @@ import Image from "next/image";
 import { useActionState } from "react";
 import { Icon } from "./icons";
 import { IMG } from "@/lib/data";
-import { waLink } from "@/lib/utils";
 import { submitLead, type LeadState } from "@/app/lead-actions";
-
-const REFERIDO_MSG =
-  "Hola Vuela Fácil 👋 Quiero referir a alguien a la Tribu. ¿Cómo funciona el beneficio para los dos?";
+import { useReferido } from "@/lib/referido";
 
 export function CapturaContacto() {
   const [state, formAction, pending] = useActionState<LeadState, FormData>(submitLead, {
     ok: false,
   });
   const sent = state.ok;
+  const referido = useReferido();
 
   return (
     <section id="contacto" className="relative py-20 md:py-28 overflow-hidden">
@@ -45,9 +43,7 @@ export function CapturaContacto() {
               </a>
             </div>
             <a
-              href={waLink(REFERIDO_MSG)}
-              target="_blank"
-              rel="noreferrer"
+              href="/referidos"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#25D366]/15 border border-[#25D366]/30 text-white text-[13px] font-semibold hover:bg-[#25D366]/25 transition-colors"
             >
               <Icon.Whatsapp className="w-4 h-4 text-[#25D366]" />
@@ -64,6 +60,7 @@ export function CapturaContacto() {
                   Te avisamos antes de que se agoten los cupos.
                 </div>
                 <form action={formAction} className="space-y-3">
+                  <input type="hidden" name="referidoPor" value={referido?.nombre ?? ""} />
                   <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-navy/15 focus-within:border-coral transition-colors">
                     <Icon.Compass className="w-5 h-5 text-navy/50" />
                     <input
