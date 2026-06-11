@@ -147,7 +147,7 @@ export const PAQUETES: Paquete[] = [
 // ⚠️ Reemplaza `rnt` por el Registro Nacional de Turismo verdadero de la agencia.
 // ---------------------------------------------------------------------------
 export const NEGOCIO: Negocio = {
-  rnt: "RNT vigente",
+  rnt: "RNT 286644",
   rntFecha: "20 de abril de 2026", // fecha de inscripción/vigencia del RNT
   anios: 12,
   viajeros: "+18.500",
