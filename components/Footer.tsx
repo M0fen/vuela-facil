@@ -17,14 +17,14 @@ const COLS: { t: string; l: Enlace[] }[] = [
     ],
   },
   {
-    t: "Destinos",
+    t: "Viajes",
     l: [
-      { label: "San Andrés", href: "/paquetes/VF-SAI-001" },
-      { label: "Cartagena", href: "/paquetes/VF-CTG-003" },
-      { label: "Eje Cafetero", href: "/paquetes/VF-EJC-002" },
-      { label: "Cancún", href: "/paquetes/VF-CUN-004" },
-      { label: "Europa", href: "/paquetes/VF-EUR-006" },
-      { label: "Cruceros", href: "/paquetes/VF-CRC-005" },
+      { label: "Viajes de playa", href: "/viajes/playa" },
+      { label: "Eje Cafetero", href: "/viajes/eje-cafetero" },
+      { label: "Cruceros", href: "/viajes/cruceros" },
+      { label: "Internacional", href: "/viajes/internacional" },
+      { label: "Luna de miel", href: "/viajes/luna-de-miel" },
+      { label: "Aventura", href: "/viajes/aventura" },
     ],
   },
   {
