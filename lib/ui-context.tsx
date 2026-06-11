@@ -8,14 +8,18 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Categoria } from "./types";
 import { recordVisto } from "./vistos";
+import { BUSQUEDA_INICIAL, type Busqueda, type Filtro } from "./buscador";
 
-export type Filtro = "Todos" | Categoria;
+export type { Filtro, Busqueda } from "./buscador";
 
 interface UIContextValue {
-  filtro: Filtro;
-  setFiltro: (f: Filtro) => void;
+  /** Estado del buscador (Hero ↔ Paquetes). */
+  busqueda: Busqueda;
+  /** Mezcla un parche en la búsqueda actual. */
+  setBusqueda: (patch: Partial<Busqueda>) => void;
+  /** Vuelve la búsqueda a su estado inicial. */
+  resetBusqueda: () => void;
   activePackageId: string | null;
   openPackage: (id: string) => void;
   closePackage: () => void;
@@ -25,8 +29,14 @@ interface UIContextValue {
 const UIContext = createContext<UIContextValue | null>(null);
 
 export function UIProvider({ children }: { children: ReactNode }) {
-  const [filtro, setFiltro] = useState<Filtro>("Todos");
+  const [busqueda, setBusquedaState] = useState<Busqueda>(BUSQUEDA_INICIAL);
   const [activePackageId, setActivePackageId] = useState<string | null>(null);
+
+  const setBusqueda = useCallback((patch: Partial<Busqueda>) => {
+    setBusquedaState((prev) => ({ ...prev, ...patch }));
+  }, []);
+
+  const resetBusqueda = useCallback(() => setBusquedaState(BUSQUEDA_INICIAL), []);
 
   const openPackage = useCallback((id: string) => {
     recordVisto(id);
@@ -44,8 +54,16 @@ export function UIProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ filtro, setFiltro, activePackageId, openPackage, closePackage, scrollTo }),
-    [filtro, activePackageId, openPackage, closePackage, scrollTo],
+    () => ({
+      busqueda,
+      setBusqueda,
+      resetBusqueda,
+      activePackageId,
+      openPackage,
+      closePackage,
+      scrollTo,
+    }),
+    [busqueda, setBusqueda, resetBusqueda, activePackageId, openPackage, closePackage, scrollTo],
   );
 
   return <UIContext.Provider value={value}>{children}</UIContext.Provider>;

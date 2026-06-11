@@ -1,14 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ComponentType, type ReactNode, type SVGProps } from "react";
+import { useMemo, useState, type ComponentType, type ReactNode, type SVGProps } from "react";
 import { Icon } from "./icons";
 import { IMG, NEGOCIO } from "@/lib/data";
-import { waLink } from "@/lib/utils";
-import { useUI, type Filtro } from "@/lib/ui-context";
-
-const CATEGORIAS_BUSCADOR = ["Playa", "Eje Cafetero", "Cruceros", "Internacional", "Aventura", "Luna de Miel"];
-const PRESUPUESTOS = ["Hasta $2.000.000", "$2 – 4 millones", "$4 – 8 millones", "Más de $8 millones"];
+import { formatCOP, waLink } from "@/lib/utils";
+import { useUI } from "@/lib/ui-context";
+import {
+  PRESUPUESTOS,
+  categoriasConInventario,
+  destinosDisponibles,
+  filtrarPaquetes,
+  type Busqueda,
+  type Filtro,
+} from "@/lib/buscador";
+import type { Paquete } from "@/lib/types";
 
 const fieldInput =
   "w-full bg-transparent outline-none text-[14px] text-navy font-medium cursor-pointer";
@@ -35,33 +41,48 @@ function Campo({
   );
 }
 
-export function Hero() {
-  const [tab, setTab] = useState("Paquetes");
+export function Hero({ paquetes }: { paquetes: Paquete[] }) {
+  const { setBusqueda, scrollTo } = useUI();
+
+  const tabs = useMemo(() => categoriasConInventario(paquetes), [paquetes]);
+  const destinos = useMemo(() => destinosDisponibles(paquetes), [paquetes]);
+
+  const [categoria, setCategoria] = useState<Filtro>("Todos");
   const [destino, setDestino] = useState("");
   const [fecha, setFecha] = useState("");
   const [viajeros, setViajeros] = useState(2);
-  const [presupuesto, setPresupuesto] = useState("");
-  const { setFiltro, scrollTo } = useUI();
+  const [presupuestoIdx, setPresupuestoIdx] = useState(-1); // -1 = cualquiera
 
-  const tabFiltro: Record<string, Filtro> = {
-    "Vuelo + Hotel": "Todos",
-    Paquetes: "Todos",
-    Cruceros: "Cruceros",
-    "Sólo hotel": "Todos",
+  const rango = presupuestoIdx >= 0 ? PRESUPUESTOS[presupuestoIdx] : null;
+
+  // Búsqueda actual (lo que se aplicará / se cuenta en vivo).
+  const busqueda: Busqueda = {
+    categoria,
+    destino,
+    presupuestoMin: rango?.min ?? 0,
+    presupuestoMax: rango?.max ?? Infinity,
+    viajeros,
+    mes: fecha,
   };
 
+  // Conteo en vivo: cuántos planes coinciden con los filtros reales.
+  const coincidencias = useMemo(
+    () => filtrarPaquetes(paquetes, busqueda).length,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [paquetes, categoria, destino, presupuestoIdx],
+  );
+
   const handleSearch = () => {
-    const filtro = (CATEGORIAS_BUSCADOR.includes(destino) ? destino : tabFiltro[tab]) as Filtro;
-    setFiltro(filtro ?? "Todos");
+    setBusqueda(busqueda);
     scrollTo("#paquetes");
   };
 
   const waMsg = `Hola Vuela Fácil 👋 Quiero cotizar un viaje:
-• Tipo: ${tab}
+• Tipo: ${categoria === "Todos" ? "Abierto" : categoria}
 • Destino: ${destino || "por definir"}
 • Salida: ${fecha || "fecha flexible"}
 • Viajeros: ${viajeros}
-• Presupuesto: ${presupuesto || "por definir"}`;
+• Presupuesto: ${rango ? rango.label : "por definir"}`;
 
   return (
     <section className="relative min-h-[100svh] w-full overflow-hidden">
@@ -89,21 +110,21 @@ export function Hero() {
           </p>
         </div>
 
-        {/* Buscador real: filtra los paquetes y arma tu cotización por WhatsApp */}
+        {/* Buscador real: filtra el catálogo y arma tu cotización por WhatsApp */}
         <div className="mt-12 md:mt-14">
           <div className="bg-white/95 backdrop-blur-xl rounded-2xl md:rounded-3xl shadow-[0_30px_80px_-20px_rgba(13,44,84,0.45)] border border-white/40 overflow-hidden">
             <div className="flex border-b border-navy/10 px-3 md:px-5 pt-3 gap-1 overflow-x-auto no-scrollbar">
-              {["Vuelo + Hotel", "Paquetes", "Cruceros", "Sólo hotel"].map((t) => (
+              {tabs.map((t) => (
                 <button
                   key={t}
-                  onClick={() => setTab(t)}
-                  aria-pressed={tab === t}
+                  onClick={() => setCategoria(t)}
+                  aria-pressed={categoria === t}
                   className={`px-4 py-3 text-[13px] md:text-[14px] font-semibold whitespace-nowrap rounded-t-lg transition-colors relative focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/50 ${
-                    tab === t ? "text-navy" : "text-navy/55 hover:text-navy/80"
+                    categoria === t ? "text-navy" : "text-navy/55 hover:text-navy/80"
                   }`}
                 >
                   {t}
-                  {tab === t && (
+                  {categoria === t && (
                     <span className="absolute left-3 right-3 bottom-0 h-[3px] rounded-t-full bg-gradient-to-r from-coral to-amber" />
                   )}
                 </button>
@@ -113,9 +134,9 @@ export function Hero() {
               <Campo icon={Icon.Pin} label="Destino" className="md:col-span-4">
                 <select value={destino} onChange={(e) => setDestino(e.target.value)} className={fieldInput} aria-label="Destino">
                   <option value="">¿A dónde sueñas ir?</option>
-                  {CATEGORIAS_BUSCADOR.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
+                  {destinos.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
                     </option>
                   ))}
                 </select>
@@ -139,11 +160,16 @@ export function Hero() {
                 </select>
               </Campo>
               <Campo icon={Icon.Wallet} label="Presupuesto" className="md:col-span-3">
-                <select value={presupuesto} onChange={(e) => setPresupuesto(e.target.value)} className={fieldInput} aria-label="Presupuesto">
-                  <option value="">Cualquiera</option>
-                  {PRESUPUESTOS.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
+                <select
+                  value={presupuestoIdx}
+                  onChange={(e) => setPresupuestoIdx(Number(e.target.value))}
+                  className={fieldInput}
+                  aria-label="Presupuesto por persona"
+                >
+                  <option value={-1}>Cualquiera</option>
+                  {PRESUPUESTOS.map((p, i) => (
+                    <option key={p.label} value={i}>
+                      {p.label}
                     </option>
                   ))}
                 </select>
@@ -151,14 +177,15 @@ export function Hero() {
             </div>
             <div className="bg-white p-3 md:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2 px-2 text-[12px] text-navy/65">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald/10 text-emerald-700 font-semibold">
+                  <Icon.Search className="w-3.5 h-3.5" />
+                  {coincidencias} {coincidencias === 1 ? "plan coincide" : "planes coinciden"}
+                </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-navy/5">
                   <Icon.Sparkle className="w-3.5 h-3.5 text-coral" /> Cuotas sin interés
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-navy/5">
-                  <Icon.Shield className="w-3.5 h-3.5 text-navy" /> RNT vigente
-                </span>
                 <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-navy/5">
-                  <Icon.Clock className="w-3.5 h-3.5 text-navy" /> Respuesta &lt; 5 min
+                  <Icon.Shield className="w-3.5 h-3.5 text-navy" /> RNT vigente
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -176,12 +203,16 @@ export function Hero() {
                   className="group inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-gradient-to-r from-coral to-amber text-white text-[15px] font-semibold tracking-wide shadow-[0_14px_30px_-10px_rgba(232,99,26,0.6)] hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.7)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                 >
                   <Icon.Search className="w-5 h-5" />
-                  Buscar viaje
+                  {coincidencias > 0 ? `Ver ${coincidencias} ${coincidencias === 1 ? "viaje" : "viajes"}` : "Buscar viaje"}
                   <Icon.Arrow className="w-5 h-5 -mr-1 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
             </div>
           </div>
+          {/* Precio de referencia para anclar expectativas. */}
+          <p className="mt-3 text-white/70 text-[12px] px-1">
+            Planes desde {formatCOP(Math.min(...paquetes.map((p) => p.precio)))} por persona · precios reales en COP.
+          </p>
         </div>
 
         <div className="mt-10 md:mt-14 grid grid-cols-3 gap-4 md:gap-10 max-w-2xl text-white/90">

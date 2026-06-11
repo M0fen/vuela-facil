@@ -1,15 +1,21 @@
 "use client";
 
+import { useMemo, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "./icons";
 import { SectionEyebrow } from "./ui";
 import { formatCOP, waLink, descuentoPct } from "@/lib/utils";
 import { FINANCIACION } from "@/lib/data";
-import { useUI, type Filtro } from "@/lib/ui-context";
+import { useUI } from "@/lib/ui-context";
+import {
+  categoriasConInventario,
+  filtrarPaquetes,
+  hayFiltros,
+  hayPresupuesto,
+  PRESUPUESTOS,
+} from "@/lib/buscador";
 import type { Paquete } from "@/lib/types";
-
-const FILTROS: Filtro[] = ["Todos", "Playa", "Eje Cafetero", "Cruceros", "Internacional"];
 
 function PackageCard({ p }: { p: Paquete }) {
   const { openPackage } = useUI();
@@ -120,14 +126,37 @@ function PackageCard({ p }: { p: Paquete }) {
   );
 }
 
+/** Chip de filtro activo, con botón para quitarlo. */
+function Chip({ children, onClear }: { children: ReactNode; onClear: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1 rounded-full bg-coral/10 border border-coral/25 text-coral text-[12px] font-semibold">
+      {children}
+      <button onClick={onClear} aria-label="Quitar filtro" className="w-4 h-4 rounded-full hover:bg-coral/20 flex items-center justify-center">
+        <Icon.Close className="w-3 h-3" />
+      </button>
+    </span>
+  );
+}
+
 export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
-  const { filtro, setFiltro } = useUI();
-  const list = filtro === "Todos" ? paquetes : paquetes.filter((p) => p.categoria === filtro);
+  const { busqueda, setBusqueda, resetBusqueda } = useUI();
+  const filtros = useMemo(() => categoriasConInventario(paquetes), [paquetes]);
+  const list = useMemo(() => filtrarPaquetes(paquetes, busqueda), [paquetes, busqueda]);
+
+  const presupuestoLabel = hayPresupuesto(busqueda)
+    ? PRESUPUESTOS.find((p) => p.min === busqueda.presupuestoMin && p.max === busqueda.presupuestoMax)?.label
+    : null;
+
+  const waVacio = `Hola Vuela Fácil 👋 Busqué un viaje${
+    busqueda.destino ? ` a ${busqueda.destino}` : ""
+  }${busqueda.categoria !== "Todos" ? ` (${busqueda.categoria})` : ""}${
+    presupuestoLabel ? ` con presupuesto ${presupuestoLabel}` : ""
+  } y no vi un plan publicado. ¿Me ayudan a armarlo a la medida?`;
 
   return (
     <section id="paquetes" className="bg-ivory py-24 md:py-32 border-y border-navy/5">
       <div className="max-w-[1320px] mx-auto px-5 md:px-8">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
           <div className="max-w-2xl">
             <SectionEyebrow>Paquetes destacados</SectionEyebrow>
             <h2 className="font-serif text-navy text-[34px] md:text-[52px] leading-[1.05] tracking-[-0.02em] mt-3">
@@ -139,12 +168,12 @@ export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            {FILTROS.map((c) => (
+            {filtros.map((c) => (
               <button
                 key={c}
-                onClick={() => setFiltro(c)}
+                onClick={() => setBusqueda({ categoria: c })}
                 className={`px-4 py-2 rounded-full text-[13px] font-medium transition-colors border ${
-                  filtro === c
+                  busqueda.categoria === c
                     ? "bg-navy text-white border-navy"
                     : "bg-white text-navy/70 border-navy/10 hover:border-navy/40"
                 }`}
@@ -154,11 +183,65 @@ export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
-          {list.map((p) => (
-            <PackageCard key={p.id} p={p} />
-          ))}
+
+        {/* Resumen de búsqueda: conteo + chips de filtros activos */}
+        <div className="flex items-center gap-3 flex-wrap mb-8">
+          <span className="text-navy/70 text-[14px] font-semibold">
+            {list.length} {list.length === 1 ? "viaje" : "viajes"}
+          </span>
+          {busqueda.destino && (
+            <Chip onClear={() => setBusqueda({ destino: "" })}>{busqueda.destino}</Chip>
+          )}
+          {presupuestoLabel && (
+            <Chip onClear={() => setBusqueda({ presupuestoMin: 0, presupuestoMax: Infinity })}>
+              {presupuestoLabel}
+            </Chip>
+          )}
+          {hayFiltros(busqueda) && (
+            <button
+              onClick={resetBusqueda}
+              className="text-navy/50 hover:text-coral text-[12px] font-semibold underline underline-offset-2"
+            >
+              Limpiar filtros
+            </button>
+          )}
         </div>
+
+        {list.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
+            {list.map((p) => (
+              <PackageCard key={p.id} p={p} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 px-6 rounded-3xl bg-white border border-dashed border-navy/15">
+            <span className="inline-flex w-14 h-14 rounded-2xl bg-coral/10 text-coral items-center justify-center mb-4">
+              <Icon.Compass className="w-7 h-7" />
+            </span>
+            <h3 className="font-serif text-navy text-[24px]">No hay un plan publicado con esos filtros</h3>
+            <p className="text-navy/60 text-[14px] mt-2 max-w-md mx-auto">
+              Pero eso no es un “no”: diseñamos viajes a la medida. Cuéntanos qué buscas y te armamos
+              una propuesta sin compromiso.
+            </p>
+            <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
+              <a
+                href={waLink(waVacio)}
+                target="_blank"
+                rel="noreferrer"
+                data-wa="paquetes-vacio"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-[#25D366] text-white font-semibold hover:bg-[#1ebe57] transition-colors"
+              >
+                <Icon.Whatsapp className="w-5 h-5" /> Pedir plan a la medida
+              </a>
+              <button
+                onClick={resetBusqueda}
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-navy/15 text-navy font-semibold hover:bg-navy hover:text-white transition-colors"
+              >
+                Ver todos los viajes
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

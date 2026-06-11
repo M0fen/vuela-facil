@@ -33,7 +33,7 @@ export default async function Home() {
     <div className="bg-ivory">
       <Header />
       <main>
-        <Hero />
+        <Hero paquetes={paquetes} />
         <TrustBar />
         <Paquetes paquetes={paquetes} />
         <OfferBanner promo={promo} />
