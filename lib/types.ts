@@ -130,8 +130,10 @@ export interface Testimonio {
 
 /** Datos del negocio para señales de confianza (barra de confianza, footer, SEO, legal). */
 export interface Negocio {
-  /** Número de Registro Nacional de Turismo. Reemplazar por el RNT real. */
+  /** Número/identificación del Registro Nacional de Turismo (etiqueta corta). */
   rnt: string;
+  /** Fecha de inscripción/vigencia del RNT (texto legible). Vacío si no aplica. */
+  rntFecha: string;
   anios: number;
   viajeros: string;
   tiempoRespuesta: string;

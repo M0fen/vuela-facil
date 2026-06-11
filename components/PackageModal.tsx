@@ -157,8 +157,8 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
           <Icon.Close className="w-5 h-5" />
         </button>
 
-        <div className="overflow-y-auto overscroll-contain flex-1">
-          <div className="relative h-[220px] sm:h-[260px] md:h-[340px] overflow-hidden">
+        <div className="overflow-y-auto overscroll-contain flex-1 min-h-0">
+          <div className="relative h-[200px] sm:h-[260px] md:h-[340px] overflow-hidden">
             <Image
               src={pkg.imagen}
               alt={pkg.destino}
@@ -167,7 +167,7 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
               className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/30 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white">
+            <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 text-white">
               <div className="flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-white/80 mb-2">
                 <Icon.Pin className="w-3.5 h-3.5" /> {pkg.pais} · {pkg.categoria}
               </div>
@@ -192,7 +192,7 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
           </div>
 
           <div className="grid md:grid-cols-3 gap-0">
-            <div className="md:col-span-2 p-6 md:p-8 space-y-8">
+            <div className="md:col-span-2 p-5 md:p-8 space-y-8">
               <section>
                 <h3 className="font-serif text-navy text-[22px] mb-3">Sobre este viaje</h3>
                 <p className="text-navy/70 leading-relaxed text-[15px]">
@@ -257,7 +257,7 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
               </section>
             </div>
 
-            <aside className="bg-ivory border-t md:border-t-0 md:border-l border-navy/8 p-6 md:p-7">
+            <aside className="bg-ivory border-t md:border-t-0 md:border-l border-navy/8 p-5 md:p-7">
               <div className="md:sticky md:top-4">
                 <div className="text-[11px] uppercase tracking-wider text-navy/50">
                   Precio por persona

@@ -19,6 +19,19 @@ import type { Paquete } from "@/lib/types";
 const fieldInput =
   "w-full bg-transparent outline-none text-[14px] text-navy font-medium cursor-pointer";
 
+const MESES = [
+  "enero", "febrero", "marzo", "abril", "mayo", "junio",
+  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+];
+
+/** "2026-01" → "enero 2026"; vacío → "Fechas flexibles". */
+function mesLegible(ym: string): string {
+  if (!ym) return "Fechas flexibles";
+  const [y, m] = ym.split("-").map(Number);
+  if (!y || !m || m < 1 || m > 12) return ym;
+  return `${MESES[m - 1]} ${y}`;
+}
+
 function Campo({
   icon: I,
   label,
@@ -90,12 +103,20 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
     scrollTo("#paquetes");
   };
 
-  const waMsg = `Hola Vuela Fácil 👋 Quiero cotizar un viaje:
-• Tipo: ${categoria === "Todos" ? "Abierto" : categoria}
-• Destino: ${destino || "por definir"}
-• Salida: ${fecha || "fecha flexible"}
-• Viajeros: ${viajeros}
-• Presupuesto: ${rango ? rango.label : "por definir"}`;
+  const waMsg = [
+    "✈️ *VUELA FÁCIL TRAVEL*",
+    "_Solicitud de cotización_",
+    "",
+    "¡Hola! Quiero cotizar un viaje 👇",
+    "",
+    `🗺️ *Destino:* ${destino || "Aún por decidir"}`,
+    `🏷️ *Estilo:* ${categoria === "Todos" ? "Abierto a opciones" : categoria}`,
+    `📅 *Salida:* ${mesLegible(fecha)}`,
+    `👥 *Viajeros:* ${viajeros} ${viajeros === 1 ? "viajero" : "viajeros"}`,
+    `💰 *Presupuesto:* ${rango ? rango.label : "Por definir"}`,
+    "",
+    "¿Me ayudan a armar la mejor opción? 🙌",
+  ].join("\n");
 
   return (
     <section className="relative min-h-[100svh] w-full overflow-hidden">

@@ -148,9 +148,11 @@ export function Footer() {
             <div className="mt-5 p-3 rounded-xl bg-white/5 border border-white/10">
               <div className="text-[10px] tracking-[0.2em] uppercase text-white/60">Registro</div>
               <div className="font-mono text-[14px] text-white mt-0.5">{NEGOCIO.rnt}</div>
-              <div className="text-[10px] text-white/50 mt-1">
+              <div className="text-[10px] text-white/60 mt-1">
                 Registro Nacional de Turismo · MinCIT
+                {NEGOCIO.rntFecha ? ` · ${NEGOCIO.rntFecha}` : ""}
               </div>
+              <div className="text-[10px] text-white/60 mt-1 font-mono">NIT {NEGOCIO.nit}</div>
             </div>
           </div>
         </div>

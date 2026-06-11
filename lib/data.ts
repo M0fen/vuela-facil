@@ -147,16 +147,17 @@ export const PAQUETES: Paquete[] = [
 // ⚠️ Reemplaza `rnt` por el Registro Nacional de Turismo verdadero de la agencia.
 // ---------------------------------------------------------------------------
 export const NEGOCIO: Negocio = {
-  rnt: "RNT 00000", // ← PLACEHOLDER: poner el RNT real antes de publicar
+  rnt: "RNT vigente",
+  rntFecha: "20 de abril de 2026", // fecha de inscripción/vigencia del RNT
   anios: 12,
   viajeros: "+18.500",
   tiempoRespuesta: "< 5 min",
-  telefonoDisplay: "+57 314 545 2095",
+  telefonoDisplay: "+57 311 449 4224",
   instagram: "https://www.instagram.com/vuelafaciltravel/",
-  // --- Datos legales / contacto (⚠️ PLACEHOLDERS: reemplazar por los reales) ---
+  // --- Datos legales / contacto ---
   razonSocial: "Vuela Fácil Travel S.A.S.",
   nombreComercial: "Vuela Fácil Travel",
-  nit: "PENDIENTE-NIT", // ← PLACEHOLDER
+  nit: "902057889-8",
   anato: "", // afiliación ANATO si aplica (ej. "Afiliado ANATO N.º 0000")
   direccion: "Cra. 14 #20-35, Pereira, Risaralda",
   ciudad: "Pereira, Risaralda — Colombia",

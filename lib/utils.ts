@@ -1,7 +1,7 @@
 // Número de WhatsApp del negocio. Configúralo en .env.local
 // (NEXT_PUBLIC_WHATSAPP_NUMERO). Por defecto, el número real de Vuela Fácil.
 export const WHATSAPP_NUMERO =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMERO ?? "573145452095";
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMERO ?? "573114494224";
 
 const copFormatter = new Intl.NumberFormat("es-CO", {
   style: "currency",
