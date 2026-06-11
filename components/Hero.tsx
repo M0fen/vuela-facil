@@ -126,7 +126,7 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
         <div className="absolute inset-0 bg-gradient-to-r from-navy/40 via-transparent to-transparent" />
       </div>
 
-      <div className="relative z-10 max-w-[1320px] mx-auto px-5 md:px-8 pt-[140px] md:pt-[160px] pb-16">
+      <div className="relative z-10 max-w-[1320px] mx-auto px-5 md:px-8 pt-[116px] md:pt-[160px] pb-12 md:pb-16">
         <div className="max-w-3xl">
           <div className="hero-in inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/12 backdrop-blur-md border border-white/20 text-white/95 text-[12px] tracking-[0.18em] uppercase mb-6" style={{ animationDelay: "0.05s" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-coral animate-pulse" />

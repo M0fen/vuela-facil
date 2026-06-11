@@ -15,7 +15,7 @@ export function CapturaContacto() {
   const referido = useReferido();
 
   return (
-    <section id="contacto" className="relative py-20 md:py-28 overflow-hidden">
+    <section id="contacto" className="relative py-14 md:py-28 overflow-hidden">
       <div className="absolute inset-0">
         <Image src={IMG.capt} alt="" fill sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/85 to-navy/70" />

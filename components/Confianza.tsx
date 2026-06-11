@@ -45,7 +45,7 @@ export function Confianza() {
   const ref = useReveal<HTMLElement>();
 
   return (
-    <section id="nosotros" ref={ref} className="reveal py-24 md:py-32 bg-white">
+    <section id="nosotros" ref={ref} className="reveal py-14 md:py-32 bg-white">
       <div className="max-w-[1320px] mx-auto px-5 md:px-8">
         <div className="max-w-2xl mb-10 md:mb-14">
           <SectionEyebrow>Por qué Vuela Fácil</SectionEyebrow>

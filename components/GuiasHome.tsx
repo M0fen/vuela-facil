@@ -8,7 +8,7 @@ export function GuiasHome({ guias }: { guias: Guia[] }) {
   if (guias.length === 0) return null;
 
   return (
-    <section className="bg-white py-20 md:py-28 border-y border-navy/5">
+    <section className="bg-white py-14 md:py-28 border-y border-navy/5">
       <div className="max-w-[1320px] mx-auto px-5 md:px-8">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
           <div className="max-w-xl">

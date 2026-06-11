@@ -196,7 +196,7 @@ export function ExploraDestinos({
   }, [enviar]);
 
   return (
-    <section id="explora" className="bg-navy py-20 md:py-28 overflow-hidden">
+    <section id="explora" className="bg-navy py-14 md:py-28 overflow-hidden">
       <div className="max-w-[1320px] mx-auto px-5 md:px-8">
         <div className="max-w-2xl">
           <SectionEyebrow>Tu próximo destino</SectionEyebrow>

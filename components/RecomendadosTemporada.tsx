@@ -33,7 +33,7 @@ export function RecomendadosTemporada({ paquetes }: { paquetes: Paquete[] }) {
   if (lista.length === 0) return null;
 
   return (
-    <section className="bg-ivory py-20 md:py-24 border-y border-navy/5">
+    <section className="bg-ivory py-14 md:py-24 border-y border-navy/5">
       <div className="max-w-[1320px] mx-auto px-5 md:px-8">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-8">
           <div>

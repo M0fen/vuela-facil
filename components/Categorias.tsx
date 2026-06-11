@@ -16,7 +16,7 @@ export function Categorias() {
     <section
       id="destinos"
       ref={ref}
-      className="reveal max-w-[1320px] mx-auto px-5 md:px-8 py-24 md:py-32"
+      className="reveal max-w-[1320px] mx-auto px-5 md:px-8 py-14 md:py-32"
     >
       <div className="flex items-end justify-between flex-wrap gap-6 mb-10 md:mb-14">
         <div className="max-w-2xl">

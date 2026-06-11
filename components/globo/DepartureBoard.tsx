@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/icons";
 import { formatCOP, waLink } from "@/lib/utils";
 import { etiquetaTipo, type Destino, type RutaCrucero } from "@/lib/geo";
@@ -7,22 +8,35 @@ import type { Paquete } from "@/lib/types";
 
 // Tablero de salidas split-flap / Solari (estilo aeropuerto real) para móvil.
 // Cada destino se compone de fichas por carácter (ámbar sobre negro, con la
-// línea de pliegue al centro) que "voltean" al entrar y al cambiar de filtro
-// (la sección remonta el tablero con key={filtro}). Tap con plan → modal;
-// sin plan → cotiza por WhatsApp.
+// línea de pliegue al centro) que "voltean" al entrar y al cambiar de filtro.
+// Además, un latido vivo: cada cierto tiempo una ficha al azar vuelve a girar,
+// como un panel real que se actualiza. Tap con plan → modal; sin plan → WhatsApp.
 
-/** Texto en fichas split-flap. */
-function FlapText({ text, baseDelay = 0 }: { text: string; baseDelay?: number }) {
+const VISIBLES = 7; // filas mostradas antes de "Ver más"
+
+/** Texto en fichas split-flap. La ficha en `flipCol` re-gira cuando cambia `nonce`. */
+function FlapText({
+  text,
+  baseDelay = 0,
+  flipCol = -1,
+  nonce = 0,
+}: {
+  text: string;
+  baseDelay?: number;
+  flipCol?: number;
+  nonce?: number;
+}) {
   const chars = text.toUpperCase().slice(0, 18).split("");
   return (
     <span className="flex flex-wrap gap-[2px]" aria-hidden="true">
       {chars.map((c, i) => (
         <span
-          key={i}
+          // Al cambiar la key, React remonta la ficha → vuelve a reproducir el giro.
+          key={i === flipCol ? `${i}-${nonce}` : i}
           className="flap-cell text-[13px]"
-          style={{ animationDelay: `${baseDelay + i * 0.025}s` }}
+          style={{ animationDelay: `${i === flipCol ? 0 : baseDelay + i * 0.025}s` }}
         >
-          {c === " " ? " " : c}
+          {c === " " ? " " : c}
         </span>
       ))}
     </span>
@@ -51,24 +65,54 @@ export function DepartureBoard({
   onVerPlan: (id: string) => void;
   className?: string;
 }) {
-  const filas: Fila[] = [
-    ...destinos.map((d) => ({
-      id: d.id,
-      nombre: d.nombre,
-      sub: `${d.pais} · ${etiquetaTipo[d.tipo]}`,
-      precio: d.paqueteId ? paqueteById.get(d.paqueteId)?.precio : undefined,
-      paqueteId: d.paqueteId,
-      waMsg: `Hola Vuela Fácil, quiero cotizar un viaje a ${d.nombre}.`,
-    })),
-    ...rutas.map((r) => ({
-      id: r.id,
-      nombre: r.nombre,
-      sub: `Crucero · ${r.embarque.nombre}`,
-      precio: r.paqueteId ? paqueteById.get(r.paqueteId)?.precio : undefined,
-      paqueteId: r.paqueteId,
-      waMsg: `Hola Vuela Fácil, quiero cotizar el ${r.nombre}.`,
-    })),
-  ];
+  const [expandido, setExpandido] = useState(false);
+  // Latido del panel: ficha (fila, columna) que vuelve a girar, con un nonce que
+  // fuerza el remontaje. Se reinicia al cambiar de filtro (la sección remonta con key).
+  const [flip, setFlip] = useState({ row: -1, col: -1, nonce: 0 });
+  const nonceRef = useRef(0);
+
+  const filas: Fila[] = useMemo(
+    () => [
+      ...destinos.map((d) => ({
+        id: d.id,
+        nombre: d.nombre,
+        sub: `${d.pais} · ${etiquetaTipo[d.tipo]}`,
+        precio: d.paqueteId ? paqueteById.get(d.paqueteId)?.precio : undefined,
+        paqueteId: d.paqueteId,
+        waMsg: `Hola Vuela Fácil, quiero cotizar un viaje a ${d.nombre}.`,
+      })),
+      ...rutas.map((r) => ({
+        id: r.id,
+        nombre: r.nombre,
+        sub: `Crucero · ${r.embarque.nombre}`,
+        precio: r.paqueteId ? paqueteById.get(r.paqueteId)?.precio : undefined,
+        paqueteId: r.paqueteId,
+        waMsg: `Hola Vuela Fácil, quiero cotizar el ${r.nombre}.`,
+      })),
+    ],
+    [destinos, rutas, paqueteById],
+  );
+
+  const visibles = expandido ? filas : filas.slice(0, VISIBLES);
+  const ocultas = filas.length - visibles.length;
+
+  // Latido: cada ~2.2 s una ficha al azar (de las visibles) vuelve a girar.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (visibles.length === 0) return;
+
+    const id = setInterval(() => {
+      const row = Math.floor(Math.random() * visibles.length);
+      const largo = Math.min(visibles[row].nombre.length, 18);
+      if (largo === 0) return;
+      const col = Math.floor(Math.random() * largo);
+      nonceRef.current += 1;
+      setFlip({ row, col, nonce: nonceRef.current });
+    }, 2200);
+
+    return () => clearInterval(id);
+  }, [visibles.length]);
 
   return (
     <div className={`flap-board ${className}`}>
@@ -95,13 +139,18 @@ export function DepartureBoard({
 
         {/* Filas */}
         <ul className="divide-y divide-white/[0.05]">
-          {filas.map((f, i) => {
+          {visibles.map((f, i) => {
             const conPlan = Boolean(f.paqueteId);
             const baseDelay = Math.min(i, 14) * 0.06;
             const inner = (
               <>
                 <span className="min-w-0 flex-1">
-                  <FlapText text={f.nombre} baseDelay={baseDelay} />
+                  <FlapText
+                    text={f.nombre}
+                    baseDelay={baseDelay}
+                    flipCol={flip.row === i ? flip.col : -1}
+                    nonce={flip.nonce}
+                  />
                   <span className="block font-mono text-[10px] text-white/35 tracking-wide mt-1.5 truncate uppercase">
                     {f.sub}
                   </span>
@@ -148,6 +197,25 @@ export function DepartureBoard({
             );
           })}
         </ul>
+
+        {/* Ver más / menos */}
+        {filas.length > VISIBLES && (
+          <button
+            type="button"
+            onClick={() => setExpandido((v) => !v)}
+            className="w-full px-4 py-2.5 bg-black/50 hover:bg-black/30 transition-colors border-t border-white/[0.06] flex items-center justify-center gap-1.5 font-mono text-[11px] font-bold tracking-[0.18em] uppercase text-[#f4c044]"
+          >
+            {expandido ? (
+              <>
+                <Icon.ChevronDown className="w-3.5 h-3.5 rotate-180" /> Ver menos
+              </>
+            ) : (
+              <>
+                <Icon.ChevronDown className="w-3.5 h-3.5" /> Ver {ocultas} destinos más
+              </>
+            )}
+          </button>
+        )}
 
         {/* Pie del panel */}
         <div className="px-4 py-2 bg-black/40 border-t border-white/[0.06] flex items-center justify-between">

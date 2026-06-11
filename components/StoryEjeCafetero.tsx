@@ -10,7 +10,7 @@ export function StoryEjeCafetero() {
   const ref = useReveal<HTMLElement>();
 
   return (
-    <section ref={ref} className="reveal relative py-24 md:py-36 overflow-hidden bg-white">
+    <section ref={ref} className="reveal relative py-16 md:py-36 overflow-hidden bg-white">
       <div className="max-w-[1320px] mx-auto px-5 md:px-8 grid md:grid-cols-12 gap-10 md:gap-16 items-center">
         <div className="md:col-span-7 relative order-2 md:order-1">
           <div className="relative rounded-[32px] overflow-hidden aspect-[5/6] md:aspect-[4/5]">

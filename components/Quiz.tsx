@@ -37,7 +37,7 @@ export function Quiz({ paquetes }: { paquetes: Paquete[] }) {
   }, [sel, paquetes]);
 
   return (
-    <section className="bg-white py-20 md:py-28 border-y border-navy/5">
+    <section className="bg-white py-14 md:py-28 border-y border-navy/5">
       <div className="max-w-[1320px] mx-auto px-5 md:px-8">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="flex justify-center">

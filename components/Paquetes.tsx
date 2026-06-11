@@ -155,7 +155,7 @@ export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
   } y no vi un plan publicado. ¿Me ayudan a armarlo a la medida?`;
 
   return (
-    <section id="paquetes" className="bg-ivory py-24 md:py-32 border-y border-navy/5">
+    <section id="paquetes" className="bg-ivory py-14 md:py-32 border-y border-navy/5">
       <div className="max-w-[1320px] mx-auto px-5 md:px-8">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
           <div className="max-w-2xl">

@@ -12,7 +12,7 @@ export function Testimonios({ testimonios }: { testimonios: Testimonio[] }) {
     : 0;
 
   return (
-    <section ref={ref} className="reveal py-24 md:py-32 bg-ivory border-y border-navy/5">
+    <section ref={ref} className="reveal py-14 md:py-32 bg-ivory border-y border-navy/5">
       <div className="max-w-[1320px] mx-auto px-5 md:px-8">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="inline-flex items-center gap-3 text-coral text-[11px] tracking-[0.3em] uppercase font-semibold">
