@@ -16,7 +16,7 @@ export function FinanciacionPerks({ className = "" }: { className?: string }) {
       {perks.map((p) => (
         <span
           key={p}
-          className="inline-flex items-center gap-1 rounded-full bg-emerald/10 text-emerald-700 text-[11px] font-semibold px-2.5 py-1"
+          className="inline-flex items-center gap-1 rounded-full bg-emerald/10 text-emerald text-[11px] font-semibold px-2.5 py-1"
         >
           <Icon.Check className="w-3 h-3" />
           {p}

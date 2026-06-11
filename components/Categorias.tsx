@@ -39,7 +39,7 @@ export function Categorias() {
               setFiltro(c.nombre);
               scrollTo("#paquetes");
             }}
-            className={`group relative overflow-hidden rounded-2xl md:rounded-[28px] aspect-[4/5] text-left ${
+            className={`group relative overflow-hidden rounded-2xl md:rounded-3xl aspect-[4/5] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/60 focus-visible:ring-offset-2 focus-visible:ring-offset-ivory ${
               i === 0 ? "md:col-span-2 md:aspect-[8/5]" : ""
             }`}
           >

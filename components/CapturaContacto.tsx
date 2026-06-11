@@ -89,12 +89,16 @@ export function CapturaContacto() {
                   <button
                     type="submit"
                     disabled={pending}
-                    className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#e8631a] to-[#f4a93c] text-white font-semibold tracking-wide hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.6)] transition-shadow disabled:opacity-60"
+                    className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-coral to-amber text-white font-semibold tracking-wide hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.6)] transition-shadow disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/50 focus-visible:ring-offset-2"
                   >
                     {pending ? "Enviando…" : "Quiero las ofertas exclusivas"}
                   </button>
-                  <p className="text-[11px] text-navy/45 text-center">
-                    Al continuar aceptas nuestra política de tratamiento de datos.
+                  <p className="text-[11px] text-navy/55 text-center">
+                    Al continuar aceptas nuestra{" "}
+                    <a href="/privacidad" className="underline hover:text-coral">
+                      política de tratamiento de datos
+                    </a>
+                    .
                   </p>
                 </form>
               </>

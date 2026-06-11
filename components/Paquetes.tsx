@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Icon } from "./icons";
 import { SectionEyebrow } from "./ui";
 import { formatCOP, waLink, descuentoPct } from "@/lib/utils";
+import { FINANCIACION } from "@/lib/data";
 import { useUI, type Filtro } from "@/lib/ui-context";
 import type { Paquete } from "@/lib/types";
 
@@ -87,8 +88,8 @@ function PackageCard({ p }: { p: Paquete }) {
               <div className="font-serif text-[26px] text-navy leading-none mt-1">
                 {formatCOP(p.precio)}
               </div>
-              <div className="text-[11px] text-emerald-700 font-medium mt-0.5">
-                o 12 cuotas sin interés
+              <div className="text-[11px] text-emerald font-medium mt-0.5">
+                o {FINANCIACION.cuotas} cuotas sin interés
               </div>
             </div>
             <div className="text-right text-[11px] text-navy/50">
@@ -100,7 +101,7 @@ function PackageCard({ p }: { p: Paquete }) {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => openPackage(p.id)}
-              className="px-4 py-3 rounded-full border border-navy/15 text-navy text-[13px] font-semibold hover:bg-navy hover:text-white transition-colors"
+              className="px-4 py-3 rounded-full border border-navy/15 text-navy text-[13px] font-semibold hover:bg-navy hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/50"
             >
               Ver detalle
             </button>
@@ -108,7 +109,7 @@ function PackageCard({ p }: { p: Paquete }) {
               href={waLink(msg)}
               target="_blank"
               rel="noreferrer"
-              className="px-4 py-3 rounded-full bg-[#25D366] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 hover:bg-[#1ebe57] transition-colors"
+              className="px-4 py-3 rounded-full bg-[#25D366] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 hover:bg-[#1ebe57] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald/40"
             >
               <Icon.Whatsapp className="w-4 h-4" /> Reservar
             </a>

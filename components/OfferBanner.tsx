@@ -105,7 +105,7 @@ export function OfferBanner({ promo }: { promo: Promo }) {
               href={waLink(promo.ctaMensaje)}
               target="_blank"
               rel="noreferrer"
-              className="block w-full text-center px-6 py-4 rounded-full bg-gradient-to-r from-[#e8631a] to-[#f4a93c] text-white font-semibold tracking-wide hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.6)] transition-shadow"
+              className="block w-full text-center px-6 py-4 rounded-full bg-gradient-to-r from-coral to-amber text-white font-semibold tracking-wide hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.6)] transition-shadow"
             >
               {mostrarReloj ? "Asegurar mi cupo por WhatsApp" : "Cotizar mi viaje por WhatsApp"}
             </a>

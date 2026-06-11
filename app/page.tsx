@@ -5,7 +5,6 @@ import { Categorias } from "@/components/Categorias";
 import { Paquetes } from "@/components/Paquetes";
 import { Quiz } from "@/components/Quiz";
 import { RecomendadosTemporada } from "@/components/RecomendadosTemporada";
-import { VistosRecientemente } from "@/components/VistosRecientemente";
 import { GuiasHome } from "@/components/GuiasHome";
 import { OfferBanner } from "@/components/OfferBanner";
 import { Confianza } from "@/components/Confianza";
@@ -36,16 +35,15 @@ export default async function Home() {
       <main>
         <Hero />
         <TrustBar />
+        <Paquetes paquetes={paquetes} />
+        <OfferBanner promo={promo} />
         <ExploraDestinos paquetes={paquetes} destinos={destinos} />
         <Categorias />
         <Quiz paquetes={paquetes} />
-        <Paquetes paquetes={paquetes} />
-        <OfferBanner promo={promo} />
         <Confianza />
         <RecomendadosTemporada paquetes={paquetes} />
         <Testimonios testimonios={testimonios} />
         <GuiasHome guias={guias} />
-        <VistosRecientemente paquetes={paquetes} />
         <StoryEjeCafetero />
         <CapturaContacto />
       </main>

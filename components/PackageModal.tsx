@@ -329,7 +329,7 @@ Quedo atento(a) a la confirmación. ¡Gracias!`;
                     </div>
                     <div className="flex justify-between text-[13px] text-navy/70">
                       <span>Impuestos y tasas</span>
-                      <span className="text-emerald-700 font-medium">Incluidos</span>
+                      <span className="text-emerald font-medium">Incluidos</span>
                     </div>
                     <div className="flex justify-between items-baseline mt-2 pt-2 border-t border-navy/10">
                       <span className="text-navy font-semibold">Total estimado</span>

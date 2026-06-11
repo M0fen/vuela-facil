@@ -11,7 +11,7 @@ import { Stars } from "@/components/ui";
 import { PackageMini } from "@/components/PackageMini";
 import { VistosRecientemente } from "@/components/VistosRecientemente";
 import { TrackView } from "@/components/TrackView";
-import { NEGOCIO } from "@/lib/data";
+import { NEGOCIO, FINANCIACION } from "@/lib/data";
 import { getPaquete, getPaquetes, getTestimonios } from "@/lib/store";
 import {
   galeriaDe,
@@ -378,8 +378,8 @@ export default async function PaquetePage({
               <div className="font-serif text-navy text-[36px] leading-none mt-1">
                 {formatCOP(pkg.precio)}
               </div>
-              <div className="text-[12px] text-emerald-700 font-medium mt-1">
-                o 12 cuotas sin interés
+              <div className="text-[12px] text-emerald font-medium mt-1">
+                o {FINANCIACION.cuotas} cuotas sin interés
               </div>
               <div className="text-[11px] text-navy/50 mt-1.5">
                 Impuestos y tasas incluidos · sin cargos sorpresa
