@@ -120,7 +120,7 @@ export interface Testimonio {
   rating: number;
 }
 
-/** Datos del negocio para señales de confianza (barra de confianza, footer, SEO). */
+/** Datos del negocio para señales de confianza (barra de confianza, footer, SEO, legal). */
 export interface Negocio {
   /** Número de Registro Nacional de Turismo. Reemplazar por el RNT real. */
   rnt: string;
@@ -131,6 +131,41 @@ export interface Negocio {
   telefonoDisplay: string;
   /** URL del perfil de Instagram. */
   instagram: string;
+  // --- Datos legales / contacto (para páginas legales y SEO) ---------------
+  /** Razón social. */
+  razonSocial: string;
+  /** Nombre comercial. */
+  nombreComercial: string;
+  /** NIT. Reemplazar por el real. */
+  nit: string;
+  /** Afiliación ANATO (texto o número); vacío si no aplica. */
+  anato: string;
+  /** Dirección física completa. */
+  direccion: string;
+  /** Ciudad y departamento. */
+  ciudad: string;
+  /** Correo de contacto general. */
+  email: string;
+  /** Correo para ejercer derechos de Habeas Data (Ley 1581/2012). */
+  emailHabeasData: string;
+  /** Horario de atención legible. */
+  horario: string;
+  /** URL del sitio (sin slash final). */
+  web: string;
+  /** URL de Facebook; vacío si no hay (se oculta). */
+  facebook: string;
+}
+
+/** Configuración comercial de financiación (Fase 1). */
+export interface Financiacion {
+  /** Número de cuotas sin interés a comunicar. */
+  cuotas: number;
+  /** Porcentaje de abono para "separar" un viaje. */
+  abonoPct: number;
+  /** Aliados de "compra ahora, paga después". */
+  bnpl: string[];
+  /** Medios de pago aceptados (para badges/copy). */
+  medios: string[];
 }
 
 /**

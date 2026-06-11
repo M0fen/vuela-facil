@@ -3,15 +3,39 @@ import { Logo } from "./ui";
 import { NEGOCIO } from "@/lib/data";
 import { waLink } from "@/lib/utils";
 
-const COLS = [
+type Enlace = { label: string; href: string; ext?: boolean };
+
+const COLS: { t: string; l: Enlace[] }[] = [
   {
     t: "Compañía",
-    l: ["Nosotros", "Nuestro equipo", "Blog de viajes", "Trabaja con nosotros", "Política de tratamiento"],
+    l: [
+      { label: "Nosotros", href: "/nosotros" },
+      { label: "Nuestro equipo", href: "/nosotros#equipo" },
+      { label: "Blog de viajes", href: "/guias" },
+      { label: "Financiación", href: "/financiacion" },
+      { label: "Política de tratamiento", href: "/privacidad" },
+    ],
   },
-  { t: "Destinos", l: ["San Andrés", "Cartagena", "Eje Cafetero", "Cancún", "Europa", "Cruceros"] },
+  {
+    t: "Destinos",
+    l: [
+      { label: "San Andrés", href: "/paquetes/VF-SAI-001" },
+      { label: "Cartagena", href: "/paquetes/VF-CTG-003" },
+      { label: "Eje Cafetero", href: "/paquetes/VF-EJC-002" },
+      { label: "Cancún", href: "/paquetes/VF-CUN-004" },
+      { label: "Europa", href: "/paquetes/VF-EUR-006" },
+      { label: "Cruceros", href: "/paquetes/VF-CRC-005" },
+    ],
+  },
   {
     t: "Ayuda",
-    l: ["Preguntas frecuentes", "Términos y condiciones", "PQRS", "Asistencia 24/7", "Reembolsos"],
+    l: [
+      { label: "Preguntas frecuentes", href: "/faq" },
+      { label: "Términos y condiciones", href: "/terminos" },
+      { label: "PQRS", href: "/pqrs" },
+      { label: "Reembolsos", href: "/reembolsos" },
+      { label: "Asistencia 24/7", href: waLink("Hola Vuela Fácil, necesito asistencia 🆘"), ext: true },
+    ],
   },
 ];
 
@@ -68,13 +92,17 @@ export function Footer() {
               >
                 <Icon.Instagram className="w-4 h-4" />
               </a>
-              <a
-                href="#"
-                aria-label="Facebook"
-                className="w-10 h-10 rounded-full bg-white/8 hover:bg-coral flex items-center justify-center transition-colors"
-              >
-                <Icon.Facebook className="w-4 h-4" />
-              </a>
+              {NEGOCIO.facebook && (
+                <a
+                  href={NEGOCIO.facebook}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Facebook"
+                  className="w-10 h-10 rounded-full bg-white/8 hover:bg-coral flex items-center justify-center transition-colors"
+                >
+                  <Icon.Facebook className="w-4 h-4" />
+                </a>
+              )}
             </div>
           </div>
           {COLS.map((c) => (
@@ -84,12 +112,13 @@ export function Footer() {
               </div>
               <ul className="space-y-2.5">
                 {c.l.map((it) => (
-                  <li key={it}>
+                  <li key={it.label}>
                     <a
-                      href={it === "Blog de viajes" ? "/guias" : "#"}
+                      href={it.href}
+                      {...(it.ext ? { target: "_blank", rel: "noreferrer" } : {})}
                       className="text-white/70 hover:text-white text-[13px] transition-colors"
                     >
-                      {it}
+                      {it.label}
                     </a>
                   </li>
                 ))}
@@ -110,6 +139,12 @@ export function Footer() {
                 </div>
               ))}
             </div>
+            <a
+              href="/financiacion"
+              className="inline-block mt-2 text-[12px] text-amber hover:text-white transition-colors font-medium"
+            >
+              Cuotas y financiación →
+            </a>
             <div className="mt-5 p-3 rounded-xl bg-white/5 border border-white/10">
               <div className="text-[10px] tracking-[0.2em] uppercase text-white/60">Registro</div>
               <div className="font-mono text-[14px] text-white mt-0.5">{NEGOCIO.rnt}</div>
@@ -124,9 +159,9 @@ export function Footer() {
             © {new Date().getFullYear()} Vuela Fácil Travel S.A.S. · Todos los derechos reservados.
           </div>
           <div className="flex items-center gap-5">
-            <a href="#" className="hover:text-white transition-colors">Privacidad</a>
-            <a href="#" className="hover:text-white transition-colors">Cookies</a>
-            <a href="#" className="hover:text-white transition-colors">Términos</a>
+            <a href="/privacidad" className="hover:text-white transition-colors">Privacidad</a>
+            <a href="/cookies" className="hover:text-white transition-colors">Cookies</a>
+            <a href="/terminos" className="hover:text-white transition-colors">Términos</a>
           </div>
         </div>
       </div>

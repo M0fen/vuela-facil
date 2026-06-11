@@ -1,4 +1,4 @@
-import type { CategoriaCard, Guia, Negocio, Paquete, Promo, Testimonio } from "./types";
+import type { CategoriaCard, Financiacion, Guia, Negocio, Paquete, Promo, Testimonio } from "./types";
 
 // ---------------------------------------------------------------------------
 // FUENTE ÚNICA DE DATOS
@@ -153,6 +153,29 @@ export const NEGOCIO: Negocio = {
   tiempoRespuesta: "< 5 min",
   telefonoDisplay: "+57 314 545 2095",
   instagram: "https://www.instagram.com/vuelafaciltravel/",
+  // --- Datos legales / contacto (⚠️ PLACEHOLDERS: reemplazar por los reales) ---
+  razonSocial: "Vuela Fácil Travel S.A.S.",
+  nombreComercial: "Vuela Fácil Travel",
+  nit: "PENDIENTE-NIT", // ← PLACEHOLDER
+  anato: "", // afiliación ANATO si aplica (ej. "Afiliado ANATO N.º 0000")
+  direccion: "Cra. 14 #20-35, Pereira, Risaralda",
+  ciudad: "Pereira, Risaralda — Colombia",
+  email: "hola@vuelafacil.com", // ← PLACEHOLDER: confirmar correo real
+  emailHabeasData: "datos@vuelafacil.com", // ← PLACEHOLDER: correo Habeas Data
+  horario: "Lunes a sábado, 8:00 a.m. – 8:00 p.m.",
+  web: "https://vuelafacil.com",
+  facebook: "", // vacío → se oculta el ícono de Facebook
+};
+
+/**
+ * Financiación comercial (Fase 1). Es solo mensajería/copy; los flujos de pago
+ * online se activan al configurar las credenciales (ver lib/pagos.ts).
+ */
+export const FINANCIACION: Financiacion = {
+  cuotas: 12,
+  abonoPct: 30,
+  bnpl: ["Addi", "Sistecrédito"],
+  medios: ["PSE", "Tarjetas", "Nequi", "Bancolombia"],
 };
 
 // ---------------------------------------------------------------------------

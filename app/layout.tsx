@@ -10,21 +10,27 @@ import "./globals.css";
 const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "TravelAgency",
-  name: "Vuela Fácil Travel",
+  name: NEGOCIO.razonSocial,
+  alternateName: NEGOCIO.nombreComercial,
   description:
     "Agencia de viajes en Pereira. Diseñamos viajes a la medida por Colombia y el mundo, con asesoría humana y reserva por WhatsApp.",
-  url: "https://vuelafacil.com",
-  image: "https://vuelafacil.com/images/logo.jpg",
+  url: NEGOCIO.web,
+  image: `${NEGOCIO.web}/images/logo.jpg`,
   telephone: `+${WHATSAPP_NUMERO}`,
+  email: NEGOCIO.email,
+  taxID: NEGOCIO.nit,
   address: {
     "@type": "PostalAddress",
+    streetAddress: NEGOCIO.direccion,
     addressLocality: "Pereira",
     addressRegion: "Risaralda",
     addressCountry: "CO",
   },
   areaServed: "CO",
   priceRange: "$$",
-  sameAs: [NEGOCIO.instagram],
+  openingHours: "Mo-Sa 08:00-20:00",
+  identifier: { "@type": "PropertyValue", name: "RNT", value: NEGOCIO.rnt },
+  sameAs: [NEGOCIO.instagram, NEGOCIO.facebook].filter(Boolean),
 };
 
 const fraunces = Fraunces({
