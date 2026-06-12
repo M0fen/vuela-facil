@@ -10,7 +10,8 @@ import { Stars } from "@/components/ui";
 import { PackageMini } from "@/components/PackageMini";
 import { VistosRecientemente } from "@/components/VistosRecientemente";
 import { TrackView } from "@/components/TrackView";
-import { NEGOCIO, FINANCIACION } from "@/lib/data";
+import { NEGOCIO, FINANCIACION, RESENAS_VERIFICADAS } from "@/lib/data";
+import { SITE_URL } from "@/lib/site";
 import { getPaquete, getPaquetes, getTestimonios } from "@/lib/store";
 import {
   galeriaDe,
@@ -99,38 +100,43 @@ export default async function PaquetePage({
     "@type": "TouristTrip",
     name: `${pkg.destino} — ${pkg.duracion}`,
     description: resumen,
-    image: `https://vuelafacil.com${pkg.imagen}`,
+    image: `${SITE_URL}${pkg.imagen}`,
     touristType: pkg.categoria,
-    url: `https://vuelafacil.com/paquetes/${pkg.id}`,
+    url: `${SITE_URL}/paquetes/${pkg.id}`,
     offers: {
       "@type": "Offer",
       price: pkg.precio,
       priceCurrency: "COP",
       availability: "https://schema.org/InStock",
-      url: `https://vuelafacil.com/paquetes/${pkg.id}`,
+      url: `${SITE_URL}/paquetes/${pkg.id}`,
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: pkg.calificacion,
-      reviewCount: pkg.reviews,
-      bestRating: 5,
-      worstRating: 1,
-    },
-    review: reseñas.slice(0, 6).map((t) => ({
-      "@type": "Review",
-      author: { "@type": "Person", name: t.nombre },
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: t.rating,
-        bestRating: 5,
-        worstRating: 1,
-      },
-      reviewBody: t.texto,
-    })),
+    // Calificaciones y reseñas en datos estructurados solo si son reales.
+    ...(RESENAS_VERIFICADAS
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: pkg.calificacion,
+            reviewCount: pkg.reviews,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          review: reseñas.slice(0, 6).map((t) => ({
+            "@type": "Review",
+            author: { "@type": "Person", name: t.nombre },
+            reviewRating: {
+              "@type": "Rating",
+              ratingValue: t.rating,
+              bestRating: 5,
+              worstRating: 1,
+            },
+            reviewBody: t.texto,
+          })),
+        }
+      : {}),
     provider: {
       "@type": "TravelAgency",
       name: "Vuela Fácil Travel",
-      url: "https://vuelafacil.com",
+      url: SITE_URL,
     },
   };
 

@@ -1,5 +1,6 @@
 import "server-only";
 import { createHash } from "crypto";
+import { SITE_URL as SITE } from "./site";
 
 // ---------------------------------------------------------------------------
 // Capa de pagos — Wompi (PSE, tarjetas, Nequi, Bancolombia).
@@ -19,7 +20,6 @@ import { createHash } from "crypto";
 const PK = process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY;
 const INTEGRITY = process.env.WOMPI_INTEGRITY_SECRET;
 const EVENTS = process.env.WOMPI_EVENTS_SECRET;
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://vuelafacil.com";
 
 /** ¿Hay credenciales de pago configuradas? */
 export function pagosActivos(): boolean {

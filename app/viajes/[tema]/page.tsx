@@ -12,8 +12,7 @@ import { NEGOCIO } from "@/lib/data";
 import { getPaquetes } from "@/lib/store";
 import { LANDINGS, getLanding, paquetesDeLanding } from "@/lib/landings";
 import { waLink } from "@/lib/utils";
-
-const BASE = "https://vuelafacil.com";
+import { SITE_URL as BASE } from "@/lib/site";
 
 export function generateStaticParams() {
   return LANDINGS.map((l) => ({ tema: l.slug }));

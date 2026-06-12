@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getPaquetes, getGuiasPublicadas } from "@/lib/store";
 import { LANDINGS } from "@/lib/landings";
-
-const BASE = "https://vuelafacil.com";
+import { SITE_URL as BASE } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();

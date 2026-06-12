@@ -7,6 +7,7 @@
 // solo y no hay datos personales más allá de un nombre de pila.
 
 import { useEffect, useState } from "react";
+import { SITE_URL } from "./site";
 
 const KEY = "vf:ref";
 const PARAM = "ref";
@@ -56,7 +57,7 @@ export function guardarReferido(nombre: string): void {
 }
 
 /** Enlace para compartir que atribuye el referido a `nombre`. */
-export function enlaceReferido(nombre: string, base = "https://vuelafacil.com"): string {
+export function enlaceReferido(nombre: string, base = SITE_URL): string {
   return `${base}/?ref=${encodeURIComponent(sanitizar(nombre))}`;
 }
 

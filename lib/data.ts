@@ -1,4 +1,11 @@
 import type { CategoriaCard, Financiacion, Guia, Negocio, Paquete, Promo, Testimonio } from "./types";
+import { SITE_URL } from "./site";
+
+// Mientras NO existan reseñas reales verificadas, no emitimos datos
+// estructurados de calificaciones/opiniones (evita marcado de reseñas falsas:
+// riesgo ante la SIC y penalización de Google). Cuando cargues testimonios
+// reales de clientes, pon esto en `true`.
+export const RESENAS_VERIFICADAS = false;
 
 // ---------------------------------------------------------------------------
 // FUENTE ÚNICA DE DATOS
@@ -164,7 +171,7 @@ export const NEGOCIO: Negocio = {
   email: "hola@vuelafacil.com", // ← PLACEHOLDER: confirmar correo real
   emailHabeasData: "datos@vuelafacil.com", // ← PLACEHOLDER: correo Habeas Data
   horario: "Lunes a sábado, 8:00 a.m. – 8:00 p.m.",
-  web: "https://vuelafacil.com",
+  web: SITE_URL,
   facebook: "", // vacío → se oculta el ícono de Facebook
 };
 

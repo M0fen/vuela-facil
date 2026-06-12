@@ -11,6 +11,7 @@ import { getGuia, getGuiasPublicadas, getPaquete } from "@/lib/store";
 import { renderMarkdown } from "@/lib/markdown";
 import { resumenWhatsApp } from "@/lib/paquete-helpers";
 import { waLink } from "@/lib/utils";
+import { SITE_URL } from "@/lib/site";
 
 export async function generateStaticParams() {
   const guias = await getGuiasPublicadas();
@@ -56,13 +57,13 @@ export default async function GuiaArticulo({
     "@type": "Article",
     headline: g.titulo,
     description: g.resumen,
-    image: `https://vuelafacil.com${g.imagen}`,
+    image: `${SITE_URL}${g.imagen}`,
     datePublished: g.createdAt,
     author: { "@type": "Organization", name: "Vuela Fácil Travel" },
     publisher: {
       "@type": "Organization",
       name: "Vuela Fácil Travel",
-      logo: { "@type": "ImageObject", url: "https://vuelafacil.com/images/logo.jpg" },
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/images/logo.jpg` },
     },
   };
 

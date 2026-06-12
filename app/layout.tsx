@@ -6,11 +6,13 @@ import { WhatsAppTracker } from "@/components/WhatsAppTracker";
 import { PWARegister } from "@/components/PWARegister";
 import { ReferralBanner } from "@/components/ReferralBanner";
 import { AIAssistant } from "@/components/AIAssistant";
-import { NEGOCIO, TESTIMONIOS } from "@/lib/data";
+import { NEGOCIO, TESTIMONIOS, RESENAS_VERIFICADAS } from "@/lib/data";
 import { WHATSAPP_NUMERO } from "@/lib/utils";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-// Calificación agregada honesta, derivada de los testimonios reales.
+// Calificación agregada, derivada de los testimonios. Solo se publica como dato
+// estructurado cuando las reseñas son reales y verificadas (ver RESENAS_VERIFICADAS).
 const ratingPromedio =
   Math.round((TESTIMONIOS.reduce((s, t) => s + t.rating, 0) / TESTIMONIOS.length) * 10) / 10;
 
@@ -37,13 +39,18 @@ const orgJsonLd = {
   priceRange: "$$",
   openingHours: "Mo-Sa 08:00-20:00",
   identifier: { "@type": "PropertyValue", name: "RNT", value: NEGOCIO.rnt },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: ratingPromedio,
-    reviewCount: TESTIMONIOS.length,
-    bestRating: 5,
-    worstRating: 1,
-  },
+  // Solo emitimos calificación agregada con reseñas reales verificadas.
+  ...(RESENAS_VERIFICADAS
+    ? {
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: ratingPromedio,
+          reviewCount: TESTIMONIOS.length,
+          bestRating: 5,
+          worstRating: 1,
+        },
+      }
+    : {}),
   sameAs: [NEGOCIO.instagram, NEGOCIO.facebook].filter(Boolean),
 };
 
@@ -66,7 +73,7 @@ export const metadata: Metadata = {
   title: "Vuela Fácil Travel · Agencia de Viajes en Pereira",
   description:
     "Diseñamos viajes a la medida por Colombia y el mundo desde Pereira. Tiquetes, hoteles, paquetes y cruceros con asesoría humana y reserva por WhatsApp.",
-  metadataBase: new URL("https://vuelafacil.com"),
+  metadataBase: new URL(SITE_URL),
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
