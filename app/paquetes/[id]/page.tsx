@@ -151,14 +151,20 @@ export default async function PaquetePage({
       <main className="pt-[72px]">
         {/* Hero del destino */}
         <section className="relative h-[52vh] min-h-[360px] w-full overflow-hidden">
-          <Image
-            src={galeria[0]}
-            alt={pkg.destino}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
+          {pkg.flyer ? (
+            // Flyer: no recortamos la imagen en el hero; usamos un fondo de marca
+            // y mostramos el flyer completo más abajo, legible.
+            <div className="absolute inset-0 bg-gradient-to-br from-navy to-[#163b6e]" />
+          ) : (
+            <Image
+              src={galeria[0]}
+              alt={pkg.destino}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/40 to-navy/20" />
           <div className="absolute bottom-0 inset-x-0">
             <div className="max-w-[1100px] mx-auto px-5 md:px-8 pb-8 md:pb-10 text-white">
@@ -180,13 +186,17 @@ export default async function PaquetePage({
                 {pkg.destino}
               </h1>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[13px]">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur">
-                  <Icon.Clock className="w-3.5 h-3.5" /> {pkg.duracion}
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur">
-                  <Stars rating={pkg.calificacion} className="w-3.5 h-3.5" /> {pkg.calificacion}
-                  <span className="opacity-70">({pkg.reviews} reseñas)</span>
-                </span>
+                {pkg.duracion && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur">
+                    <Icon.Clock className="w-3.5 h-3.5" /> {pkg.duracion}
+                  </span>
+                )}
+                {pkg.reviews > 0 && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur">
+                    <Stars rating={pkg.calificacion} className="w-3.5 h-3.5" /> {pkg.calificacion}
+                    <span className="opacity-70">({pkg.reviews} reseñas)</span>
+                  </span>
+                )}
                 {pkg.etiqueta && (
                   <span className="px-3 py-1 rounded-full bg-gradient-to-r from-coral to-amber font-semibold tracking-wider uppercase text-[10px]">
                     {pkg.etiqueta}
@@ -200,12 +210,34 @@ export default async function PaquetePage({
         <div className="max-w-[1100px] mx-auto px-5 md:px-8 py-10 md:py-14 grid lg:grid-cols-3 gap-10">
           {/* Columna principal */}
           <div className="lg:col-span-2 space-y-12">
-            <section>
-              <p className="text-navy/75 text-[17px] leading-relaxed">{resumen}</p>
-            </section>
+            {(!pkg.flyer || pkg.resumen) && (
+              <section>
+                <p className="text-navy/75 text-[17px] leading-relaxed">{resumen}</p>
+              </section>
+            )}
+
+            {/* Flyer del consolidador: la imagen ES el detalle */}
+            {pkg.flyer && (
+              <section>
+                <div className="rounded-2xl overflow-hidden border border-navy/10 bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={galeria[0]}
+                    alt={`${pkg.destino} — detalle del plan`}
+                    className="w-full h-auto block"
+                    loading="eager"
+                  />
+                </div>
+                <p className="mt-3 flex items-start gap-2 text-navy/60 text-[13px]">
+                  <Icon.Sparkle className="w-4 h-4 mt-0.5 text-coral shrink-0" />
+                  Plan de nuestros aliados consolidadores. Todos los detalles están en la
+                  imagen; escríbenos por WhatsApp y te confirmamos disponibilidad y el precio final.
+                </p>
+              </section>
+            )}
 
             {/* Galería */}
-            {galeria.length > 1 && (
+            {!pkg.flyer && galeria.length > 1 && (
               <section>
                 <h2 className="font-serif text-navy text-[26px] mb-4">Galería</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -229,6 +261,7 @@ export default async function PaquetePage({
               </section>
             )}
 
+            {!pkg.flyer && (<>
             {/* Incluye / No incluye */}
             <section className="grid sm:grid-cols-2 gap-8">
               <div>
@@ -370,6 +403,7 @@ export default async function PaquetePage({
                 ))}
               </div>
             </section>
+            </>)}
           </div>
 
           {/* Panel de reserva sticky */}

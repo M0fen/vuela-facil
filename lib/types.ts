@@ -33,6 +33,10 @@ export interface Paquete {
   reviews: number;
   salidas: string[];
   etiqueta: string | null;
+  /** Paquete "express" de consolidador: la imagen (flyer) ES el contenido.
+   *  Oculta las secciones autogeneradas (itinerario, incluye, FAQ, reseñas) que
+   *  serían inventadas, y muestra el flyer completo + CTA a WhatsApp. */
+  flyer?: boolean;
   // --- Campos opcionales para la página de detalle /paquetes/[id] ---
   /** Resumen corto para SEO/Open Graph y encabezado de la página de detalle. */
   resumen?: string;

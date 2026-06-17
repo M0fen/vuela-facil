@@ -4,7 +4,7 @@ import { Icon } from "@/components/icons";
 import { readPaquetes } from "@/lib/store";
 import { formatCOP, descuentoPct } from "@/lib/utils";
 import { deletePaqueteAction } from "../../actions";
-import { PageHeader, btnPrimary, btnDanger } from "../ui";
+import { PageHeader, btnPrimary, btnGhost, btnDanger } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +17,14 @@ export default async function PaquetesAdmin() {
         title="Paquetes"
         subtitle={`${paquetes.length} ${paquetes.length === 1 ? "destino publicado" : "destinos publicados"}`}
         action={
-          <Link href="/admin/paquetes/nuevo" className={btnPrimary}>
-            <Icon.Plane className="w-4 h-4" /> Nuevo paquete
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/paquetes/express" className={btnGhost}>
+              <Icon.Sparkle className="w-4 h-4" /> Express (flyer)
+            </Link>
+            <Link href="/admin/paquetes/nuevo" className={btnPrimary}>
+              <Icon.Plane className="w-4 h-4" /> Nuevo paquete
+            </Link>
+          </div>
         }
       />
 

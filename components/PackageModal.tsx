@@ -159,13 +159,13 @@ export function PackageModal({
         </button>
 
         <div className="overflow-y-auto overscroll-contain flex-1 min-h-0">
-          <div className="relative h-[200px] sm:h-[260px] md:h-[340px] overflow-hidden">
+          <div className={`relative h-[200px] sm:h-[260px] md:h-[340px] overflow-hidden ${pkg.flyer ? "bg-navy" : ""}`}>
             <Image
               src={pkg.imagen}
               alt={pkg.destino}
               fill
               sizes="(max-width: 768px) 100vw, 1100px"
-              className="object-cover"
+              className={pkg.flyer ? "object-contain" : "object-cover"}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/30 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 text-white">
@@ -176,13 +176,17 @@ export function PackageModal({
                 {pkg.destino}
               </h2>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[13px]">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur">
-                  <Icon.Clock className="w-3.5 h-3.5" /> {pkg.duracion}
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur">
-                  <Stars rating={pkg.calificacion} className="w-3.5 h-3.5" /> {pkg.calificacion}{" "}
-                  <span className="opacity-70">({pkg.reviews} reseñas de viajeros)</span>
-                </span>
+                {pkg.duracion && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur">
+                    <Icon.Clock className="w-3.5 h-3.5" /> {pkg.duracion}
+                  </span>
+                )}
+                {pkg.reviews > 0 && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur">
+                    <Stars rating={pkg.calificacion} className="w-3.5 h-3.5" /> {pkg.calificacion}{" "}
+                    <span className="opacity-70">({pkg.reviews} reseñas de viajeros)</span>
+                  </span>
+                )}
                 {pkg.etiqueta && (
                   <span className="px-3 py-1 rounded-full bg-gradient-to-r from-coral to-amber text-white font-semibold tracking-wider uppercase text-[10px]">
                     {pkg.etiqueta}
@@ -194,6 +198,18 @@ export function PackageModal({
 
           <div className="grid md:grid-cols-3 gap-0">
             <div className="md:col-span-2 p-5 md:p-8 space-y-8">
+              {pkg.flyer ? (
+                <section>
+                  {pkg.resumen && (
+                    <p className="text-navy/70 leading-relaxed text-[15px] mb-3">{pkg.resumen}</p>
+                  )}
+                  <p className="flex items-start gap-2 text-navy/65 text-[14px] leading-relaxed">
+                    <Icon.Sparkle className="w-4 h-4 mt-0.5 text-coral shrink-0" />
+                    Plan de un aliado consolidador. Los detalles completos están en la imagen;
+                    cotiza por WhatsApp y te confirmamos disponibilidad y el precio final.
+                  </p>
+                </section>
+              ) : (<>
               <section>
                 <h3 className="font-serif text-navy text-[22px] mb-3">Sobre este viaje</h3>
                 <p className="text-navy/70 leading-relaxed text-[15px]">
@@ -246,6 +262,7 @@ export function PackageModal({
                   ))}
                 </ul>
               </section>
+              </>)}
 
               <section className="pt-2">
                 <Link

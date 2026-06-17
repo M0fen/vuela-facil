@@ -44,10 +44,12 @@ function PackageCard({ p, index = 0 }: { p: Paquete; index?: number }) {
             {p.etiqueta}
           </div>
         )}
-        <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur text-navy text-[12px] font-semibold flex items-center gap-1">
-          <Icon.Star className="w-3.5 h-3.5 text-amber" /> {p.calificacion}
-          <span className="text-navy/50 font-normal">({p.reviews})</span>
-        </div>
+        {p.reviews > 0 && (
+          <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur text-navy text-[12px] font-semibold flex items-center gap-1">
+            <Icon.Star className="w-3.5 h-3.5 text-amber" /> {p.calificacion}
+            <span className="text-navy/50 font-normal">({p.reviews})</span>
+          </div>
+        )}
         <div className="absolute bottom-4 left-4 text-white text-[11px] uppercase tracking-[0.2em] flex items-center gap-1.5">
           <Icon.Pin className="w-3.5 h-3.5" /> {p.pais}
         </div>
@@ -61,18 +63,28 @@ function PackageCard({ p, index = 0 }: { p: Paquete; index?: number }) {
           </h3>
         </div>
         <div className="flex items-center gap-2 text-[12px] text-navy/55 mb-4">
-          <Icon.Clock className="w-3.5 h-3.5" /> {p.duracion}
-          <span className="w-1 h-1 rounded-full bg-navy/30" />
-          <span>{p.salidas.length} salidas</span>
+          {p.flyer ? (
+            <>
+              <Icon.Sparkle className="w-3.5 h-3.5 text-coral" /> Oferta de consolidador
+            </>
+          ) : (
+            <>
+              <Icon.Clock className="w-3.5 h-3.5" /> {p.duracion}
+              <span className="w-1 h-1 rounded-full bg-navy/30" />
+              <span>{p.salidas.length} salidas</span>
+            </>
+          )}
         </div>
-        <ul className="space-y-1.5 mb-5">
-          {p.incluye.slice(0, 4).map((i) => (
-            <li key={i} className="flex items-start gap-2 text-[13px] text-navy/75">
-              <Icon.Check className="w-4 h-4 mt-0.5 text-emerald shrink-0" />
-              {i}
-            </li>
-          ))}
-        </ul>
+        {p.incluye.length > 0 && (
+          <ul className="space-y-1.5 mb-5">
+            {p.incluye.slice(0, 4).map((i) => (
+              <li key={i} className="flex items-start gap-2 text-[13px] text-navy/75">
+                <Icon.Check className="w-4 h-4 mt-0.5 text-emerald shrink-0" />
+                {i}
+              </li>
+            ))}
+          </ul>
+        )}
         <div className="mt-auto pt-5 border-t border-navy/8">
           <div className="flex items-end justify-between mb-4">
             <div>

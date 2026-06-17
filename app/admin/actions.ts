@@ -114,11 +114,13 @@ export async function savePaqueteAction(formData: FormData): Promise<void> {
     comoLlegar: str(formData, "comoLlegar") || undefined,
   };
 
-  // Conserva campos que no edita el formulario (itinerario, faqs, noIncluye…).
+  // Conserva campos que no edita el formulario (itinerario, faqs, noIncluye…)
+  // y la marca `flyer` (un paquete express sigue siendo express tras editarlo).
   const previo = paquetes.find((p) => p.id === id);
   const merged: Paquete = {
     ...previo,
     ...datos,
+    flyer: previo?.flyer,
     itinerario: previo?.itinerario,
     faqs: previo?.faqs,
     noIncluye: previo?.noIncluye,
@@ -132,6 +134,50 @@ export async function savePaqueteAction(formData: FormData): Promise<void> {
   await savePaquetes(nuevos);
   revalidatePath("/");
   revalidatePath(`/paquetes/${id}`);
+  redirect("/admin/paquetes");
+}
+
+/**
+ * Alta rápida de un paquete "express" desde un flyer de consolidador. El
+ * operador sube la imagen y solo llena lo esencial; el flyer es el contenido.
+ */
+export async function savePaqueteExpressAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const archivo = formData.get("imagenArchivo");
+  let imagen = "";
+  if (archivo instanceof File && archivo.size > 0) {
+    imagen = await uploadImage(archivo);
+  }
+
+  const categoriaRaw = str(formData, "categoria") as Categoria;
+  const categoria = CATEGORIAS.includes(categoriaRaw) ? categoriaRaw : "Internacional";
+  const destino = str(formData, "destino");
+  // "Vigencia" libre (ej: "Salidas en julio y agosto") → se muestra como salidas.
+  const vigencia = lines(formData, "vigencia");
+
+  const nuevo: Paquete = {
+    id: `vf-${slug(destino) || Date.now().toString(36)}`,
+    destino,
+    pais: str(formData, "pais") || "Colombia",
+    imagen: imagen || "/images/pkg-ejc.jpg",
+    duracion: str(formData, "duracion"),
+    duracionDias: 0,
+    incluye: [],
+    precio: int(formData, "precio"),
+    precioAntes: int(formData, "precioAntes") || undefined,
+    categoria,
+    calificacion: 0,
+    reviews: 0,
+    salidas: vigencia,
+    etiqueta: str(formData, "etiqueta") || "Consolidador",
+    resumen: str(formData, "resumen") || undefined,
+    flyer: true,
+  };
+
+  const paquetes = await readPaquetes();
+  await savePaquetes([...paquetes, nuevo]);
+  revalidatePath("/");
   redirect("/admin/paquetes");
 }
 
