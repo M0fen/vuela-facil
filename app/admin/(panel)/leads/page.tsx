@@ -105,12 +105,18 @@ export default async function LeadsAdmin({
                 <div className="flex items-start gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <a
-                        href={`mailto:${l.email}`}
-                        className="font-semibold text-navy text-[15px] hover:text-coral break-all"
-                      >
-                        {l.email}
-                      </a>
+                      {l.email ? (
+                        <a
+                          href={`mailto:${l.email}`}
+                          className="font-semibold text-navy text-[15px] hover:text-coral break-all"
+                        >
+                          {l.email}
+                        </a>
+                      ) : (
+                        <span className="font-semibold text-navy text-[15px]">
+                          {l.telefono ? `WhatsApp ${l.telefono}` : "Contacto por chat"}
+                        </span>
+                      )}
                       <EstadoLeadBadge estado={estadoActual} />
                     </div>
                     <div className="text-[12px] text-navy/55 mt-1 flex items-center gap-2 flex-wrap">

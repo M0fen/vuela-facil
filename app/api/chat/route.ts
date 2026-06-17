@@ -1,6 +1,52 @@
 import OpenAI from "openai";
 import { PAQUETES, NEGOCIO } from "@/lib/data";
 import { formatCOP, WHATSAPP_NUMERO } from "@/lib/utils";
+import { addLeadChat } from "@/lib/store";
+import { notificarNuevoLead } from "@/lib/email";
+
+const RE_EMAIL = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+
+/** Detecta un celular colombiano (10 dígitos que empiezan en 3, con o sin 57). */
+function detectarTelefono(texto: string): string | null {
+  const digitos = texto.replace(/\D/g, "");
+  const m = digitos.match(/(?:57)?(3\d{9})/);
+  return m ? m[1] : null;
+}
+
+/**
+ * Captura un lead automáticamente cuando el cliente comparte su WhatsApp o
+ * correo en el chat. Solo si aparece en el ÚLTIMO mensaje y no antes (así no se
+ * duplica en cada turno). Nunca lanza: no debe afectar la respuesta de Lía.
+ */
+async function capturarLeadSiAplica(userMsgs: string[]): Promise<void> {
+  const ultimo = userMsgs[userMsgs.length - 1] ?? "";
+  const previos = userMsgs.slice(0, -1).join(" ");
+
+  const tel = detectarTelefono(ultimo);
+  const telPrev = detectarTelefono(previos);
+  const email = ultimo.match(RE_EMAIL)?.[0] ?? null;
+  const emailPrev = previos.match(RE_EMAIL)?.[0] ?? null;
+
+  const telNuevo = tel && tel !== telPrev ? tel : null;
+  const emailNuevo = email && email !== emailPrev ? email : null;
+  if (!telNuevo && !emailNuevo) return;
+
+  try {
+    const resumen = userMsgs.join("  ·  ").slice(0, 500);
+    await addLeadChat({
+      telefono: telNuevo ?? undefined,
+      email: emailNuevo ?? undefined,
+      resumen,
+    });
+    await notificarNuevoLead({
+      email: emailNuevo ?? "",
+      telefono: telNuevo ?? undefined,
+      origen: "Chat con Lía",
+    });
+  } catch {
+    // Silencioso: capturar el lead nunca debe tumbar el chat.
+  }
+}
 
 // DeepSeek es compatible con la API de OpenAI: reutilizamos el SDK apuntando a
 // su base URL. La llave vive solo en el servidor (DEEPSEEK_API_KEY, sin
@@ -45,6 +91,7 @@ CÓMO ASESORAS (sé proactiva y oportuna):
 - MUY IMPORTANTE con las fechas: si las salidas del paquete NO coinciden con lo que pide el cliente, díselo con tacto, ofrece consultar fechas extra con un asesor y propón una alternativa que sí calce. Nunca lo desanimes en seco.
 - Cuando recomiendes, menciona 1-2 cosas que enamoran del plan (lo que incluye o su encanto), no solo el precio.
 - Si dudan entre opciones, compáralas en una línea cada una para que decidan fácil.
+- Cuando notes interés real, pide con naturalidad el número de WhatsApp para enviar la cotización o reservar el cupo (ej: "¿A qué WhatsApp te paso la propuesta?"). No insistas si no quiere; pídelo una sola vez.
 
 REGLAS DURAS (no las rompas nunca):
 - NUNCA inventes precios, fechas de salida, disponibilidad ni condiciones. Usa únicamente los datos del catálogo de abajo. Si te piden algo que no está, dilo con honestidad y ofrece derivar a un asesor humano.
@@ -91,6 +138,9 @@ export async function POST(req: Request) {
   if (historial.length === 0) {
     return Response.json({ error: "No hay mensajes." }, { status: 400 });
   }
+
+  // Captura automática de lead si el cliente compartió WhatsApp/correo.
+  await capturarLeadSiAplica(historial.filter((m) => m.role === "user").map((m) => m.content));
 
   const client = new OpenAI({ apiKey, baseURL: "https://api.deepseek.com" });
 

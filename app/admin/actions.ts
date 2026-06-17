@@ -131,10 +131,15 @@ export async function savePaqueteAction(formData: FormData): Promise<void> {
     ? paquetes.map((p) => (p.id === id ? merged : p))
     : [...paquetes, merged];
 
-  await savePaquetes(nuevos);
-  revalidatePath("/");
-  revalidatePath(`/paquetes/${id}`);
-  redirect("/admin/paquetes");
+  let ok = true;
+  try {
+    await savePaquetes(nuevos);
+    revalidatePath("/");
+    revalidatePath(`/paquetes/${id}`);
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/paquetes" : "/admin/paquetes?error=1");
 }
 
 /**
@@ -175,19 +180,29 @@ export async function savePaqueteExpressAction(formData: FormData): Promise<void
     flyer: true,
   };
 
-  const paquetes = await readPaquetes();
-  await savePaquetes([...paquetes, nuevo]);
-  revalidatePath("/");
-  redirect("/admin/paquetes");
+  let ok = true;
+  try {
+    const paquetes = await readPaquetes();
+    await savePaquetes([...paquetes, nuevo]);
+    revalidatePath("/");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/paquetes" : "/admin/paquetes/express?error=1");
 }
 
 export async function deletePaqueteAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = str(formData, "id");
-  const paquetes = await readPaquetes();
-  await savePaquetes(paquetes.filter((p) => p.id !== id));
-  revalidatePath("/");
-  redirect("/admin/paquetes");
+  let ok = true;
+  try {
+    const paquetes = await readPaquetes();
+    await savePaquetes(paquetes.filter((p) => p.id !== id));
+    revalidatePath("/");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/paquetes" : "/admin/paquetes?error=1");
 }
 
 // --- Guías -----------------------------------------------------------------

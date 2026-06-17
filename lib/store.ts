@@ -164,6 +164,29 @@ export async function addLead(input: {
   return lead;
 }
 
+/**
+ * Lead capturado desde el chat con Lía. Puede no tener correo (basta el
+ * WhatsApp) y guarda en `notas` un resumen de lo que pidió el cliente.
+ */
+export async function addLeadChat(input: {
+  telefono?: string;
+  email?: string;
+  resumen?: string;
+}): Promise<Lead> {
+  const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const lead: Lead = {
+    id,
+    email: input.email?.trim() || "",
+    telefono: input.telefono?.trim() || undefined,
+    origen: "Chat con Lía",
+    estado: "nuevo",
+    notas: input.resumen?.trim().slice(0, 500) || undefined,
+    createdAt: new Date().toISOString(),
+  };
+  await put(`${LEADS_PREFIX}${id}.json`, JSON.stringify(lead, null, 2), putOpts);
+  return lead;
+}
+
 export async function listLeads(): Promise<Lead[]> {
   try {
     const { blobs } = await list({ prefix: LEADS_PREFIX });
