@@ -3,15 +3,21 @@ import { Icon } from "@/components/icons";
 import { readDestinos } from "@/lib/store";
 import { etiquetaTipo } from "@/lib/geo";
 import { deleteDestinoAction } from "../../actions";
-import { PageHeader, btnPrimary, btnDanger } from "../ui";
+import { PageHeader, ErrorBanner, btnPrimary, btnDanger } from "../ui";
 
 export const dynamic = "force-dynamic";
 
-export default async function DestinosAdmin() {
+export default async function DestinosAdmin({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const destinos = await readDestinos();
 
   return (
     <div>
+      <ErrorBanner show={!!error} />
       <PageHeader
         title="Destinos del globo"
         subtitle={`${destinos.length} ${destinos.length === 1 ? "destino" : "destinos"} en el globo y el rail`}

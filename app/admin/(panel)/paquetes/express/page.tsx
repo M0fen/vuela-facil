@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/icons";
 import { savePaqueteExpressAction } from "../../../actions";
-import { Field, Area, Select, Card, btnPrimary } from "../../ui";
+import { Field, Area, Select, Card, ErrorBanner, btnPrimary } from "../../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -9,9 +9,15 @@ const CATEGORIAS = ["Playa", "Eje Cafetero", "Cruceros", "Internacional", "Avent
 
 // Alta rápida de un paquete a partir del flyer de un consolidador: el operador
 // sube la imagen (que ya trae todo el detalle) y solo llena lo esencial.
-export default function NuevoPaqueteExpress() {
+export default async function NuevoPaqueteExpress({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   return (
     <div>
+      <ErrorBanner show={!!error} />
       <div className="mb-6">
         <Link
           href="/admin/paquetes"

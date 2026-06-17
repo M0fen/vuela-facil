@@ -9,6 +9,7 @@ import {
 } from "../../actions";
 import {
   PageHeader,
+  ErrorBanner,
   EstadoLeadBadge,
   ESTADOS_LEAD,
   ESTADO_LEAD_LABEL,
@@ -44,9 +45,9 @@ function waLeadLink(telefono: string): string {
 export default async function LeadsAdmin({
   searchParams,
 }: {
-  searchParams: Promise<{ estado?: string }>;
+  searchParams: Promise<{ estado?: string; error?: string }>;
 }) {
-  const { estado } = await searchParams;
+  const { estado, error } = await searchParams;
   const todos = await listLeads();
   const activo = estado && FILTROS.some((f) => f.value === estado) ? estado : "todos";
   const leads = activo === "todos" ? todos : todos.filter((l) => (l.estado ?? "nuevo") === activo);
@@ -56,6 +57,7 @@ export default async function LeadsAdmin({
 
   return (
     <div>
+      <ErrorBanner show={!!error} />
       <PageHeader
         title="Leads"
         subtitle={`${todos.length} contactos · ${conteo("nuevo")} sin atender · ${conteo("ganado")} ganados`}

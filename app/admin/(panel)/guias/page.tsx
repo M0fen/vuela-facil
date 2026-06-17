@@ -3,15 +3,21 @@ import Image from "next/image";
 import { Icon } from "@/components/icons";
 import { readGuias } from "@/lib/store";
 import { deleteGuiaAction } from "../../actions";
-import { PageHeader, btnPrimary, btnDanger } from "../ui";
+import { PageHeader, ErrorBanner, btnPrimary, btnDanger } from "../ui";
 
 export const dynamic = "force-dynamic";
 
-export default async function GuiasAdmin() {
+export default async function GuiasAdmin({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const guias = await readGuias();
 
   return (
     <div>
+      <ErrorBanner show={!!error} />
       <PageHeader
         title="Guías"
         subtitle={`${guias.length} ${guias.length === 1 ? "guía" : "guías"} · ${

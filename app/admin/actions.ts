@@ -243,20 +243,30 @@ export async function saveGuiaAction(formData: FormData): Promise<void> {
   };
 
   const nuevas = previa ? guias.map((g) => (g.id === id ? guia : g)) : [...guias, guia];
-  await saveGuias(nuevas);
-  revalidatePath("/guias");
-  revalidatePath(`/guias/${slugFinal}`);
-  revalidatePath("/");
-  redirect("/admin/guias");
+  let ok = true;
+  try {
+    await saveGuias(nuevas);
+    revalidatePath("/guias");
+    revalidatePath(`/guias/${slugFinal}`);
+    revalidatePath("/");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/guias" : "/admin/guias?error=1");
 }
 
 export async function deleteGuiaAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = str(formData, "id");
-  const guias = await readGuias();
-  await saveGuias(guias.filter((g) => g.id !== id));
-  revalidatePath("/guias");
-  redirect("/admin/guias");
+  let ok = true;
+  try {
+    const guias = await readGuias();
+    await saveGuias(guias.filter((g) => g.id !== id));
+    revalidatePath("/guias");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/guias" : "/admin/guias?error=1");
 }
 
 // --- Destinos --------------------------------------------------------------
@@ -298,18 +308,28 @@ export async function saveDestinoAction(formData: FormData): Promise<void> {
   };
 
   const nuevos = previo ? destinos.map((d) => (d.id === id ? destino : d)) : [...destinos, destino];
-  await saveDestinos(nuevos);
-  revalidatePath("/");
-  redirect("/admin/destinos");
+  let ok = true;
+  try {
+    await saveDestinos(nuevos);
+    revalidatePath("/");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/destinos" : "/admin/destinos?error=1");
 }
 
 export async function deleteDestinoAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = str(formData, "id");
-  const destinos = await readDestinos();
-  await saveDestinos(destinos.filter((d) => d.id !== id));
-  revalidatePath("/");
-  redirect("/admin/destinos");
+  let ok = true;
+  try {
+    const destinos = await readDestinos();
+    await saveDestinos(destinos.filter((d) => d.id !== id));
+    revalidatePath("/");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/destinos" : "/admin/destinos?error=1");
 }
 
 // --- Promo -----------------------------------------------------------------
@@ -327,9 +347,14 @@ export async function savePromoAction(formData: FormData): Promise<void> {
     descripcion: str(formData, "descripcion") || previa.descripcion,
     ctaMensaje: str(formData, "ctaMensaje") || previa.ctaMensaje,
   };
-  await savePromo(promo);
-  revalidatePath("/");
-  redirect("/admin/promo");
+  let ok = true;
+  try {
+    await savePromo(promo);
+    revalidatePath("/");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/promo" : "/admin/promo?error=1");
 }
 
 // --- Testimonios -----------------------------------------------------------
@@ -361,26 +386,41 @@ export async function saveTestimonioAction(formData: FormData): Promise<void> {
     const i = Number(indexRaw);
     nuevos = testimonios.map((orig, idx) => (idx === i ? t : orig));
   }
-  await saveTestimonios(nuevos);
-  revalidatePath("/");
-  redirect("/admin/testimonios");
+  let ok = true;
+  try {
+    await saveTestimonios(nuevos);
+    revalidatePath("/");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/testimonios" : "/admin/testimonios?error=1");
 }
 
 export async function deleteTestimonioAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const i = Number(str(formData, "index"));
-  const testimonios = await readTestimonios();
-  await saveTestimonios(testimonios.filter((_, idx) => idx !== i));
-  revalidatePath("/");
-  redirect("/admin/testimonios");
+  let ok = true;
+  try {
+    const testimonios = await readTestimonios();
+    await saveTestimonios(testimonios.filter((_, idx) => idx !== i));
+    revalidatePath("/");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/testimonios" : "/admin/testimonios?error=1");
 }
 
 // --- Leads (CRM) -----------------------------------------------------------
 
 export async function deleteLeadAction(formData: FormData): Promise<void> {
   await requireAdmin();
-  await deleteLead(str(formData, "id"));
-  redirect("/admin/leads");
+  let ok = true;
+  try {
+    await deleteLead(str(formData, "id"));
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/leads" : "/admin/leads?error=1");
 }
 
 /** Cambio rápido de etapa del lead desde la lista. */
@@ -388,18 +428,29 @@ export async function cambiarEstadoLeadAction(formData: FormData): Promise<void>
   await requireAdmin();
   const id = str(formData, "id");
   const estadoRaw = str(formData, "estado") as EstadoLead;
-  if (ESTADOS_LEAD.includes(estadoRaw)) {
-    await updateLead(id, { estado: estadoRaw });
-  }
   const from = str(formData, "from");
-  redirect(from.startsWith("/admin/leads") ? from : "/admin/leads");
+  const dest = from.startsWith("/admin/leads") ? from : "/admin/leads";
+  let ok = true;
+  if (ESTADOS_LEAD.includes(estadoRaw)) {
+    try {
+      await updateLead(id, { estado: estadoRaw });
+    } catch {
+      ok = false;
+    }
+  }
+  redirect(ok ? dest : `${dest}${dest.includes("?") ? "&" : "?"}error=1`);
 }
 
 /** Guarda las notas internas del lead. */
 export async function guardarNotaLeadAction(formData: FormData): Promise<void> {
   await requireAdmin();
-  await updateLead(str(formData, "id"), { notas: str(formData, "notas") });
-  redirect("/admin/leads");
+  let ok = true;
+  try {
+    await updateLead(str(formData, "id"), { notas: str(formData, "notas") });
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/leads" : "/admin/leads?error=1");
 }
 
 // --- Reservas --------------------------------------------------------------
@@ -409,14 +460,24 @@ export async function updateReservaAction(formData: FormData): Promise<void> {
   const id = str(formData, "id");
   const estadoRaw = str(formData, "estado") as EstadoReserva;
   const estado = ESTADOS_RESERVA.includes(estadoRaw) ? estadoRaw : undefined;
-  await updateReserva(id, { estado, notas: str(formData, "notas") });
-  redirect(`/admin/reservas/${id}`);
+  let ok = true;
+  try {
+    await updateReserva(id, { estado, notas: str(formData, "notas") });
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? `/admin/reservas/${id}` : `/admin/reservas/${id}?error=1`);
 }
 
 export async function deleteReservaAction(formData: FormData): Promise<void> {
   await requireAdmin();
-  await deleteReserva(str(formData, "id"));
-  redirect("/admin/reservas");
+  let ok = true;
+  try {
+    await deleteReserva(str(formData, "id"));
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/reservas" : "/admin/reservas?error=1");
 }
 
 /** Cambio rápido de estado desde la lista (sin tocar las notas). */
@@ -424,9 +485,15 @@ export async function cambiarEstadoReservaAction(formData: FormData): Promise<vo
   await requireAdmin();
   const id = str(formData, "id");
   const estadoRaw = str(formData, "estado") as EstadoReserva;
-  if (ESTADOS_RESERVA.includes(estadoRaw)) {
-    await updateReserva(id, { estado: estadoRaw });
-  }
   const from = str(formData, "from");
-  redirect(from.startsWith("/admin/reservas") ? from : "/admin/reservas");
+  const dest = from.startsWith("/admin/reservas") ? from : "/admin/reservas";
+  let ok = true;
+  if (ESTADOS_RESERVA.includes(estadoRaw)) {
+    try {
+      await updateReserva(id, { estado: estadoRaw });
+    } catch {
+      ok = false;
+    }
+  }
+  redirect(ok ? dest : `${dest}${dest.includes("?") ? "&" : "?"}error=1`);
 }

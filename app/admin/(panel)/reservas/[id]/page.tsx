@@ -4,7 +4,7 @@ import { Icon } from "@/components/icons";
 import { getReserva } from "@/lib/store";
 import { formatCOP } from "@/lib/utils";
 import { updateReservaAction, deleteReservaAction } from "../../../actions";
-import { Card, Area, EstadoBadge, EstadoSelect, btnPrimary, btnDanger } from "../../ui";
+import { Card, Area, EstadoBadge, EstadoSelect, ErrorBanner, btnPrimary, btnDanger } from "../../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +26,13 @@ function waCliente(telefono: string, destino: string, fecha: string): string {
 
 export default async function ReservaDetalle({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { id } = await params;
+  const { error } = await searchParams;
   const r = await getReserva(id);
   if (!r) notFound();
 
@@ -42,6 +45,7 @@ export default async function ReservaDetalle({
 
   return (
     <div>
+      <ErrorBanner show={!!error} />
       <div className="mb-6">
         <Link
           href="/admin/reservas"

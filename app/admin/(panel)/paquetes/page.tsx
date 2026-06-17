@@ -4,7 +4,7 @@ import { Icon } from "@/components/icons";
 import { readPaquetes } from "@/lib/store";
 import { formatCOP, descuentoPct } from "@/lib/utils";
 import { deletePaqueteAction } from "../../actions";
-import { PageHeader, btnPrimary, btnGhost, btnDanger } from "../ui";
+import { PageHeader, ErrorBanner, btnPrimary, btnGhost, btnDanger } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -18,12 +18,7 @@ export default async function PaquetesAdmin({
 
   return (
     <div>
-      {error && (
-        <div className="mb-5 rounded-2xl border border-coral/30 bg-coral/8 px-4 py-3 text-[13px] text-coral">
-          No se pudo guardar el cambio. Revisa tu conexión e inténtalo otra vez; si
-          persiste, avisa al administrador del sitio.
-        </div>
-      )}
+      <ErrorBanner show={!!error} />
       <PageHeader
         title="Paquetes"
         subtitle={`${paquetes.length} ${paquetes.length === 1 ? "destino publicado" : "destinos publicados"}`}

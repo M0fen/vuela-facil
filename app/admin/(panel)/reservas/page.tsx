@@ -4,7 +4,7 @@ import type { EstadoReserva } from "@/lib/types";
 import { listReservas } from "@/lib/store";
 import { formatCOP } from "@/lib/utils";
 import { cambiarEstadoReservaAction } from "../../actions";
-import { PageHeader, EstadoBadge, ESTADOS, ESTADO_LABEL } from "../ui";
+import { PageHeader, ErrorBanner, EstadoBadge, ESTADOS, ESTADO_LABEL } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -27,9 +27,9 @@ function fechaCorta(iso: string): string {
 export default async function ReservasAdmin({
   searchParams,
 }: {
-  searchParams: Promise<{ estado?: string }>;
+  searchParams: Promise<{ estado?: string; error?: string }>;
 }) {
-  const { estado } = await searchParams;
+  const { estado, error } = await searchParams;
   const todas = await listReservas();
   const activo = estado && FILTROS.some((f) => f.value === estado) ? estado : "todas";
   const reservas = activo === "todas" ? todas : todas.filter((r) => r.estado === activo);
@@ -39,6 +39,7 @@ export default async function ReservasAdmin({
 
   return (
     <div>
+      <ErrorBanner show={!!error} />
       <PageHeader
         title="Reservas"
         subtitle={`${todas.length} solicitudes · ${conteo("pendiente")} pendientes`}

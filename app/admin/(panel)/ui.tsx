@@ -91,6 +91,19 @@ export const btnGhost =
 export const btnDanger =
   "inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full border border-coral/25 text-coral text-[12px] font-semibold hover:bg-coral hover:text-white transition-colors";
 
+// --- Aviso de error de guardado --------------------------------------------
+
+/** Banner que aparece cuando una acción del panel redirige con ?error=1. */
+export function ErrorBanner({ show }: { show?: boolean }) {
+  if (!show) return null;
+  return (
+    <div className="mb-5 rounded-2xl border border-coral/30 bg-coral/8 px-4 py-3 text-[13px] text-coral">
+      No se pudo guardar el cambio. Revisa tu conexión e inténtalo otra vez; si
+      persiste, avisa al administrador del sitio.
+    </div>
+  );
+}
+
 // --- Encabezado de página --------------------------------------------------
 
 export function PageHeader({

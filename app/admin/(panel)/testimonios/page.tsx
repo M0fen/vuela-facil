@@ -3,7 +3,7 @@ import type { Testimonio } from "@/lib/types";
 import { readTestimonios } from "@/lib/store";
 import { Icon } from "@/components/icons";
 import { saveTestimonioAction, deleteTestimonioAction } from "../../actions";
-import { Field, Area, Card, PageHeader, btnPrimary, btnDanger } from "../ui";
+import { Field, Area, Card, PageHeader, ErrorBanner, btnPrimary, btnDanger } from "../ui";
 import { AIGenerate } from "@/components/admin/AIGenerate";
 
 export const dynamic = "force-dynamic";
@@ -55,11 +55,17 @@ function TestimonioForm({ t, index }: { t?: Testimonio; index: number | "nuevo" 
   );
 }
 
-export default async function TestimoniosAdmin() {
+export default async function TestimoniosAdmin({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const testimonios = await readTestimonios();
 
   return (
     <div>
+      <ErrorBanner show={!!error} />
       <PageHeader
         title="Testimonios"
         subtitle={`${testimonios.length} ${testimonios.length === 1 ? "reseña publicada" : "reseñas publicadas"}`}
