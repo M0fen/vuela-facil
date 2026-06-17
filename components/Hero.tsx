@@ -104,13 +104,13 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
   };
 
   const waMsg = [
-    "✈️ *VUELA FÁCIL TRAVEL*",
+    "🛫 *VUELA FÁCIL TRAVEL*",
     "_Solicitud de cotización_",
     "",
     "¡Hola! Quiero cotizar un viaje 👇",
     "",
-    `🗺️ *Destino:* ${destino || "Aún por decidir"}`,
-    `🏷️ *Estilo:* ${categoria === "Todos" ? "Abierto a opciones" : categoria}`,
+    `📍 *Destino:* ${destino || "Aún por decidir"}`,
+    `✨ *Estilo:* ${categoria === "Todos" ? "Abierto a opciones" : categoria}`,
     `📅 *Salida:* ${mesLegible(fecha)}`,
     `👥 *Viajeros:* ${viajeros} ${viajeros === 1 ? "viajero" : "viajeros"}`,
     `💰 *Presupuesto:* ${rango ? rango.label : "Por definir"}`,

@@ -40,7 +40,11 @@ const CATEGORIAS: Categoria[] = [
 // --- helpers ---------------------------------------------------------------
 
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
+// Decimales (calificación, lat, lng): conserva el punto decimal y el signo.
 const num = (fd: FormData, k: string) => Number(String(fd.get(k) ?? "0").replace(/[^\d.-]/g, "")) || 0;
+// Enteros (precio, reseñas, días…): quita TODO lo que no sea dígito, así
+// "1.890.000" o "$1.890.000 COP" (formato colombiano) se leen como 1890000.
+const int = (fd: FormData, k: string) => Number(String(fd.get(k) ?? "0").replace(/[^\d]/g, "")) || 0;
 const lines = (fd: FormData, k: string) =>
   String(fd.get(k) ?? "")
     .split("\n")
@@ -95,13 +99,13 @@ export async function savePaqueteAction(formData: FormData): Promise<void> {
     pais: str(formData, "pais"),
     imagen: imagen || "/images/pkg-ejc.jpg",
     duracion: str(formData, "duracion"),
-    duracionDias: num(formData, "duracionDias"),
+    duracionDias: int(formData, "duracionDias"),
     incluye: lines(formData, "incluye"),
-    precio: num(formData, "precio"),
-    precioAntes: num(formData, "precioAntes") || undefined,
+    precio: int(formData, "precio"),
+    precioAntes: int(formData, "precioAntes") || undefined,
     categoria,
     calificacion: num(formData, "calificacion"),
-    reviews: num(formData, "reviews"),
+    reviews: int(formData, "reviews"),
     salidas: lines(formData, "salidas"),
     etiqueta: str(formData, "etiqueta") || null,
     resumen: str(formData, "resumen") || undefined,
