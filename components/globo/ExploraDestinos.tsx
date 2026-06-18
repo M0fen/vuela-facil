@@ -70,7 +70,9 @@ export function ExploraDestinos({
 }) {
   const { openPackage } = useUI();
   const reduced = useReducedMotion();
-  const { ref, entered, inView } = useInView<HTMLDivElement>("200px");
+  // rootMargin amplio: empieza a montar/cargar el globo bastante antes de llegar
+  // a la sección, para que ya esté listo cuando el usuario la ve.
+  const { ref, entered, inView } = useInView<HTMLDivElement>("600px");
 
   const [puedeGlobo, setPuedeGlobo] = useState(false);
   const [globoListo, setGloboListo] = useState(false);

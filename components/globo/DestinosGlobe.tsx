@@ -526,7 +526,7 @@ export function DestinosGlobe({
           onZoom={onZoom}
           // Continentes en hexágonos ivory
           hexPolygonsData={paises}
-          hexPolygonResolution={quality.cap === "alto" ? 4 : 3}
+          hexPolygonResolution={3}
           hexPolygonMargin={0.2}
           hexPolygonAltitude={hexAltitude}
           hexPolygonColor={hexColor}
