@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, type ComponentType, type ReactNode, type SVGProps } from "react";
+import { useEffect, useMemo, useState, type ComponentType, type ReactNode, type SVGProps } from "react";
 import { Icon } from "./icons";
 import { IMG, NEGOCIO } from "@/lib/data";
 import { formatCOP, waLink } from "@/lib/utils";
@@ -65,8 +65,27 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
   const [fecha, setFecha] = useState("");
   const [viajeros, setViajeros] = useState(2);
   const [presupuestoIdx, setPresupuestoIdx] = useState(-1); // -1 = cualquiera
+  const [vueloDesde, setVueloDesde] = useState<number | null>(null);
 
   const rango = presupuestoIdx >= 0 ? PRESUPUESTOS[presupuestoIdx] : null;
+
+  // Precio referencial de vuelo al destino elegido (Nivel 1, env-gated en el
+  // backend). Si no hay credenciales, /api/vuelos responde sin precio y no se
+  // muestra nada: la UX queda idéntica.
+  useEffect(() => {
+    let cancelado = false;
+    setVueloDesde(null);
+    if (!destino) return;
+    fetch(`/api/vuelos?destino=${encodeURIComponent(destino)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelado && d?.precio) setVueloDesde(d.precio);
+      })
+      .catch(() => {});
+    return () => {
+      cancelado = true;
+    };
+  }, [destino]);
 
   // Búsqueda actual (lo que se aplicará / se cuenta en vivo).
   const busqueda: Busqueda = {
@@ -114,6 +133,7 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
     `📅 *Salida:* ${mesLegible(fecha)}`,
     `👥 *Viajeros:* ${viajeros} ${viajeros === 1 ? "viajero" : "viajeros"}`,
     `💰 *Presupuesto:* ${rango ? rango.label : "Por definir"}`,
+    ...(vueloDesde ? [`🛫 *Vuelos desde:* ${formatCOP(vueloDesde)} (referencial)`] : []),
     "",
     "¿Me ayudan a armar la mejor opción? 🙌",
   ].join("\n");
@@ -236,6 +256,12 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
                 <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-navy/5">
                   <Icon.Shield className="w-3.5 h-3.5 text-navy" /> RNT vigente
                 </span>
+                {vueloDesde && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky/10 text-[#2b6ea3] font-semibold">
+                    <Icon.Plane className="w-3.5 h-3.5" /> Vuelos desde {formatCOP(vueloDesde)}
+                    <span className="font-normal text-navy/45">referencial</span>
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2 w-full md:w-auto">
                 <a
