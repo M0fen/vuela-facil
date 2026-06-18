@@ -5,7 +5,7 @@
  *  - Nunca cachea /admin ni /api (datos sensibles / siempre frescos).
  * Sube CACHE_VERSION para invalidar todo en el próximo deploy.
  */
-const CACHE_VERSION = "vf-v3";
+const CACHE_VERSION = "vf-v4";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const PAGES_CACHE = `${CACHE_VERSION}-pages`;
 const OFFLINE_URL = "/offline.html";
