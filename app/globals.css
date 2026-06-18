@@ -104,6 +104,29 @@ html {
   font-style: italic;
   color: rgba(13, 44, 84, 0.75);
 }
+.guia-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.2rem;
+  font-size: 14.5px;
+}
+.guia-content th,
+.guia-content td {
+  border: 1px solid rgba(13, 44, 84, 0.12);
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  vertical-align: top;
+}
+.guia-content th {
+  background: rgba(13, 44, 84, 0.04);
+  font-weight: 600;
+  color: #0d2c54;
+}
+.guia-content hr {
+  border: 0;
+  border-top: 1px solid rgba(13, 44, 84, 0.12);
+  margin: 2rem 0;
+}
 
 /* Reveal on scroll */
 .reveal {

@@ -36,6 +36,22 @@ export default async function AdminHome() {
         subtitle="Administra el contenido del sitio. Los cambios se publican al guardar."
       />
 
+      <Link
+        href="/admin/ayuda"
+        className="group mb-5 flex items-center gap-4 p-4 md:p-5 rounded-2xl bg-gradient-to-r from-navy to-[#163b6e] text-white shadow-[0_18px_40px_-24px_rgba(13,44,84,0.8)] hover:-translate-y-0.5 transition-all"
+      >
+        <span className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+          <Icon.Help className="w-6 h-6" />
+        </span>
+        <span className="flex-1 leading-tight">
+          <span className="block font-serif text-[18px]">¿Primera vez? Lee el tutorial</span>
+          <span className="block text-white/70 text-[13px] mt-0.5">
+            Paso a paso para manejar paquetes, fotos, ofertas, blog y tus clientes. Sin tecnicismos.
+          </span>
+        </span>
+        <Icon.Arrow className="w-5 h-5 text-white/60 group-hover:translate-x-0.5 transition-transform shrink-0" />
+      </Link>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map(({ href, label, value, hint, icon: I }) => (
           <Link
@@ -70,6 +86,9 @@ export default async function AdminHome() {
           </Link>
           <Link href="/admin/leads" className={btnGhost}>
             <Icon.Users className="w-4 h-4" /> Ver leads
+          </Link>
+          <Link href="/admin/ayuda" className={btnGhost}>
+            <Icon.Help className="w-4 h-4" /> Ver tutorial
           </Link>
         </div>
       </div>

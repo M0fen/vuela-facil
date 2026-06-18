@@ -14,6 +14,7 @@ const NAV = [
   { href: "/admin/testimonios", label: "Testimonios", icon: Icon.Star },
   { href: "/admin/leads", label: "Leads", icon: Icon.Users },
   { href: "/admin/analitica", label: "Analítica", icon: Icon.Chart },
+  { href: "/admin/ayuda", label: "Ayuda", icon: Icon.Help },
 ];
 
 export function AdminNav() {

@@ -126,4 +126,11 @@ export const Icon = {
       <path d="M5 21V11M12 21V4M19 21v-6" />
     </svg>
   ),
+  Help: (p: P) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" {...p}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.2 9.3a2.8 2.8 0 0 1 5.4 1c0 1.9-2.6 2.4-2.6 4" />
+      <path d="M12 17.5h.01" />
+    </svg>
+  ),
 } as const;
