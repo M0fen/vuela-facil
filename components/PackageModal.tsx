@@ -30,6 +30,9 @@ export function PackageModal({
   const [hecho, setHecho] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const nombreRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const itinRef = useRef<HTMLDivElement>(null);
+  const lineFillRef = useRef<HTMLSpanElement>(null);
 
   const pkg = activePackageId ? paquetes.find((p) => p.id === activePackageId) ?? null : null;
 
@@ -57,6 +60,35 @@ export function PackageModal({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [closePackage]);
+
+  // Itinerario: una sola línea que se "llena" a medida que se hace scroll por el
+  // modal (progreso del recorrido). Sin re-render de React (toca el DOM directo).
+  useEffect(() => {
+    const sc = scrollRef.current;
+    const itin = itinRef.current;
+    const fill = lineFillRef.current;
+    if (!sc || !itin || !fill) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const scRect = sc.getBoundingClientRect();
+      const itRect = itin.getBoundingClientRect();
+      const linea = scRect.top + scRect.height * 0.45; // punto de referencia
+      const prog = (linea - itRect.top) / Math.max(1, itRect.height);
+      fill.style.height = `${Math.max(0, Math.min(1, prog)) * 100}%`;
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    sc.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      sc.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [pkg]);
 
   if (!pkg) return null;
 
@@ -158,7 +190,7 @@ export function PackageModal({
           <Icon.Close className="w-5 h-5" />
         </button>
 
-        <div className="overflow-y-auto overscroll-contain flex-1 min-h-0">
+        <div ref={scrollRef} className="overflow-y-auto overscroll-contain flex-1 min-h-0">
           <div className={`relative h-[200px] sm:h-[260px] md:h-[340px] overflow-hidden ${pkg.flyer ? "bg-navy" : ""}`}>
             <Image
               src={pkg.imagen}
@@ -198,7 +230,7 @@ export function PackageModal({
           </div>
 
           <div className="grid md:grid-cols-3 gap-0">
-            <div className="md:col-span-2 p-5 md:p-8 space-y-8">
+            <div className="md:col-span-2 p-5 md:p-8 space-y-7 md:space-y-9">
               {pkg.flyer ? (
                 <section>
                   {pkg.resumen && (
@@ -214,9 +246,8 @@ export function PackageModal({
               <section>
                 <h3 className="font-serif text-navy text-[22px] mb-3">Sobre este viaje</h3>
                 <p className="text-navy/70 leading-relaxed text-[15px]">
-                  Una experiencia cuidadosamente diseñada por nuestro equipo en Pereira. Te
-                  acompañamos desde la elección de la fecha hasta tu regreso, con asistencia humana
-                  24/7 antes y durante el viaje.
+                  {pkg.resumen ||
+                    "Una experiencia cuidadosamente diseñada por nuestro equipo en Pereira. Te acompañamos desde la elección de la fecha hasta tu regreso, con asistencia humana 24/7 antes y durante el viaje."}
                 </p>
               </section>
 
@@ -240,19 +271,32 @@ export function PackageModal({
               </section>
 
               <section>
-                <h3 className="font-serif text-navy text-[22px] mb-4">Itinerario</h3>
-                <ol className="space-y-4">
-                  {itinerario.map((it, i) => (
-                    <li key={i} className="relative pl-7 border-l-2 border-coral/30 pb-1">
-                      <span className="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-coral" />
-                      <div className="text-[11px] uppercase tracking-[0.2em] text-coral font-semibold">
-                        {it.dia}
-                      </div>
-                      <div className="font-serif text-navy text-[17px] mt-0.5">{it.titulo}</div>
-                      <div className="text-navy/65 text-[14px] mt-1 leading-relaxed">{it.desc}</div>
-                    </li>
-                  ))}
-                </ol>
+                <h3 className="font-serif text-navy text-[22px] mb-5">Itinerario</h3>
+                <div ref={itinRef} className="relative">
+                  {/* Riel: una sola línea continua + relleno que avanza con el scroll */}
+                  <span
+                    className="absolute left-[6px] top-1.5 bottom-2 w-[2px] rounded bg-coral/15"
+                    aria-hidden="true"
+                  />
+                  <span
+                    ref={lineFillRef}
+                    className="absolute left-[6px] top-1.5 w-[2px] rounded bg-coral"
+                    style={{ height: 0 }}
+                    aria-hidden="true"
+                  />
+                  <ol className="space-y-5">
+                    {itinerario.map((it, i) => (
+                      <li key={i} className="relative pl-7">
+                        <span className="absolute left-0 top-1 w-3 h-3 rounded-full bg-coral ring-4 ring-white" />
+                        <div className="text-[11px] uppercase tracking-[0.2em] text-coral font-semibold">
+                          {it.dia}
+                        </div>
+                        <div className="font-serif text-navy text-[17px] mt-0.5">{it.titulo}</div>
+                        <div className="text-navy/65 text-[14px] mt-1 leading-relaxed">{it.desc}</div>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
               </section>
 
               <section>
@@ -265,7 +309,7 @@ export function PackageModal({
               </section>
               </>)}
 
-              <section className="pt-2">
+              <section className="pt-5 border-t border-navy/8">
                 <Link
                   href={`/paquetes/${pkg.id}`}
                   className="inline-flex items-center gap-1.5 text-coral font-semibold text-[14px] hover:gap-2.5 transition-all"
