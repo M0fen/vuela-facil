@@ -135,16 +135,14 @@ solo avísale a quien te ayuda con el sitio:
   ~2 MB) e inténtalo otra vez.
 - **El globo no aparece en el celular:** es a propósito 😊. En el celular se
   muestra el tablero de destinos, que es más rápido y claro.
-- **Olvidé la contraseña del panel:** no te preocupes, la restablece la persona
-  que administra el sitio.
+- **Olvidé la contraseña del panel:** no te preocupes, la restablece Carlitos.
 
 ---
 
 ## ¿Necesitas ayuda? Aquí estamos 💙
 
-Si te quedas trabado en algo, respira, no se dañó nada. Escribe o llama:
+Si te quedas trabado en algo, respira, no se dañó nada. **Llama o escríbele a
+Carlitos** (él administra el sitio) y te ayuda enseguida.
 
-📞 **WhatsApp del negocio:** +57 311 449 4224
-
-Y si es un tema técnico (algo de los del punto 7), contacta a quien administra el
-sitio. ¡Lo estás haciendo muy bien! 🌟
+Y si es un tema técnico (algo de los del punto 7), también es cosa de Carlitos.
+¡Lo estás haciendo muy bien! 🌟

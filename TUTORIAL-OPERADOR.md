@@ -274,9 +274,8 @@ avísale:
 
 ## 🆘 ¿Necesitas ayuda?
 
-Respira: no se dañó nada. Escribe o llama:
-
-📞 **WhatsApp del negocio:** +57 311 449 4224
+Respira: **no se dañó nada**. Si te trabas con algo, **llama o escríbele a
+Carlitos** (él administra el sitio) y te ayuda enseguida.
 
 ¡Lo estás haciendo muy bien! 🌟 Con este tutorial tienes el control total del
 contenido de tu página.
