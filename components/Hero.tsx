@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode, type SVGProps } from "react";
 import { Icon } from "./icons";
+import { CountUp } from "./fx/CountUp";
 import { IMG, NEGOCIO } from "@/lib/data";
 import { formatCOP, waLink } from "@/lib/utils";
 import { useUI } from "@/lib/ui-context";
@@ -269,13 +270,13 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   data-wa="hero-buscador"
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-4 rounded-full border border-emerald/30 text-[#1f8a5b] text-[13px] font-semibold hover:bg-emerald/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald/40 shrink-0"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-4 rounded-full border border-emerald/30 text-[#1f8a5b] text-[13px] font-semibold hover:bg-emerald/5 transition-[colors,transform] active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald/40 shrink-0"
                 >
                   <Icon.Whatsapp className="w-4 h-4" /> Cotizar
                 </a>
                 <button
                   onClick={handleSearch}
-                  className="group flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-gradient-to-r from-coral to-amber text-white text-[15px] font-semibold tracking-wide shadow-[0_14px_30px_-10px_rgba(232,99,26,0.6)] hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.7)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                  className="group flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-gradient-to-r from-coral to-amber text-white text-[15px] font-semibold tracking-wide shadow-[0_14px_30px_-10px_rgba(232,99,26,0.6)] hover:shadow-[0_20px_40px_-10px_rgba(232,99,26,0.7)] transition-all active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
                 >
                   <Icon.Search className="w-5 h-5" />
                   {sinResultados
@@ -301,7 +302,7 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
             ] as const
           ).map(([n, l]) => (
             <div key={l}>
-              <div className="font-serif text-2xl md:text-4xl text-white">{n}</div>
+              <CountUp value={n} className="block font-serif text-2xl md:text-4xl text-white" />
               <div className="text-[11px] md:text-[12px] uppercase tracking-[0.18em] text-white/70 mt-1">{l}</div>
             </div>
           ))}

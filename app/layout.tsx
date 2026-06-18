@@ -6,6 +6,7 @@ import { WhatsAppTracker } from "@/components/WhatsAppTracker";
 import { PWARegister } from "@/components/PWARegister";
 import { ReferralBanner } from "@/components/ReferralBanner";
 import { AIAssistant } from "@/components/AIAssistant";
+import { ScrollProgress } from "@/components/fx/ScrollProgress";
 import { NEGOCIO, TESTIMONIOS, RESENAS_VERIFICADAS } from "@/lib/data";
 import { WHATSAPP_NUMERO } from "@/lib/utils";
 import { SITE_URL } from "@/lib/site";
@@ -108,6 +109,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
+        <ScrollProgress />
         <UIProvider>{children}</UIProvider>
         <AIAssistant />
         <ReferralBanner />

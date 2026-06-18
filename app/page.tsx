@@ -15,6 +15,7 @@ import { Footer } from "@/components/Footer";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { PackageModal } from "@/components/PackageModal";
 import { ExploraDestinos } from "@/components/globo/ExploraDestinos";
+import { FlightPathDivider } from "@/components/fx/FlightPathDivider";
 import { getPaquetes, getPromo, getTestimonios, getGuiasPublicadas, getDestinos } from "@/lib/store";
 import { pagosActivos } from "@/lib/pagos";
 
@@ -43,6 +44,7 @@ export default async function Home() {
         <StoryEjeCafetero />
         <RecomendadosTemporada paquetes={paquetes} />
         <GuiasHome guias={guias} />
+        <FlightPathDivider className="py-10 md:py-14" />
         <CapturaContacto />
       </main>
       <Footer />

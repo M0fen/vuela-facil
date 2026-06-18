@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "./icons";
@@ -17,23 +18,46 @@ import {
 } from "@/lib/buscador";
 import type { Paquete } from "@/lib/types";
 
+type VTDoc = Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
+
 function PackageCard({ p, index = 0 }: { p: Paquete; index?: number }) {
   const { openPackage } = useUI();
   const msg = `Hola Vuela Fácil 👋 Quiero información del paquete *${p.destino}* (${p.duracion}) — ref ${p.id}.`;
+
+  // Abre el modal con transición de vista (la foto de la tarjeta "viaja" al
+  // modal). Mejora progresiva: sin soporte o con reduced-motion, abre normal.
+  const abrir = (article: HTMLElement) => {
+    const doc = document as VTDoc;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (!doc.startViewTransition || reduce) {
+      openPackage(p.id);
+      return;
+    }
+    const img = article.querySelector<HTMLElement>("[data-pkg-img]");
+    img?.style.setProperty("view-transition-name", "vf-pkg-hero");
+    const vt = doc.startViewTransition(() => {
+      flushSync(() => openPackage(p.id));
+      // En el nuevo estado el nombre lo lleva la imagen del modal; lo quitamos de
+      // la tarjeta para que no haya dos elementos con el mismo nombre.
+      img?.style.removeProperty("view-transition-name");
+    });
+    vt.finished.finally(() => img?.style.removeProperty("view-transition-name"));
+  };
 
   return (
     <article
       onClick={(e) => {
         if ((e.target as HTMLElement).closest("a,button")) return;
-        openPackage(p.id);
+        abrir(e.currentTarget);
       }}
       style={{ animationDelay: `${Math.min(index, 8) * 0.06}s` }}
-      className="card-in group bg-white rounded-3xl overflow-hidden border border-navy/8 hover:border-navy/20 hover:shadow-[0_30px_60px_-30px_rgba(13,44,84,0.35)] hover:-translate-y-1 transition-[transform,box-shadow,border-color] duration-300 flex flex-col cursor-pointer"
+      className="card-in group bg-white rounded-3xl overflow-hidden border border-navy/8 hover:border-navy/20 hover:shadow-[0_30px_60px_-30px_rgba(13,44,84,0.35)] hover:-translate-y-1 active:scale-[0.99] transition-[transform,box-shadow,border-color] duration-300 flex flex-col cursor-pointer"
     >
       <div className="relative aspect-[5/4] overflow-hidden">
         <Image
           src={p.imagen}
           alt={p.destino}
+          data-pkg-img
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-[1400ms] group-hover:scale-110"

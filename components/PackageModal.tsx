@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Icon } from "./icons";
 import { Stars } from "./ui";
 import type { Paquete } from "@/lib/types";
@@ -166,6 +166,7 @@ export function PackageModal({
               fill
               sizes="(max-width: 768px) 100vw, 1100px"
               className={pkg.flyer ? "object-contain" : "object-cover"}
+              style={{ viewTransitionName: "vf-pkg-hero" } as CSSProperties}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/30 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 text-white">
