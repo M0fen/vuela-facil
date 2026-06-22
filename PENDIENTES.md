@@ -2,8 +2,13 @@
 
 Checklist de lo que falta de tu lado. Marca con `x` lo que vayas completando.
 
-## 🟥 CRÍTICO — número de WhatsApp en Vercel
-- [ ] **Actualizar `NEXT_PUBLIC_WHATSAPP_NUMERO` en Vercel** → Settings → Environment Variables a **`573114494224`** y re-desplegar. El código y `.env.local` ya usan el número nuevo, pero **la variable de Vercel manda**: si quedó el viejo (`573145452095`), los enlaces de WhatsApp en producción seguirán yendo al número equivocado.
+## ✅ Dominio y publicación (RESUELTO — jun 2026)
+- [x] **Dominio conectado**: `vuelafaciltravel.com` y `www` apuntan a Vercel, con SSL.
+- [x] **SEO al dominio real**: robots, sitemap, canónico, JSON-LD y Open Graph ya usan `https://vuelafaciltravel.com`.
+- [x] **Imagen de previsualización (Open Graph)**: se genera de marca; el enlace se ve bonito al compartir por WhatsApp/Facebook.
+- [x] **WhatsApp en producción** apunta al número correcto `573114494224` (verificado en vivo).
+- [ ] **(Recomendado) Evitar dominio duplicado**: hoy `vuelafaciltravel.com` y `www.vuelafaciltravel.com` responden ambos (200) sin redirigir. En **Vercel → Settings → Domains**, deja UNO como principal y que el otro **redirija** a él (botón "Redirect to…"). Recomendado: principal **sin www**. Así Google no ve contenido duplicado.
+- [ ] **(Opcional, blindaje)** Definir `NEXT_PUBLIC_SITE_URL=https://vuelafaciltravel.com` en Vercel → Environment Variables (hoy ya funciona por defecto en código).
 
 ## 🟥 Antes de publicar Fase 0 (datos reales en `lib/data.ts` → `NEGOCIO`)
 - [x] **WhatsApp** real: `573114494224` (display `+57 311 449 4224`). *(Falta actualizar la env var en Vercel, ver arriba.)*
