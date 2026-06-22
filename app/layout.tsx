@@ -91,6 +91,13 @@ export const metadata: Metadata = {
       "Viajes a la medida por Colombia y el mundo, con asesoría humana en Pereira y reserva por WhatsApp.",
     locale: "es_CO",
     type: "website",
+    siteName: "Vuela Fácil Travel",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vuela Fácil Travel · Agencia de Viajes en Pereira",
+    description:
+      "Viajes a la medida por Colombia y el mundo, con asesoría humana en Pereira y reserva por WhatsApp.",
   },
 };
 
