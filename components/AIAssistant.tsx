@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Icon } from "./icons";
 import { waLink } from "@/lib/utils";
 import { estaAbierto } from "@/lib/horario";
@@ -30,6 +31,7 @@ export function AIAssistant() {
   const [loading, setLoading] = useState(false);
   const [abierto, setAbierto] = useState<boolean | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   // Estado "en línea" según el horario de atención (hora de Colombia).
   useEffect(() => {
@@ -49,6 +51,9 @@ export function AIAssistant() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs, open]);
+
+  // La Lía de clientes NO se muestra en el panel: ahí va la Lía del operador.
+  if (pathname?.startsWith("/admin")) return null;
 
   // Resumen de la conversación para el handoff a un asesor humano por WhatsApp.
   const handoffMsg = () => {

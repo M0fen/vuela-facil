@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AdminNav } from "./AdminNav";
+import { AsistenteOperadorFlotante } from "@/components/admin/AsistenteOperadorFlotante";
 import { logout } from "../auth-actions";
 
 export const metadata: Metadata = {
@@ -52,6 +53,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
         <AdminNav />
       </header>
       <main className="relative max-w-[1100px] mx-auto px-4 md:px-8 py-8 md:py-10">{children}</main>
+      <AsistenteOperadorFlotante />
     </div>
   );
 }
