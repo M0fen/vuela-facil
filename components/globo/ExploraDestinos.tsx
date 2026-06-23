@@ -31,6 +31,7 @@ import { SectionEyebrow, Stars } from "@/components/ui";
 import { Icon } from "@/components/icons";
 import { DestinosMapa2D } from "./DestinosMapa2D";
 import { DepartureBoard } from "./DepartureBoard";
+import { GloboBoundary } from "./GloboBoundary";
 
 const DestinosGlobe = dynamic(() => import("./DestinosGlobe"), { ssr: false, loading: () => null });
 
@@ -76,6 +77,8 @@ export function ExploraDestinos({
 
   const [puedeGlobo, setPuedeGlobo] = useState(false);
   const [globoListo, setGloboListo] = useState(false);
+  // Si el globo falla o tarda demasiado, lo descartamos y dejamos el mapa 2D.
+  const [globoFallo, setGloboFallo] = useState(false);
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [origenId, setOrigenId] = useState("pereira");
   const [activoId, setActivoId] = useState<string | null>(null);
@@ -101,7 +104,15 @@ export function ExploraDestinos({
     return () => mq.removeEventListener("change", evaluar);
   }, [reduced]);
 
-  const montarGlobo = puedeGlobo && entered;
+  const montarGlobo = puedeGlobo && entered && !globoFallo;
+
+  // Watchdog: si el globo monta pero no avisa "listo" en 9s (WebGL trabado,
+  // driver, etc.), lo descartamos y nos quedamos con el mapa 2D interactivo.
+  useEffect(() => {
+    if (!(puedeGlobo && entered) || globoListo || globoFallo) return;
+    const id = window.setTimeout(() => setGloboFallo(true), 9000);
+    return () => window.clearTimeout(id);
+  }, [puedeGlobo, entered, globoListo, globoFallo]);
 
   // --- Datos derivados -----------------------------------------------------
   const origen = useMemo(() => ORIGENES.find((o) => o.id === origenId) ?? ORIGENES[0], [origenId]);
@@ -272,26 +283,28 @@ export function ExploraDestinos({
                   globoListo ? "opacity-100" : "opacity-0"
                 }`}
               >
-                <DestinosGlobe
-                  destinos={destinosFiltrados}
-                  rutas={rutasFiltradas}
-                  origen={origen}
-                  paisesConDestinos={paisesConDestinos}
-                  activoId={activoId}
-                  comando={comando}
-                  comandoNonce={comandoNonce.current}
-                  avionId={avionId}
-                  pausado={seleccion !== null}
-                  inView={inView}
-                  onReady={() => setGloboListo(true)}
-                  onHover={setActivoId}
-                  onSelect={seleccionarDesdeGlobo}
-                />
+                <GloboBoundary onError={() => setGloboFallo(true)}>
+                  <DestinosGlobe
+                    destinos={destinosFiltrados}
+                    rutas={rutasFiltradas}
+                    origen={origen}
+                    paisesConDestinos={paisesConDestinos}
+                    activoId={activoId}
+                    comando={comando}
+                    comandoNonce={comandoNonce.current}
+                    avionId={avionId}
+                    pausado={seleccion !== null}
+                    inView={inView}
+                    onReady={() => setGloboListo(true)}
+                    onHover={setActivoId}
+                    onSelect={seleccionarDesdeGlobo}
+                  />
+                </GloboBoundary>
               </div>
             )}
 
             {/* Botón Ver Colombia (cuando el globo está listo) */}
-            {puedeGlobo && globoListo && (
+            {puedeGlobo && globoListo && !globoFallo && (
               <button
                 type="button"
                 onClick={verColombia}
@@ -302,7 +315,7 @@ export function ExploraDestinos({
             )}
 
             <p className="absolute bottom-3 left-0 right-0 text-center text-ivory/70 text-[11px] tracking-wide pointer-events-none">
-              {!puedeGlobo
+              {!puedeGlobo || globoFallo
                 ? "Toca un destino en la lista"
                 : globoListo
                   ? "Gira y acércate · toca un destino para ver su plan"
