@@ -12,6 +12,7 @@ import { useUI } from "@/lib/ui-context";
 import {
   categoriasConInventario,
   filtrarPaquetes,
+  hayConsolidadores,
   hayFiltros,
   hayPresupuesto,
   PRESUPUESTOS,
@@ -51,7 +52,9 @@ function PackageCard({ p, index = 0 }: { p: Paquete; index?: number }) {
         abrir(e.currentTarget);
       }}
       style={{ animationDelay: `${Math.min(index, 8) * 0.06}s` }}
-      className="card-in group bg-white rounded-3xl overflow-hidden border border-navy/8 hover:border-navy/20 hover:shadow-[0_30px_60px_-30px_rgba(13,44,84,0.35)] hover:-translate-y-1 active:scale-[0.99] transition-[transform,box-shadow,border-color] duration-300 flex flex-col cursor-pointer"
+      className={`card-in group bg-white rounded-3xl overflow-hidden border hover:shadow-[0_30px_60px_-30px_rgba(13,44,84,0.35)] hover:-translate-y-1 active:scale-[0.99] transition-[transform,box-shadow,border-color] duration-300 flex flex-col cursor-pointer ${
+        p.flyer ? "border-coral/35 ring-1 ring-coral/15" : "border-navy/8 hover:border-navy/20"
+      }`}
     >
       <div className="relative aspect-[5/4] overflow-hidden">
         <Image
@@ -178,6 +181,7 @@ function Chip({ children, onClear }: { children: ReactNode; onClear: () => void 
 export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
   const { busqueda, setBusqueda, resetBusqueda } = useUI();
   const filtros = useMemo(() => categoriasConInventario(paquetes), [paquetes]);
+  const tieneConsolidadores = useMemo(() => hayConsolidadores(paquetes), [paquetes]);
   const list = useMemo(() => filtrarPaquetes(paquetes, busqueda), [paquetes, busqueda]);
 
   const presupuestoLabel = hayPresupuesto(busqueda)
@@ -218,6 +222,19 @@ export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
                 {c}
               </button>
             ))}
+            {tieneConsolidadores && (
+              <button
+                onClick={() => setBusqueda({ soloConsolidador: !busqueda.soloConsolidador })}
+                aria-pressed={busqueda.soloConsolidador}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-medium transition-colors border ${
+                  busqueda.soloConsolidador
+                    ? "bg-coral text-white border-coral"
+                    : "bg-white text-coral border-coral/30 hover:border-coral/60"
+                }`}
+              >
+                <Icon.Sparkle className="w-3.5 h-3.5" /> Consolidador
+              </button>
+            )}
           </div>
         </div>
 
@@ -226,6 +243,11 @@ export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
           <span className="text-navy/70 text-[14px] font-semibold">
             {list.length} {list.length === 1 ? "viaje" : "viajes"}
           </span>
+          {busqueda.soloConsolidador && (
+            <Chip onClear={() => setBusqueda({ soloConsolidador: false })}>
+              Ofertas de consolidador
+            </Chip>
+          )}
           {busqueda.destino && (
             <Chip onClear={() => setBusqueda({ destino: "" })}>{busqueda.destino}</Chip>
           )}

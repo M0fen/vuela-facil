@@ -18,6 +18,8 @@ export interface Busqueda {
   /** Rango de presupuesto por persona, en COP. max Infinity = sin tope. */
   presupuestoMin: number;
   presupuestoMax: number;
+  /** true = mostrar solo ofertas express de consolidador (paquetes con flyer). */
+  soloConsolidador: boolean;
   /** Informativos (van a la cotización, no filtran la grilla). */
   viajeros: number;
   mes: string;
@@ -28,6 +30,7 @@ export const BUSQUEDA_INICIAL: Busqueda = {
   destino: "",
   presupuestoMin: 0,
   presupuestoMax: Infinity,
+  soloConsolidador: false,
   viajeros: 2,
   mes: "",
 };
@@ -52,18 +55,24 @@ export function destinosDisponibles(paquetes: Paquete[]): string[] {
   return Array.from(new Set(paquetes.map((p) => p.destino))).sort((a, b) => a.localeCompare(b));
 }
 
+/** ¿Hay al menos una oferta de consolidador? (para mostrar el chip de filtro). */
+export function hayConsolidadores(paquetes: Paquete[]): boolean {
+  return paquetes.some((p) => p.flyer);
+}
+
 export function hayPresupuesto(b: Busqueda): boolean {
   return b.presupuestoMin > 0 || b.presupuestoMax !== Infinity;
 }
 
 /** ¿Hay algún filtro activo respecto al estado inicial? */
 export function hayFiltros(b: Busqueda): boolean {
-  return b.categoria !== "Todos" || b.destino !== "" || hayPresupuesto(b);
+  return b.categoria !== "Todos" || b.destino !== "" || hayPresupuesto(b) || b.soloConsolidador;
 }
 
-/** Aplica el filtro real (categoría + destino + presupuesto) al catálogo. */
+/** Aplica el filtro real (categoría + destino + presupuesto + consolidador). */
 export function filtrarPaquetes(paquetes: Paquete[], b: Busqueda): Paquete[] {
   return paquetes.filter((p) => {
+    if (b.soloConsolidador && !p.flyer) return false;
     if (b.categoria !== "Todos" && p.categoria !== b.categoria) return false;
     if (b.destino && !`${p.destino} ${p.pais}`.toLowerCase().includes(b.destino.toLowerCase())) {
       return false;

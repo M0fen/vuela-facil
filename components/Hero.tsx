@@ -94,6 +94,7 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
     destino,
     presupuestoMin: rango?.min ?? 0,
     presupuestoMax: rango?.max ?? Infinity,
+    soloConsolidador: false,
     viajeros,
     mes: fecha,
   };

@@ -42,8 +42,18 @@ export default async function PaquetesAdmin({
               key={p.id}
               className="group flex items-center gap-4 p-3 rounded-2xl bg-white border border-navy/8 shadow-[0_1px_0_rgba(13,44,84,0.04)] hover:border-coral/30 hover:shadow-[0_12px_30px_-24px_rgba(13,44,84,0.4)] transition-all"
             >
-              <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-ivory">
-                <Image src={p.imagen} alt={p.destino} fill sizes="80px" className="object-cover" />
+              <div
+                className={`relative w-20 h-20 rounded-xl overflow-hidden shrink-0 ${
+                  p.flyer ? "bg-navy/5" : "bg-ivory"
+                }`}
+              >
+                <Image
+                  src={p.imagen}
+                  alt={p.destino}
+                  fill
+                  sizes="80px"
+                  className={p.flyer ? "object-contain p-1" : "object-cover"}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -58,9 +68,17 @@ export default async function PaquetesAdmin({
                   <span className="px-2 py-0.5 rounded-full bg-navy/5 border border-navy/10">
                     {p.categoria}
                   </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Icon.Star className="w-3 h-3 text-amber" /> {p.calificacion} ({p.reviews})
-                  </span>
+                  {p.flyer ? (
+                    <span className="inline-flex items-center gap-1 text-coral font-semibold">
+                      <Icon.Sparkle className="w-3 h-3" /> Consolidador
+                    </span>
+                  ) : (
+                    p.reviews > 0 && (
+                      <span className="inline-flex items-center gap-1">
+                        <Icon.Star className="w-3 h-3 text-amber" /> {p.calificacion} ({p.reviews})
+                      </span>
+                    )
+                  )}
                 </div>
                 <div className="flex items-center gap-2 mt-1.5">
                   <span className="font-semibold text-navy text-[15px]">{formatCOP(p.precio)}</span>

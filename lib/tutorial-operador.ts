@@ -102,6 +102,11 @@ de cotizar por WhatsApp. No salen secciones inventadas (itinerario, etc.) porque
 todo está en la imagen. Si después quieres, puedes **editarlo como un paquete
 normal** y seguirá tratándose como flyer.
 
+> ⚡ **Cómo se distinguen:** en tu panel, los paquetes de consolidador llevan una
+> marca naranja **"Consolidador"** (no muestran estrellas de reseñas). Y en la
+> página, el cliente puede tocar el filtro **"⚡ Consolidador"** para ver solo
+> esas ofertas. Así sumas muchos más planes sin transcribir nada.
+
 ## 5. Fotos: cómo que queden bien
 
 - 📐 **Horizontales** y nítidas (paisajes, hoteles, playa). El flyer de
