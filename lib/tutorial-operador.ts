@@ -205,9 +205,24 @@ Solicitudes que la gente hace desde un paquete (con destino, fecha y viajeros).
 
 ## 12. Analítica
 
-En **Analítica** ves cuántas personas han tocado los botones de WhatsApp y desde
-qué parte del sitio. Te ayuda a saber qué está funcionando. Solo es para mirar;
-no hay que configurar nada.
+En **Analítica** ves, de un vistazo, cómo va tu negocio. Solo es para mirar; no
+hay que configurar nada. Tiene cuatro partes:
+
+1. **Lo que debes mirar primero** (las 4 tarjetas de arriba):
+   - **Leads sin atender:** personas que aún no has contactado. Si el número está
+     en naranja, ¡escríbeles hoy! Son ventas que se pueden enfriar.
+   - **Reservas pendientes:** solicitudes de paquetes por confirmar.
+   - **Interés (clics WhatsApp):** cuántas veces tocaron un botón de WhatsApp.
+   - **Clientes ganados:** cuántos leads terminaron en venta.
+2. **Tus clientes por etapa (el embudo):** muestra cuánta gente está en cada paso
+   — *Nuevos → Contactados → Cotizados → Ganados / Perdidos*. Si se te acumulan
+   los **Nuevos**, te falta contactarlos. Los mueves en la sección **Leads**.
+3. **Reservas:** cuántas hay en cada estado y el valor de las confirmadas.
+4. **¿Qué despierta más interés?:** qué páginas y paquetes hacen que la gente
+   toque WhatsApp. Refuerza esos (mejores fotos, ofertas, guías).
+
+> 💡 La regla de oro: atiende rápido los **“Nuevos”**. Un lead contestado a tiempo
+> es casi una venta.
 
 ## 13. Si algo sale mal (soluciones rápidas)
 
