@@ -1,7 +1,8 @@
 import OpenAI from "openai";
-import { PAQUETES, NEGOCIO } from "@/lib/data";
+import type { Paquete } from "@/lib/types";
+import { NEGOCIO } from "@/lib/data";
 import { formatCOP, WHATSAPP_NUMERO } from "@/lib/utils";
-import { addLeadChat } from "@/lib/store";
+import { addLeadChat, readPaquetes } from "@/lib/store";
 import { notificarNuevoLead } from "@/lib/email";
 
 const RE_EMAIL = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
@@ -58,22 +59,38 @@ type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const MAX_MENSAJES = 20; // límite defensivo de historial por petición
 
-function contextoPaquetes(): string {
-  return PAQUETES.map((p) => {
-    const sello = p.etiqueta ? ` [${p.etiqueta}]` : "";
-    const epoca = p.mejorEpoca ? ` · mejor época: ${p.mejorEpoca}` : "";
-    return [
-      `- ${p.destino} (${p.pais}, ${p.categoria})${sello} · ${p.duracion} · desde ${formatCOP(
-        p.precio,
-      )} por persona · ${p.calificacion}★ (${p.reviews} reseñas) · ref ${p.id}`,
-      `  incluye: ${p.incluye.join(", ")}`,
-      `  salidas: ${p.salidas.join(", ")}${epoca}`,
-      `  en breve: ${p.resumen}`,
-    ].join("\n");
-  }).join("\n");
+function contextoPaquetes(paquetes: Paquete[]): string {
+  return paquetes
+    .map((p) => {
+      // Ofertas de consolidador (flyer): el detalle vive en la imagen; precio
+      // "desde" referencial. No tienen itinerario ni inclusiones cargadas.
+      if (p.flyer) {
+        return [
+          `- ${p.destino} (${p.pais}, ${p.categoria}) · OFERTA DE CONSOLIDADOR · desde ${formatCOP(
+            p.precio,
+          )} por persona (referencial) · ref ${p.id}`,
+          `  vigencia/salidas: ${p.salidas.join(", ") || "consultar con asesor"}`,
+          `  nota: ${
+            p.resumen ||
+            "el detalle completo (qué incluye, itinerario) está en la imagen del flyer; el precio final se confirma por WhatsApp"
+          }`,
+        ].join("\n");
+      }
+      const sello = p.etiqueta ? ` [${p.etiqueta}]` : "";
+      const epoca = p.mejorEpoca ? ` · mejor época: ${p.mejorEpoca}` : "";
+      return [
+        `- ${p.destino} (${p.pais}, ${p.categoria})${sello} · ${p.duracion} · desde ${formatCOP(
+          p.precio,
+        )} por persona · ${p.calificacion}★ (${p.reviews} reseñas) · ref ${p.id}`,
+        `  incluye: ${p.incluye.join(", ")}`,
+        `  salidas: ${p.salidas.join(", ")}${epoca}`,
+        `  en breve: ${p.resumen}`,
+      ].join("\n");
+    })
+    .join("\n");
 }
 
-const SYSTEM_PROMPT = `Eres "Lía", la asistente de viajes de Vuela Fácil Travel, una agencia boutique en Pereira (Eje Cafetero, Colombia). Modelo de negocio WhatsApp-first.
+const BASE_PROMPT = `Eres "Lía", la asistente de viajes de Vuela Fácil Travel, una agencia boutique en Pereira (Eje Cafetero, Colombia). Modelo de negocio WhatsApp-first.
 
 TU ESENCIA: eres la asesora soñada — cálida, servicial y genuinamente entusiasta por ayudar. Haces sentir a cada persona acompañada y emocionada por su viaje. Eres colombiana del Eje Cafetero, tuteas, y hablas con cariño pero sin empalagar.
 
@@ -93,6 +110,11 @@ CÓMO ASESORAS (sé proactiva y oportuna):
 - Si dudan entre opciones, compáralas en una línea cada una para que decidan fácil.
 - Cuando notes interés real, pide con naturalidad el número de WhatsApp para enviar la cotización o reservar el cupo (ej: "¿A qué WhatsApp te paso la propuesta?"). No insistas si no quiere; pídelo una sola vez.
 
+OFERTAS DE CONSOLIDADOR (importante): además de nuestros paquetes propios, conseguimos *ofertas express de consolidadores* (en el catálogo van marcadas como "OFERTA DE CONSOLIDADOR"). Ofrécelas con naturalidad cuando encajen con lo que busca el cliente, igual que un plan propio — son una forma de tener MUCHAS más opciones. Para estas:
+- El precio es "desde" y *referencial*: el precio final y las condiciones exactas se confirman por WhatsApp con un asesor. Dilo con tacto, sin que suene a letra pequeña.
+- El detalle completo (qué incluye, itinerario, hotel) está en la *imagen del plan*; invita a abrir el paquete en la página para verlo, o a pedir la info por WhatsApp.
+- No inventes inclusiones, noches ni itinerario para estas ofertas: si no está en la nota, deriva al asesor.
+
 REGLAS DURAS (no las rompas nunca):
 - NUNCA inventes precios, fechas de salida, disponibilidad ni condiciones. Usa únicamente los datos del catálogo de abajo. Si te piden algo que no está, dilo con honestidad y ofrece derivar a un asesor humano.
 - No prometas reservas ni confirmaciones: la reserva y el precio final SIEMPRE se cierran por WhatsApp con un asesor humano.
@@ -101,10 +123,15 @@ REGLAS DURAS (no las rompas nunca):
 
 CIERRE / HANDOFF: cuando el cliente muestre intención de reservar o cotizar en serio (o pida hablar con alguien), anímalo con calidez a continuar por WhatsApp con un asesor humano (botón "Hablar con un asesor" visible en el chat), resumiendo lo que entendiste (destino, fechas, viajeros, presupuesto, paquete sugerido) para que no tenga que repetirlo.
 
-DATOS DEL NEGOCIO: ${NEGOCIO.rnt} · ${NEGOCIO.anios} años · respuesta ${NEGOCIO.tiempoRespuesta} por WhatsApp (+${WHATSAPP_NUMERO}).
+DATOS DEL NEGOCIO: ${NEGOCIO.rnt} · ${NEGOCIO.anios} años · respuesta ${NEGOCIO.tiempoRespuesta} por WhatsApp (+${WHATSAPP_NUMERO}).`;
+
+/** Arma el prompt final con el catálogo EN VIVO (incluye consolidadores). */
+function buildSystemPrompt(paquetes: Paquete[]): string {
+  return `${BASE_PROMPT}
 
 CATÁLOGO DE PAQUETES (única fuente de precios y salidas):
-${contextoPaquetes()}`;
+${contextoPaquetes(paquetes)}`;
+}
 
 export async function POST(req: Request) {
   const apiKey = process.env.DEEPSEEK_API_KEY;
@@ -142,6 +169,11 @@ export async function POST(req: Request) {
   // Captura automática de lead si el cliente compartió WhatsApp/correo.
   await capturarLeadSiAplica(historial.filter((m) => m.role === "user").map((m) => m.content));
 
+  // Catálogo en vivo (incluye consolidadores cargados por el operador). Si el
+  // Blob falla, readPaquetes cae a los datos semilla: Lía nunca se queda sin catálogo.
+  const paquetes = await readPaquetes();
+  const systemPrompt = buildSystemPrompt(paquetes);
+
   const client = new OpenAI({ apiKey, baseURL: "https://api.deepseek.com" });
 
   try {
@@ -150,7 +182,7 @@ export async function POST(req: Request) {
       temperature: 0.7,
       max_tokens: 700,
       stream: true,
-      messages: [{ role: "system", content: SYSTEM_PROMPT }, ...historial],
+      messages: [{ role: "system", content: systemPrompt }, ...historial],
     });
 
     const encoder = new TextEncoder();
