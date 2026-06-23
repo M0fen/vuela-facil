@@ -93,12 +93,12 @@ export function ExploraDestinos({
     }
     // El globo 3D solo en escritorio: en móvil se ve apretado y consume batería/
     // datos. Allí mostramos la grilla de destinos (limpia y rápida).
+    // En escritorio NO bloqueamos por CPU/RAM: la calidad se auto-ajusta sola
+    // (useAdaptiveQuality arranca en modo bajo en equipos modestos). Antes un
+    // PC de oficina con 2 núcleos quedaba sin globo; ahora se muestra siempre
+    // que haya WebGL, y si algo falla, el error boundary + watchdog caen al 2D.
     const mq = window.matchMedia("(min-width: 1024px)");
-    const evaluar = () => {
-      const cores = navigator.hardwareConcurrency ?? 4;
-      const mem = (navigator as { deviceMemory?: number }).deviceMemory ?? 4;
-      setPuedeGlobo(mq.matches && !(cores <= 2 || mem <= 2));
-    };
+    const evaluar = () => setPuedeGlobo(mq.matches);
     evaluar();
     mq.addEventListener("change", evaluar);
     return () => mq.removeEventListener("change", evaluar);
