@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { Icon } from "@/components/icons";
 import { SectionEyebrow } from "@/components/ui";
 import { PackageMini } from "@/components/PackageMini";
@@ -243,7 +242,6 @@ export default async function LandingPage({
       </main>
 
       <Footer />
-      <StickyWhatsApp />
     </div>
   );
 }

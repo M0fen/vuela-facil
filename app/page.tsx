@@ -12,7 +12,6 @@ import { Testimonios } from "@/components/Testimonios";
 import { StoryEjeCafetero } from "@/components/StoryEjeCafetero";
 import { CapturaContacto } from "@/components/CapturaContacto";
 import { Footer } from "@/components/Footer";
-import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { PackageModal } from "@/components/PackageModal";
 import { ExploraDestinos } from "@/components/globo/ExploraDestinos";
 import { FlightPathDivider } from "@/components/fx/FlightPathDivider";
@@ -48,7 +47,6 @@ export default async function Home() {
         <CapturaContacto />
       </main>
       <Footer />
-      <StickyWhatsApp />
       <PackageModal paquetes={paquetes} pagosActivos={pagosActivos()} />
     </div>
   );

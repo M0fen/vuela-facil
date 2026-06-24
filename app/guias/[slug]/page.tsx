@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 import { PackageMini } from "@/components/PackageMini";
 import { Icon } from "@/components/icons";
 import { getGuia, getGuiasPublicadas, getPaquete } from "@/lib/store";
@@ -127,7 +126,6 @@ export default async function GuiaArticulo({
         </article>
       </main>
       <Footer />
-      <StickyWhatsApp />
     </div>
   );
 }

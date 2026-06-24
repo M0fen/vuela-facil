@@ -128,7 +128,7 @@ export function AIAssistant() {
     abierto === false ? "Fuera de horario · te respondemos pronto" : "En línea · respondemos al instante";
 
   return (
-    <div className="fixed bottom-24 right-5 md:bottom-6 md:right-6 z-50">
+    <div className="fixed bottom-5 right-5 md:bottom-6 md:right-6 z-50">
       {open && (
         <div className="absolute bottom-16 right-0 w-[calc(100vw-2.5rem)] max-w-[380px] bg-white rounded-3xl shadow-[0_30px_80px_-10px_rgba(13,44,84,0.45)] border border-navy/8 overflow-hidden">
           {/* Cabecera */}
