@@ -12,6 +12,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useUI } from "@/lib/ui-context";
 import { formatCOP, waLink } from "@/lib/utils";
 import { RUTAS_CRUCERO, ISO_POR_PAIS } from "@/lib/destinos";
@@ -502,8 +503,14 @@ function TarjetaDestino({
 
         {paquete ? (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={paquete.imagen} alt={nombre} className="w-full h-32 object-cover" loading="lazy" />
+            <Image
+              src={paquete.imagen}
+              alt={nombre}
+              width={340}
+              height={128}
+              sizes="340px"
+              className="w-full h-32 object-cover"
+            />
             <div className="p-4">
               <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold" style={{ color }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
@@ -549,8 +556,14 @@ function TarjetaDestino({
           <div className="p-4">
             {destinoSel?.imagen ? (
               <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={destinoSel.imagen} alt={nombre} className="w-full h-28 object-cover -mx-4 -mt-4 mb-3 max-w-[calc(100%+2rem)]" loading="lazy" />
+                <Image
+                  src={destinoSel.imagen}
+                  alt={nombre}
+                  width={372}
+                  height={112}
+                  sizes="372px"
+                  className="w-full h-28 object-cover -mx-4 -mt-4 mb-3 max-w-[calc(100%+2rem)]"
+                />
                 <h4 className="font-serif text-navy text-[20px] leading-tight">{nombre}</h4>
               </>
             ) : (
