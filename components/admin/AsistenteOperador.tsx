@@ -16,6 +16,7 @@ const SALUDO: Msg = {
 const SUGERENCIAS = [
   "¿Cómo creo un paquete nuevo?",
   "¿Cómo subo una oferta de consolidador (flyer)?",
+  "¿Cómo publico un alojamiento en arriendo?",
   "¿Cómo cambio el precio de un paquete?",
   "¿Cómo atiendo un lead?",
 ];

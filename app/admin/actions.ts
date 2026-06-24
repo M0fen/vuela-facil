@@ -2,11 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Categoria, EstadoLead, EstadoReserva, Guia, Paquete, Promo, Testimonio } from "@/lib/types";
+import type { Alojamiento, Categoria, EstadoLead, EstadoReserva, Guia, Paquete, Promo, TipoAlojamiento, Testimonio } from "@/lib/types";
 import type { Destino, TipoDestino } from "@/lib/geo";
 import {
   readPaquetes,
   savePaquetes,
+  readAlojamientos,
+  saveAlojamientos,
   readPromo,
   savePromo,
   readTestimonios,
@@ -27,6 +29,15 @@ const ESTADOS_RESERVA: EstadoReserva[] = ["pendiente", "en_proceso", "confirmada
 const ESTADOS_LEAD: EstadoLead[] = ["nuevo", "contactado", "cotizado", "ganado", "perdido"];
 
 const TIPOS_DESTINO: TipoDestino[] = ["playa", "naturaleza", "ciudad", "aventura", "internacional"];
+
+const TIPOS_ALOJAMIENTO: TipoAlojamiento[] = [
+  "Finca",
+  "Apartamento",
+  "Cabaña",
+  "Casa",
+  "Glamping",
+  "Habitación",
+];
 
 const CATEGORIAS: Categoria[] = [
   "Playa",
@@ -203,6 +214,93 @@ export async function deletePaqueteAction(formData: FormData): Promise<void> {
     ok = false;
   }
   redirect(ok ? "/admin/paquetes" : "/admin/paquetes?error=1");
+}
+
+// --- Alojamientos (arriendo) -----------------------------------------------
+
+export async function saveAlojamientoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const items = await readAlojamientos();
+  const idActual = str(formData, "id");
+  const esNuevo = !idActual;
+
+  // Imagen principal: archivo nuevo (si lo hay) o la URL existente.
+  let imagen = str(formData, "imagenActual");
+  const archivoPrincipal = formData.get("imagenArchivo");
+  if (archivoPrincipal instanceof File && archivoPrincipal.size > 0) {
+    imagen = await uploadImage(archivoPrincipal);
+  }
+
+  // Galería: URLs existentes (textarea) + archivos nuevos.
+  const galeriaUrls = lines(formData, "galeria");
+  const nuevasFotos = await uploadFiles(formData.getAll("galeriaArchivos") as File[]);
+  const galeria = [...galeriaUrls, ...nuevasFotos];
+
+  const tipoRaw = str(formData, "tipo") as TipoAlojamiento;
+  const tipo = TIPOS_ALOJAMIENTO.includes(tipoRaw) ? tipoRaw : "Finca";
+
+  const titulo = str(formData, "titulo");
+  const id = esNuevo ? `al-${slug(titulo) || Date.now().toString(36)}` : idActual;
+
+  // Amenidades: una por línea o separadas por coma.
+  const amenidades = String(formData.get("amenidades") ?? "")
+    .split(/[\n,]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const datos: Alojamiento = {
+    id,
+    titulo,
+    tipo,
+    ubicacion: str(formData, "ubicacion"),
+    imagen: imagen || "/images/cat-eje.jpg",
+    galeria: galeria.length > 0 ? galeria : undefined,
+    precioNoche: int(formData, "precioNoche"),
+    precioAntes: int(formData, "precioAntes") || undefined,
+    huespedes: int(formData, "huespedes"),
+    habitaciones: int(formData, "habitaciones"),
+    camas: int(formData, "camas"),
+    banos: int(formData, "banos"),
+    minNoches: int(formData, "minNoches") || undefined,
+    amenidades,
+    descripcion: str(formData, "descripcion"),
+    etiqueta: str(formData, "etiqueta") || null,
+    destacado: formData.get("destacado") === "on",
+    publicado: formData.get("publicado") === "on",
+    createdAt: items.find((a) => a.id === id)?.createdAt ?? new Date().toISOString(),
+  };
+
+  const previo = items.find((a) => a.id === id);
+  const nuevos = previo
+    ? items.map((a) => (a.id === id ? datos : a))
+    : [...items, datos];
+
+  let ok = true;
+  try {
+    await saveAlojamientos(nuevos);
+    revalidatePath("/");
+    revalidatePath("/alojamientos");
+    revalidatePath(`/alojamientos/${id}`);
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/alojamientos" : "/admin/alojamientos?error=1");
+}
+
+export async function deleteAlojamientoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  let ok = true;
+  try {
+    const items = await readAlojamientos();
+    await saveAlojamientos(items.filter((a) => a.id !== id));
+    revalidatePath("/");
+    revalidatePath("/alojamientos");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/alojamientos" : "/admin/alojamientos?error=1");
 }
 
 // --- Guías -----------------------------------------------------------------

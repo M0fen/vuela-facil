@@ -20,8 +20,8 @@ escrita para que la entiendas sin saber nada de tecnología, paso a pasito.
 2. Baja hasta el **final de todo** (la franja azul oscura, el "pie de página").
 3. Haz clic en el enlace **🛡️ ¿Eres colaborador?**
 4. Escribe la **contraseña** y entra. Verás un **menú arriba** con todas las
-   secciones: Inicio, Paquetes, Destinos, Reservas, Guías, Promo, Testimonios,
-   Leads, Analítica y Ayuda.
+   secciones: Inicio, Paquetes, Alojamientos, Destinos, Reservas, Guías, Promo,
+   Testimonios, Leads, Analítica y Ayuda.
 
 > 🔑 Si olvidas la contraseña, no te preocupes: contacta a Carlitos y él la
 > restablece.
@@ -246,7 +246,42 @@ hay que configurar nada. Tiene cuatro partes:
 - Próximas salidas reales y futuras.
 - Guardar y revisar cómo se ve en la página.
 
-## 15. Qué NO tocas tú (lo hace Carlitos)
+## 15. Alojamientos (arriendo de fincas y estadías) 🏡
+
+Además de los viajes, puedes publicar **alojamientos en arriendo** (fincas,
+cabañas, glamping, apartamentos, casas). Funciona casi igual que los paquetes y
+los reservan por WhatsApp.
+
+### Crear o editar un alojamiento
+1. Menú **Alojamientos** → botón **"Nuevo alojamiento"** (o toca uno y **"Editar"**).
+2. Llena la **Información principal**:
+   - **Título** (ej: "Finca cafetera con piscina") y **Tipo** (Finca, Cabaña,
+     Glamping, Apartamento, Casa, Habitación).
+   - **Ubicación** (ej: "Salento, Quindío").
+   - **Precio por noche** (solo números) y, si quieres, **precio anterior**
+     (se muestra tachado con el % de ahorro).
+   - **Huéspedes, habitaciones, camas, baños** y, opcional, **mínimo de noches**.
+3. Sube la **imagen principal** y, si tienes, más fotos a la **galería**.
+4. En **Detalle y amenidades**: escribe una descripción que enamore y las
+   **amenidades** (Piscina, WiFi, Cocina, Parqueadero, BBQ, Jacuzzi, Apto
+   mascotas…), una por línea o separadas por coma.
+5. En **Publicación**:
+   - **Publicado**: marcado = visible en la página. Desmárcalo para dejarlo de
+     borrador mientras lo terminas.
+   - **Destacado**: aparece en el bloque de la página de inicio.
+6. **Guardar**. ✅ Aparece al instante en la sección **Alojamientos** del sitio.
+
+### ¿Cómo lo ve y reserva el cliente?
+- Ve la ficha con fotos, capacidad y amenidades. Elige **fechas y # de huéspedes**,
+  el sitio le calcula un estimado y abre **WhatsApp** con todo escrito.
+- **No se cobra nada en línea**: tú confirmas disponibilidad y precio final por
+  WhatsApp, como siempre.
+
+> 💡 Mantén actualizados precio y fotos. Si un alojamiento ya no está disponible
+> por una temporada, lo más fácil es **desmarcar "Publicado"** y volver a marcarlo
+> cuando esté libre.
+
+## 16. Qué NO tocas tú (lo hace Carlitos)
 
 Estas cosas no salen en tu panel; si necesitas cambiarlas, solo avísale a
 Carlitos:

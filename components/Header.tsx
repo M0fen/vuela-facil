@@ -8,6 +8,7 @@ import { waLink } from "@/lib/utils";
 const LINKS: { label: string; href: string }[] = [
   { label: "Destinos", href: "/#explora" },
   { label: "Paquetes", href: "/#paquetes" },
+  { label: "Alojamientos", href: "/alojamientos" },
   { label: "Financiación", href: "/financiacion" },
   { label: "Nosotros", href: "/nosotros" },
   { label: "Contacto", href: "/pqrs" },

@@ -1,4 +1,4 @@
-import type { CategoriaCard, Financiacion, Guia, Negocio, Paquete, Promo, Testimonio } from "./types";
+import type { Alojamiento, CategoriaCard, Financiacion, Guia, Negocio, Paquete, Promo, Testimonio } from "./types";
 import { SITE_URL } from "./site";
 
 // Mientras NO existan reseñas reales verificadas, no emitimos datos
@@ -146,6 +146,76 @@ export const PAQUETES: Paquete[] = [
     comoLlegar:
       "Vuelo internacional a Madrid (incluido) y desplazamientos terrestres entre ciudades. Te asesoramos con la visa Schengen y la documentación.",
     mapaQuery: "Madrid, España",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// ALOJAMIENTOS — arriendo de fincas/cabañas/apartamentos (producto propio).
+// Estos son ejemplos semilla; el operador los edita/crea desde el panel.
+// Imágenes locales por ahora (reemplazar por fotos reales de cada propiedad).
+// ---------------------------------------------------------------------------
+export const ALOJAMIENTOS: Alojamiento[] = [
+  {
+    id: "al-finca-cafetera-salento",
+    titulo: "Finca cafetera con piscina",
+    tipo: "Finca",
+    ubicacion: "Salento, Quindío",
+    imagen: "/images/cat-eje.jpg",
+    galeria: ["/images/cat-eje.jpg", "/images/story-1.jpg", "/images/pkg-ejc.jpg"],
+    precioNoche: 650000,
+    huespedes: 10,
+    habitaciones: 4,
+    camas: 6,
+    banos: 3,
+    minNoches: 2,
+    amenidades: ["Piscina", "WiFi", "Cocina equipada", "Parqueadero", "BBQ", "Zona niños", "Vista a la montaña"],
+    descripcion:
+      "Finca tradicional rodeada de cafetales, a 10 minutos de Salento. Amplios corredores, piscina privada y zona de fogata. Ideal para familias y grupos que buscan desconectarse en el Eje Cafetero.",
+    etiqueta: "Más reservada",
+    destacado: true,
+    publicado: true,
+    createdAt: "2026-01-15T12:00:00.000Z",
+  },
+  {
+    id: "al-apto-armenia-centro",
+    titulo: "Apartamento moderno en Armenia",
+    tipo: "Apartamento",
+    ubicacion: "Armenia, Quindío",
+    imagen: "/images/pkg-ejc.jpg",
+    galeria: ["/images/pkg-ejc.jpg", "/images/cat-eje.jpg"],
+    precioNoche: 220000,
+    huespedes: 4,
+    habitaciones: 2,
+    camas: 2,
+    banos: 2,
+    minNoches: 1,
+    amenidades: ["WiFi", "Cocina equipada", "Parqueadero", "Aire acondicionado", "Ascensor"],
+    descripcion:
+      "Apartamento cómodo y bien ubicado en Armenia, cerca de centros comerciales y restaurantes. Perfecto para viajes cortos, parejas o viajeros de negocios.",
+    destacado: true,
+    publicado: true,
+    createdAt: "2026-01-10T12:00:00.000Z",
+  },
+  {
+    id: "al-glamping-filandia",
+    titulo: "Glamping con vista al valle",
+    tipo: "Glamping",
+    ubicacion: "Filandia, Quindío",
+    imagen: "/images/story-1.jpg",
+    galeria: ["/images/story-1.jpg", "/images/cat-eje.jpg"],
+    precioNoche: 380000,
+    huespedes: 2,
+    habitaciones: 1,
+    camas: 1,
+    banos: 1,
+    minNoches: 1,
+    amenidades: ["WiFi", "Jacuzzi", "Desayuno", "Vista al valle", "Apto mascotas"],
+    descripcion:
+      "Domo glamping para parejas con jacuzzi privado y vista al valle de Filandia. Una experiencia íntima en plena naturaleza del Eje Cafetero.",
+    etiqueta: "Romántico",
+    destacado: true,
+    publicado: true,
+    createdAt: "2026-01-05T12:00:00.000Z",
   },
 ];
 

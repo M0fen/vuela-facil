@@ -54,6 +54,49 @@ export interface Paquete {
   mapaQuery?: string;
 }
 
+export type TipoAlojamiento =
+  | "Finca"
+  | "Apartamento"
+  | "Cabaña"
+  | "Casa"
+  | "Glamping"
+  | "Habitación";
+
+/**
+ * Alojamiento en arriendo (fincas, apartamentos, cabañas…). Producto propio,
+ * tipo Airbnb, pero con reserva por WhatsApp (sin pagos ni calendario). El
+ * operador lo administra completo desde el panel.
+ */
+export interface Alojamiento {
+  id: string;
+  titulo: string;
+  tipo: TipoAlojamiento;
+  /** Municipio/zona legible, ej. "Salento, Quindío". */
+  ubicacion: string;
+  imagen: string;
+  galeria?: string[];
+  /** Precio por noche en COP. */
+  precioNoche: number;
+  /** Precio anterior (opcional). Si es mayor, se muestra tachado + % de ahorro. */
+  precioAntes?: number;
+  huespedes: number;
+  habitaciones: number;
+  camas: number;
+  banos: number;
+  /** Mínimo de noches (opcional). */
+  minNoches?: number;
+  /** Amenidades (Piscina, WiFi, Cocina, Parqueadero…). */
+  amenidades: string[];
+  descripcion: string;
+  /** Sello opcional para resaltar la tarjeta (ej. "Más reservada"). */
+  etiqueta?: string | null;
+  /** Si true, aparece en el bloque destacado del inicio. */
+  destacado?: boolean;
+  /** Si false, no aparece en el sitio público (borrador). */
+  publicado: boolean;
+  createdAt?: string;
+}
+
 export type EstadoLead = "nuevo" | "contactado" | "cotizado" | "ganado" | "perdido";
 
 export interface Lead {

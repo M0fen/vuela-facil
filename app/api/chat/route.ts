@@ -1,8 +1,8 @@
 import OpenAI from "openai";
-import type { Paquete } from "@/lib/types";
+import type { Alojamiento, Paquete } from "@/lib/types";
 import { NEGOCIO } from "@/lib/data";
 import { formatCOP, WHATSAPP_NUMERO } from "@/lib/utils";
-import { addLeadChat, readPaquetes } from "@/lib/store";
+import { addLeadChat, readPaquetes, getAlojamientosPublicados } from "@/lib/store";
 import { notificarNuevoLead } from "@/lib/email";
 
 const RE_EMAIL = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
@@ -90,6 +90,18 @@ function contextoPaquetes(paquetes: Paquete[]): string {
     .join("\n");
 }
 
+function contextoAlojamientos(items: Alojamiento[]): string {
+  if (items.length === 0) return "(Sin alojamientos publicados por ahora.)";
+  return items
+    .map((a) =>
+      [
+        `- ${a.titulo} — ${a.tipo} en ${a.ubicacion} · ${formatCOP(a.precioNoche)}/noche · ${a.huespedes} huéspedes, ${a.habitaciones} hab, ${a.banos} baños${a.minNoches ? ` · mín ${a.minNoches} noches` : ""} · /alojamientos/${a.id}`,
+        `  amenidades: ${a.amenidades.join(", ") || "—"}`,
+      ].join("\n"),
+    )
+    .join("\n");
+}
+
 const BASE_PROMPT = `Eres "Lía", la asistente de viajes de Vuela Fácil Travel, una agencia boutique en Pereira (Eje Cafetero, Colombia). Modelo de negocio WhatsApp-first.
 
 TU ESENCIA: eres la asesora soñada — cálida, servicial y genuinamente entusiasta por ayudar. Haces sentir a cada persona acompañada y emocionada por su viaje. Eres colombiana del Eje Cafetero, tuteas, y hablas con cariño pero sin empalagar.
@@ -115,6 +127,8 @@ OFERTAS DE CONSOLIDADOR (importante): además de nuestros paquetes propios, cons
 - El detalle completo (qué incluye, itinerario, hotel) está en la *imagen del plan*; invita a abrir el paquete en la página para verlo, o a pedir la info por WhatsApp.
 - No inventes inclusiones, noches ni itinerario para estas ofertas: si no está en la nota, deriva al asesor.
 
+ALOJAMIENTOS (arriendo): además de los viajes, arrendamos *alojamientos* (fincas, cabañas, glamping, apartamentos), sobre todo en el Eje Cafetero. Si alguien busca dónde quedarse, una finca para un grupo o una escapada de fin de semana, recomiéndale los del catálogo de ABAJO con su precio por noche y capacidad, e invítalo a ver el detalle en su página (/alojamientos/ID) o a reservar por WhatsApp. La reserva y disponibilidad se confirman por WhatsApp; no prometas fechas disponibles.
+
 REGLAS DURAS (no las rompas nunca):
 - NUNCA inventes precios, fechas de salida, disponibilidad ni condiciones. Usa únicamente los datos del catálogo de abajo. Si te piden algo que no está, dilo con honestidad y ofrece derivar a un asesor humano.
 - No prometas reservas ni confirmaciones: la reserva y el precio final SIEMPRE se cierran por WhatsApp con un asesor humano.
@@ -125,12 +139,15 @@ CIERRE / HANDOFF: cuando el cliente muestre intención de reservar o cotizar en 
 
 DATOS DEL NEGOCIO: ${NEGOCIO.rnt} · ${NEGOCIO.anios} años · respuesta ${NEGOCIO.tiempoRespuesta} por WhatsApp (+${WHATSAPP_NUMERO}).`;
 
-/** Arma el prompt final con el catálogo EN VIVO (incluye consolidadores). */
-function buildSystemPrompt(paquetes: Paquete[]): string {
+/** Arma el prompt final con el catálogo EN VIVO (incluye consolidadores y alojamientos). */
+function buildSystemPrompt(paquetes: Paquete[], alojamientos: Alojamiento[]): string {
   return `${BASE_PROMPT}
 
 CATÁLOGO DE PAQUETES (única fuente de precios y salidas):
-${contextoPaquetes(paquetes)}`;
+${contextoPaquetes(paquetes)}
+
+CATÁLOGO DE ALOJAMIENTOS (arriendo, precio por noche):
+${contextoAlojamientos(alojamientos)}`;
 }
 
 export async function POST(req: Request) {
@@ -171,8 +188,8 @@ export async function POST(req: Request) {
 
   // Catálogo en vivo (incluye consolidadores cargados por el operador). Si el
   // Blob falla, readPaquetes cae a los datos semilla: Lía nunca se queda sin catálogo.
-  const paquetes = await readPaquetes();
-  const systemPrompt = buildSystemPrompt(paquetes);
+  const [paquetes, alojamientos] = await Promise.all([readPaquetes(), getAlojamientosPublicados()]);
+  const systemPrompt = buildSystemPrompt(paquetes, alojamientos);
 
   const client = new OpenAI({ apiKey, baseURL: "https://api.deepseek.com" });
 
