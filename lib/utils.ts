@@ -11,6 +11,12 @@ const copFormatter = new Intl.NumberFormat("es-CO", {
 
 export const formatCOP = (n: number): string => copFormatter.format(n);
 
+const usdFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+
+/** Formatea un precio en la moneda dada (COP por defecto). USD se muestra "US$ 1,500". */
+export const formatMoneda = (n: number, moneda: "COP" | "USD" = "COP"): string =>
+  moneda === "USD" ? `US$ ${usdFormatter.format(n)}` : formatCOP(n);
+
 export const waLink = (msg: string): string =>
   `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`;
 

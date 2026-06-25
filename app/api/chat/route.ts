@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import type { Alojamiento, Paquete } from "@/lib/types";
 import { NEGOCIO } from "@/lib/data";
-import { formatCOP, WHATSAPP_NUMERO } from "@/lib/utils";
+import { formatCOP, formatMoneda, WHATSAPP_NUMERO } from "@/lib/utils";
 import { addLeadChat, readPaquetes, getAlojamientosPublicados } from "@/lib/store";
 import { notificarNuevoLead } from "@/lib/email";
 
@@ -66,8 +66,9 @@ function contextoPaquetes(paquetes: Paquete[]): string {
       // "desde" referencial. No tienen itinerario ni inclusiones cargadas.
       if (p.flyer) {
         return [
-          `- ${p.destino} (${p.pais}, ${p.categoria}) · OFERTA DE CONSOLIDADOR · desde ${formatCOP(
+          `- ${p.destino} (${p.pais}, ${p.categoria}) · OFERTA DE CONSOLIDADOR · desde ${formatMoneda(
             p.precio,
+            p.moneda,
           )} por persona (referencial) · ref ${p.id}`,
           `  vigencia/salidas: ${p.salidas.join(", ") || "consultar con asesor"}`,
           `  nota: ${

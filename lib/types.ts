@@ -37,6 +37,8 @@ export interface Paquete {
    *  Oculta las secciones autogeneradas (itinerario, incluye, FAQ, reseñas) que
    *  serían inventadas, y muestra el flyer completo + CTA a WhatsApp. */
   flyer?: boolean;
+  /** Moneda del precio (solo aplica a ofertas de consolidador/flyer). Def. COP. */
+  moneda?: "COP" | "USD";
   // --- Campos opcionales para la página de detalle /paquetes/[id] ---
   /** Resumen corto para SEO/Open Graph y encabezado de la página de detalle. */
   resumen?: string;

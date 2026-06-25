@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "./icons";
 import { SectionEyebrow } from "./ui";
-import { formatCOP, waLink, descuentoPct } from "@/lib/utils";
+import { formatMoneda, waLink, descuentoPct } from "@/lib/utils";
 import { FINANCIACION } from "@/lib/data";
 import { useUI } from "@/lib/ui-context";
 import {
@@ -123,7 +123,7 @@ function PackageCard({ p, index = 0 }: { p: Paquete; index?: number }) {
                 return desc ? (
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[13px] text-navy/40 line-through">
-                      {formatCOP(p.precioAntes!)}
+                      {formatMoneda(p.precioAntes!, p.moneda)}
                     </span>
                     <span className="text-[11px] font-bold text-coral bg-coral/10 px-1.5 py-0.5 rounded-full">
                       −{desc}%
@@ -132,7 +132,7 @@ function PackageCard({ p, index = 0 }: { p: Paquete; index?: number }) {
                 ) : null;
               })()}
               <div className="font-serif text-[26px] text-navy leading-none mt-1">
-                {formatCOP(p.precio)}
+                {formatMoneda(p.precio, p.moneda)}
               </div>
               <div className="text-[11px] text-emerald font-medium mt-0.5">
                 o {FINANCIACION.cuotas} cuotas sin interés

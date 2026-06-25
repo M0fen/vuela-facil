@@ -132,6 +132,7 @@ export async function savePaqueteAction(formData: FormData): Promise<void> {
     ...previo,
     ...datos,
     flyer: previo?.flyer,
+    moneda: ((m) => (m === "USD" || m === "COP" ? m : previo?.moneda))(str(formData, "moneda")),
     itinerario: previo?.itinerario,
     faqs: previo?.faqs,
     noIncluye: previo?.noIncluye,
@@ -189,6 +190,7 @@ export async function savePaqueteExpressAction(formData: FormData): Promise<void
     etiqueta: str(formData, "etiqueta") || "Consolidador",
     resumen: str(formData, "resumen") || undefined,
     flyer: true,
+    moneda: str(formData, "moneda") === "USD" ? "USD" : "COP",
   };
 
   let ok = true;

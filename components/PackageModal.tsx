@@ -7,7 +7,7 @@ import { Icon } from "./icons";
 import { Stars } from "./ui";
 import type { Paquete } from "@/lib/types";
 import { itinerarioDe, noIncluyeDe } from "@/lib/paquete-helpers";
-import { formatCOP, waLink, descuentoPct } from "@/lib/utils";
+import { formatCOP, formatMoneda, waLink, descuentoPct } from "@/lib/utils";
 import { useUI } from "@/lib/ui-context";
 import { crearReserva } from "@/app/reserva-actions";
 import { iniciarAbono } from "@/app/pago-actions";
@@ -28,6 +28,7 @@ export function PackageModal({
   const [telefono, setTelefono] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [hecho, setHecho] = useState(false);
+  const [lightbox, setLightbox] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const nombreRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -92,6 +93,7 @@ export function PackageModal({
 
   if (!pkg) return null;
 
+  const fmt = (n: number) => formatMoneda(n, pkg.moneda);
   const total = pkg.precio * travelers;
   const fechaSel = pkg.salidas[selectedDate] || pkg.salidas[0];
   const waMsg = [
@@ -104,7 +106,7 @@ export function PackageModal({
     `📅 *Salida:* ${fechaSel}`,
     `🕒 *Duración:* ${pkg.duracion}`,
     `👥 *Viajeros:* ${travelers}`,
-    `💰 *Total estimado:* ${formatCOP(total)}`,
+    `💰 *Total estimado:* ${fmt(total)}`,
     `🔖 *Referencia:* ${pkg.id}`,
     ...(nombre.trim() ? [`🙋 *Cliente:* ${nombre.trim()}`] : []),
     "",
@@ -191,7 +193,12 @@ export function PackageModal({
         </button>
 
         <div ref={scrollRef} className="overflow-y-auto overscroll-contain flex-1 min-h-0">
-          <div className={`relative h-[200px] sm:h-[260px] md:h-[340px] overflow-hidden ${pkg.flyer ? "bg-navy" : ""}`}>
+          <div
+            className={`relative h-[200px] sm:h-[260px] md:h-[340px] overflow-hidden ${pkg.flyer ? "bg-navy cursor-zoom-in" : ""}`}
+            onClick={pkg.flyer ? () => setLightbox(true) : undefined}
+            role={pkg.flyer ? "button" : undefined}
+            aria-label={pkg.flyer ? "Ampliar imagen del plan" : undefined}
+          >
             <Image
               src={pkg.imagen}
               alt={pkg.destino}
@@ -200,7 +207,12 @@ export function PackageModal({
               className={pkg.flyer ? "object-contain" : "object-cover"}
               style={{ viewTransitionName: "vf-pkg-hero" } as CSSProperties}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/30 to-transparent" />
+            {pkg.flyer && (
+              <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 text-navy text-[12px] font-semibold shadow-lg pointer-events-none">
+                <Icon.Search className="w-3.5 h-3.5" /> Ver imagen completa
+              </span>
+            )}
+            <div className={`absolute inset-0 bg-gradient-to-t from-navy via-navy/30 to-transparent ${pkg.flyer ? "pointer-events-none" : ""}`} />
             <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 text-white">
               <div className="flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-white/80 mb-2">
                 <Icon.Pin className="w-3.5 h-3.5" /> {pkg.pais} · {pkg.categoria}
@@ -323,14 +335,14 @@ export function PackageModal({
             <aside className="bg-ivory border-t md:border-t-0 md:border-l border-navy/8 p-5 md:p-7">
               <div className="md:sticky md:top-4">
                 <div className="text-[11px] uppercase tracking-wider text-navy/50">
-                  Precio por persona
+                  {pkg.flyer ? "Precio referencial · desde" : "Precio por persona"}
                 </div>
                 {(() => {
                   const desc = descuentoPct(pkg.precio, pkg.precioAntes);
                   return desc ? (
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-[15px] text-navy/40 line-through">
-                        {formatCOP(pkg.precioAntes!)}
+                        {fmt(pkg.precioAntes!)}
                       </span>
                       <span className="text-[11px] font-bold text-coral bg-coral/10 px-2 py-0.5 rounded-full">
                         Ahorra {desc}%
@@ -339,7 +351,7 @@ export function PackageModal({
                   ) : null;
                 })()}
                 <div className="font-serif text-navy text-[34px] leading-none mt-1">
-                  {formatCOP(pkg.precio)}
+                  {fmt(pkg.precio)}
                 </div>
                 <FinanciacionPerks className="mt-2.5" />
                 <div className="text-[11px] text-navy/50 mt-2">
@@ -397,10 +409,10 @@ export function PackageModal({
                   <div className="pt-4 border-t border-navy/10 space-y-1.5">
                     <div className="flex justify-between text-[13px] text-navy/70">
                       <span>
-                        {formatCOP(pkg.precio)} × {travelers}{" "}
+                        {fmt(pkg.precio)} × {travelers}{" "}
                         {travelers === 1 ? "viajero" : "viajeros"}
                       </span>
-                      <span>{formatCOP(total)}</span>
+                      <span>{fmt(total)}</span>
                     </div>
                     <div className="flex justify-between text-[13px] text-navy/70">
                       <span>Impuestos y tasas</span>
@@ -408,7 +420,7 @@ export function PackageModal({
                     </div>
                     <div className="flex justify-between items-baseline mt-2 pt-2 border-t border-navy/10">
                       <span className="text-navy font-semibold">Total estimado</span>
-                      <span className="font-serif text-navy text-[24px]">{formatCOP(total)}</span>
+                      <span className="font-serif text-navy text-[24px]">{fmt(total)}</span>
                     </div>
                     <p className="text-[11px] text-navy/50 leading-snug pt-1">
                       Total para {travelers} {travelers === 1 ? "viajero" : "viajeros"}. El precio
@@ -461,7 +473,7 @@ export function PackageModal({
                           className="w-full px-4 py-3 rounded-xl border border-navy/15 outline-none focus:border-coral text-navy text-[14px] placeholder:text-navy/40"
                         />
                       </div>
-                      {pagosActivos && (
+                      {pagosActivos && !pkg.flyer && (
                         <button
                           onClick={separarOnline}
                           disabled={!puedeReservar || enviando}
@@ -504,7 +516,7 @@ export function PackageModal({
           <div className="md:hidden shrink-0 border-t border-navy/10 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center gap-3">
             <div className="leading-tight shrink-0">
               <div className="text-[10px] uppercase tracking-wider text-navy/50">Total</div>
-              <div className="font-serif text-navy text-[20px]">{formatCOP(total)}</div>
+              <div className="font-serif text-navy text-[20px]">{fmt(total)}</div>
             </div>
             <button
               onClick={reservarDesdeBarra}
@@ -517,6 +529,33 @@ export function PackageModal({
           </div>
         )}
       </div>
+
+      {/* Lightbox del flyer: imagen a pantalla completa, legible y con scroll. */}
+      {pkg.flyer && lightbox && (
+        <div
+          className="fixed inset-0 z-[90] bg-black/90 overflow-auto overscroll-contain"
+          onClick={() => setLightbox(false)}
+          role="dialog"
+          aria-label="Imagen del plan"
+        >
+          <button
+            onClick={() => setLightbox(false)}
+            aria-label="Cerrar imagen"
+            className="fixed top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/95 text-navy flex items-center justify-center shadow-lg"
+          >
+            <Icon.Close className="w-5 h-5" />
+          </button>
+          <div className="min-h-full flex items-start justify-center p-4 py-12">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={pkg.imagen}
+              alt={pkg.destino}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-3xl h-auto rounded-lg shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

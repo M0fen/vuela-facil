@@ -51,6 +51,9 @@ export default async function EditarPaquete({
             <Field label="País" name="pais" defaultValue={pkg.pais} />
             <Select label="Categoría" name="categoria" options={CATEGORIAS} defaultValue={pkg.categoria} />
             <Field label="Etiqueta (opcional)" name="etiqueta" defaultValue={pkg.etiqueta ?? ""} placeholder="Más vendido, Promo del mes…" />
+            {pkg.flyer && (
+              <Select label="Moneda (oferta consolidador)" name="moneda" options={["COP", "USD"]} defaultValue={pkg.moneda ?? "COP"} />
+            )}
             <Field label="Duración (texto)" name="duracion" defaultValue={pkg.duracion} placeholder="4 días · 3 noches" />
             <Field label="Duración (días)" name="duracionDias" type="number" defaultValue={pkg.duracionDias} />
             <Field label="Precio por persona (COP)" name="precio" type="number" defaultValue={pkg.precio} required />

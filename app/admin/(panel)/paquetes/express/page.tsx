@@ -58,7 +58,8 @@ export default async function NuevoPaqueteExpress({
             <Field label="País" name="pais" placeholder="Colombia" />
             <Select label="Categoría" name="categoria" options={CATEGORIAS} />
             <Field label="Etiqueta" name="etiqueta" placeholder="Consolidador" hint="Por defecto: Consolidador" />
-            <Field label="Precio desde (COP)" name="precio" type="number" required hint="Solo el número, ej: 1890000" />
+            <Field label="Precio desde" name="precio" type="number" required hint="Solo el número, ej: 1890000" />
+            <Select label="Moneda" name="moneda" options={["COP", "USD"]} />
             <Field label="Precio anterior (opcional)" name="precioAntes" type="number" hint="Si es mayor, se muestra tachado." />
           </div>
           <div className="mt-4">
