@@ -46,22 +46,66 @@ const putOpts = {
   cacheControlMaxAge: 0,
 };
 
+// IMPORTANTE — por qué versionamos en vez de sobrescribir una ruta fija:
+// Vercel Blob sirve los archivos públicos por CDN con `cache-control: max-age=60`
+// e IGNORA el query string como clave de caché. Por eso, tras sobrescribir
+// `data/x.json`, las lecturas devuelven la versión vieja hasta ~60s (el truco
+// `?t=Date.now()` NO la refresca). Eso hacía que reordenar, cambiar una imagen,
+// etc. "no funcionaran": la escritura sí persistía, pero el panel releía caché.
+//
+// Solución: cada guardado escribe un archivo con URL ÚNICA e inmutable
+// (`data/x/<ms>-<rand>.json`). Una URL única nunca está obsoleta. La lectura
+// elige la más reciente con `list()` (la API es consistente al instante).
+
+/** "data/packages.json" → "data/packages/" (carpeta versionada del documento). */
+function docDir(key: string): string {
+  return key.replace(/\.json$/, "/");
+}
+
+/** Versión = los milisegundos con los que se nombró el archivo. */
+function verNum(pathname: string): number {
+  return parseInt(pathname.split("/").pop() ?? "", 10) || 0;
+}
+
 async function readDoc<T>(key: string, fallback: T): Promise<T> {
   try {
-    const { blobs } = await list({ prefix: key, limit: 1 });
-    const blob = blobs.find((b) => b.pathname === key);
-    if (!blob) return fallback;
-    // Cache-bust para evitar respuestas obsoletas del CDN tras un overwrite.
-    const res = await fetch(`${blob.url}?t=${Date.now()}`, { cache: "no-store" });
-    if (!res.ok) return fallback;
-    return (await res.json()) as T;
+    // 1) Versión más reciente en la carpeta versionada (URL inmutable = fresca).
+    const { blobs } = await list({ prefix: docDir(key) });
+    if (blobs.length > 0) {
+      const latest = blobs.reduce((a, b) => (verNum(b.pathname) >= verNum(a.pathname) ? b : a));
+      const res = await fetch(latest.url, { cache: "no-store" });
+      if (res.ok) return (await res.json()) as T;
+    }
+    // 2) Compatibilidad: documento heredado en la ruta única antigua.
+    const legacy = await list({ prefix: key, limit: 1 });
+    const blob = legacy.blobs.find((b) => b.pathname === key);
+    if (blob) {
+      const res = await fetch(`${blob.url}?t=${Date.now()}`, { cache: "no-store" });
+      if (res.ok) return (await res.json()) as T;
+    }
+    return fallback;
   } catch {
     return fallback;
   }
 }
 
 async function writeDoc<T>(key: string, data: T): Promise<void> {
-  await put(key, JSON.stringify(data, null, 2), putOpts);
+  const dir = docDir(key);
+  // URL única e inmutable por cada guardado (evita la caché CDN obsoleta).
+  await put(`${dir}${Date.now()}.json`, JSON.stringify(data, null, 2), {
+    access: "public",
+    contentType: "application/json",
+    addRandomSuffix: true,
+    cacheControlMaxAge: 0,
+  });
+  // Limpieza: conserva solo las 2 versiones más recientes (actual + respaldo).
+  try {
+    const { blobs } = await list({ prefix: dir });
+    const sorted = blobs.sort((a, b) => verNum(b.pathname) - verNum(a.pathname));
+    await Promise.all(sorted.slice(2).map((b) => del(b.url)));
+  } catch {
+    // La limpieza no es crítica; no debe tumbar el guardado.
+  }
 }
 
 // --- Lecturas frescas (para el panel y las acciones) -----------------------
