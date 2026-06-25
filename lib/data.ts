@@ -226,8 +226,8 @@ export const ALOJAMIENTOS: Alojamiento[] = [
 export const NEGOCIO: Negocio = {
   rnt: "RNT 286644",
   rntFecha: "20 de abril de 2026", // fecha de inscripción/vigencia del RNT
-  anios: 12,
-  viajeros: "+18.500",
+  anios: 4,
+  viajeros: "+2.900",
   tiempoRespuesta: "< 5 min",
   telefonoDisplay: "+57 311 449 4224",
   instagram: "https://www.instagram.com/vuelafaciltravel/",
