@@ -36,9 +36,7 @@ export function Header({ solido = false }: { solido?: boolean }) {
       }`}
     >
       <div className="max-w-[1320px] mx-auto px-5 md:px-8 h-[72px] flex items-center justify-between">
-        <a href="/" aria-label="Vuela Fácil — inicio">
-          <Logo light={!opaco} />
-        </a>
+        <Logo light={!opaco} />
         <nav className="hidden lg:flex items-center gap-9">
           {LINKS.map((l) => (
             <a

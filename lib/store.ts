@@ -66,8 +66,16 @@ async function writeDoc<T>(key: string, data: T): Promise<void> {
 
 // --- Lecturas frescas (para el panel y las acciones) -----------------------
 
-export const readPaquetes = () => readDoc<Paquete[]>(KEYS.paquetes, PAQUETES);
-export const readAlojamientos = () => readDoc<Alojamiento[]>(KEYS.alojamientos, ALOJAMIENTOS);
+/** Quita elementos con id repetido (conserva el primero). Evita claves duplicadas
+ *  en React y errores de hidratación si los datos traen ids colisionados. */
+function dedupeById<T extends { id: string }>(items: T[]): T[] {
+  const visto = new Set<string>();
+  return items.filter((x) => (visto.has(x.id) ? false : (visto.add(x.id), true)));
+}
+
+export const readPaquetes = async () => dedupeById(await readDoc<Paquete[]>(KEYS.paquetes, PAQUETES));
+export const readAlojamientos = async () =>
+  dedupeById(await readDoc<Alojamiento[]>(KEYS.alojamientos, ALOJAMIENTOS));
 export const readPromo = () => readDoc<Promo>(KEYS.promo, PROMO);
 export const readTestimonios = () => readDoc<Testimonio[]>(KEYS.testimonios, TESTIMONIOS);
 export const readGuias = () => readDoc<Guia[]>(KEYS.guias, GUIAS);

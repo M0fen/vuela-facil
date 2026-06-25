@@ -102,7 +102,12 @@ export async function savePaqueteAction(formData: FormData): Promise<void> {
   const categoria = CATEGORIAS.includes(categoriaRaw) ? categoriaRaw : "Internacional";
 
   const destino = str(formData, "destino");
-  const id = esNuevo ? `vf-${slug(destino) || Date.now().toString(36)}` : idActual;
+  let id = idActual;
+  if (esNuevo) {
+    const base = `vf-${slug(destino) || Date.now().toString(36)}`;
+    // Evita colisión si ya existe un paquete con ese destino.
+    id = paquetes.some((p) => p.id === base) ? `${base}-${Date.now().toString(36)}` : base;
+  }
 
   const datos: Paquete = {
     id,
@@ -288,7 +293,11 @@ export async function saveAlojamientoAction(formData: FormData): Promise<void> {
   const tipo = TIPOS_ALOJAMIENTO.includes(tipoRaw) ? tipoRaw : "Finca";
 
   const titulo = str(formData, "titulo");
-  const id = esNuevo ? `al-${slug(titulo) || Date.now().toString(36)}` : idActual;
+  let id = idActual;
+  if (esNuevo) {
+    const base = `al-${slug(titulo) || Date.now().toString(36)}`;
+    id = items.some((a) => a.id === base) ? `${base}-${Date.now().toString(36)}` : base;
+  }
 
   // Amenidades: una por línea o separadas por coma.
   const amenidades = String(formData.get("amenidades") ?? "")
