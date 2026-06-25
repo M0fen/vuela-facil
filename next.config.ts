@@ -14,6 +14,13 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Las subidas de fotos van dentro de Server Actions; el límite por defecto es
+  // 1MB y una foto suele pesar más, por eso "no subían". Lo ampliamos.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "12mb",
+    },
+  },
   images: {
     remotePatterns: [
       {
