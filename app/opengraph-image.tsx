@@ -1,12 +1,18 @@
+import { readFileSync } from "fs";
+import { join } from "path";
 import { ImageResponse } from "next/og";
 import { NEGOCIO } from "@/lib/data";
 
 // Imagen de previsualización (Open Graph + Twitter) que se ve al compartir el
-// enlace en WhatsApp, Facebook, etc. Se genera en el build con los colores de
-// marca. Next la enlaza automáticamente como og:image y twitter:image.
+// enlace en WhatsApp, Facebook, etc. Se genera en el build con el LOGO REAL +
+// los colores de marca. Next la enlaza como og:image y twitter:image.
 export const alt = "Vuela Fácil Travel · Agencia de viajes en Pereira";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+
+// Logo real embebido como data URI (se lee en el build).
+const logoData = readFileSync(join(process.cwd(), "public/images/logo.jpg")).toString("base64");
+const logoSrc = `data:image/jpeg;base64,${logoData}`;
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -24,22 +30,16 @@ export default function OpengraphImage() {
           color: "#f7f3ec",
         }}
       >
-        {/* Marca */}
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <div
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: 18,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "linear-gradient(135deg, #e8631a 0%, #f4a93c 100%)",
-              fontSize: 38,
-            }}
-          >
-            ✈
-          </div>
+        {/* Marca con el logo real */}
+        <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logoSrc}
+            alt="Vuela Fácil Travel"
+            width={84}
+            height={84}
+            style={{ width: 84, height: 84, borderRadius: 999, background: "#fff", objectFit: "cover" }}
+          />
           <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: -0.5 }}>
             Vuela Fácil Travel
           </div>

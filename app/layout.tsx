@@ -81,10 +81,6 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Vuela Fácil",
   },
-  icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
-  },
   openGraph: {
     title: "Vuela Fácil Travel · Agencia de Viajes en Pereira",
     description:

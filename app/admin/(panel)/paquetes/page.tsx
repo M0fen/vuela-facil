@@ -35,7 +35,7 @@ export default async function PaquetesAdmin({
       />
 
       <div className="space-y-3">
-        {paquetes.map((p) => {
+        {paquetes.map((p, idx) => {
           const desc = descuentoPct(p.precio, p.precioAntes);
           return (
             <div
@@ -98,14 +98,14 @@ export default async function PaquetesAdmin({
                 <form action={moverPaqueteAction}>
                   <input type="hidden" name="id" value={p.id} />
                   <input type="hidden" name="dir" value="subir" />
-                  <button title="Subir" aria-label="Subir" className="w-7 h-7 rounded-lg border border-navy/12 text-navy/60 hover:bg-navy hover:text-white flex items-center justify-center transition-colors">
+                  <button title="Subir" aria-label="Subir" disabled={idx === 0} className="w-7 h-7 rounded-lg border border-navy/12 text-navy/60 hover:bg-navy hover:text-white flex items-center justify-center transition-colors disabled:opacity-25 disabled:hover:bg-transparent disabled:hover:text-navy/60 disabled:cursor-not-allowed">
                     <Icon.Arrow className="w-3.5 h-3.5 -rotate-90" />
                   </button>
                 </form>
                 <form action={moverPaqueteAction}>
                   <input type="hidden" name="id" value={p.id} />
                   <input type="hidden" name="dir" value="bajar" />
-                  <button title="Bajar" aria-label="Bajar" className="w-7 h-7 rounded-lg border border-navy/12 text-navy/60 hover:bg-navy hover:text-white flex items-center justify-center transition-colors">
+                  <button title="Bajar" aria-label="Bajar" disabled={idx === paquetes.length - 1} className="w-7 h-7 rounded-lg border border-navy/12 text-navy/60 hover:bg-navy hover:text-white flex items-center justify-center transition-colors disabled:opacity-25 disabled:hover:bg-transparent disabled:hover:text-navy/60 disabled:cursor-not-allowed">
                     <Icon.Arrow className="w-3.5 h-3.5 rotate-90" />
                   </button>
                 </form>

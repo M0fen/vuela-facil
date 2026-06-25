@@ -30,7 +30,7 @@ export default async function AlojamientosAdmin({
       />
 
       <div className="space-y-3">
-        {items.map((a) => {
+        {items.map((a, idx) => {
           const desc = descuentoPct(a.precioNoche, a.precioAntes);
           return (
             <div
@@ -75,14 +75,14 @@ export default async function AlojamientosAdmin({
                 <form action={moverAlojamientoAction}>
                   <input type="hidden" name="id" value={a.id} />
                   <input type="hidden" name="dir" value="subir" />
-                  <button title="Subir" aria-label="Subir" className="w-7 h-7 rounded-lg border border-navy/12 text-navy/60 hover:bg-navy hover:text-white flex items-center justify-center transition-colors">
+                  <button title="Subir" aria-label="Subir" disabled={idx === 0} className="w-7 h-7 rounded-lg border border-navy/12 text-navy/60 hover:bg-navy hover:text-white flex items-center justify-center transition-colors disabled:opacity-25 disabled:hover:bg-transparent disabled:hover:text-navy/60 disabled:cursor-not-allowed">
                     <Icon.Arrow className="w-3.5 h-3.5 -rotate-90" />
                   </button>
                 </form>
                 <form action={moverAlojamientoAction}>
                   <input type="hidden" name="id" value={a.id} />
                   <input type="hidden" name="dir" value="bajar" />
-                  <button title="Bajar" aria-label="Bajar" className="w-7 h-7 rounded-lg border border-navy/12 text-navy/60 hover:bg-navy hover:text-white flex items-center justify-center transition-colors">
+                  <button title="Bajar" aria-label="Bajar" disabled={idx === items.length - 1} className="w-7 h-7 rounded-lg border border-navy/12 text-navy/60 hover:bg-navy hover:text-white flex items-center justify-center transition-colors disabled:opacity-25 disabled:hover:bg-transparent disabled:hover:text-navy/60 disabled:cursor-not-allowed">
                     <Icon.Arrow className="w-3.5 h-3.5 rotate-90" />
                   </button>
                 </form>

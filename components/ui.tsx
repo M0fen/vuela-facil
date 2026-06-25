@@ -35,15 +35,18 @@ export function Stars({ rating, className = "w-4 h-4" }: { rating: number; class
 
 export function Logo({ light = false, size = 44 }: { light?: boolean; size?: number }) {
   return (
-    <Link href="/" className="flex items-center gap-3" aria-label="Vuela Fácil Travel · Inicio">
-      <Image
-        src={IMG.logo}
-        alt="Vuela Fácil Travel"
-        width={size}
-        height={size}
-        priority
-        className="rounded-full shadow-sm ring-1 ring-black/5 bg-white"
-      />
+    <Link href="/" className="group flex items-center gap-3" aria-label="Vuela Fácil Travel · Inicio">
+      <span className="vf-logo relative inline-flex shrink-0 rounded-full" style={{ width: size, height: size }}>
+        <Image
+          src={IMG.logo}
+          alt="Vuela Fácil Travel"
+          width={size}
+          height={size}
+          priority
+          className="rounded-full shadow-sm ring-1 ring-black/5 bg-white object-cover"
+        />
+        <span className="vf-logo-shine" aria-hidden="true" />
+      </span>
       <div className="leading-tight">
         <div
           className={`font-serif text-[18px] tracking-tight ${light ? "text-white" : "text-navy"}`}

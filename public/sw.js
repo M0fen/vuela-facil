@@ -5,12 +5,12 @@
  *  - Nunca cachea /admin ni /api (datos sensibles / siempre frescos).
  * Sube CACHE_VERSION para invalidar todo en el próximo deploy.
  */
-const CACHE_VERSION = "vf-v5";
+const CACHE_VERSION = "vf-v6";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const PAGES_CACHE = `${CACHE_VERSION}-pages`;
 const OFFLINE_URL = "/offline.html";
 
-const PRECACHE = [OFFLINE_URL, "/icon.svg", "/logo.svg"];
+const PRECACHE = [OFFLINE_URL];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -33,8 +33,6 @@ function isStaticAsset(url) {
   return (
     url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/images/") ||
-    url.pathname === "/icon.svg" ||
-    url.pathname === "/logo.svg" ||
     /\.(?:css|js|woff2?|png|jpe?g|svg|webp|gif|ico)$/.test(url.pathname)
   );
 }

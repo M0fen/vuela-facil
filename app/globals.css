@@ -431,3 +431,51 @@ html {
   animation-duration: 0.35s;
   mix-blend-mode: normal;
 }
+
+/* --- Logo de marca: brillo (sheen) + glow al pasar el mouse ---------------- */
+.vf-logo {
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+.group:hover .vf-logo {
+  transform: scale(1.06) rotate(-2deg);
+}
+/* Halo cálido detrás del emblema */
+.vf-logo::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(232, 99, 26, 0.55), rgba(244, 169, 60, 0.25) 60%, transparent 72%);
+  filter: blur(9px);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  z-index: -1;
+}
+.group:hover .vf-logo::before {
+  opacity: 1;
+}
+/* Destello diagonal que recorre el círculo */
+.vf-logo-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.vf-logo-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -130%;
+  width: 60%;
+  height: 100%;
+  transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+}
+.group:hover .vf-logo-shine::after {
+  animation: vfSheen 0.9s ease;
+}
+@keyframes vfSheen {
+  to { left: 140%; }
+}

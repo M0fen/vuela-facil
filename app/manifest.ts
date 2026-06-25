@@ -19,8 +19,8 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#0d2c54",
     categories: ["travel", "lifestyle", "shopping"],
     icons: [
-      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
+      { src: "/images/logo.jpg", sizes: "1254x1254", type: "image/jpeg", purpose: "any" },
+      { src: "/images/logo.jpg", sizes: "1254x1254", type: "image/jpeg", purpose: "maskable" },
     ],
   };
 }

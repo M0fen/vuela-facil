@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { AdminNav } from "./AdminNav";
 import { AsistenteOperadorFlotante } from "@/components/admin/AsistenteOperadorFlotante";
 import { logout } from "../auth-actions";
@@ -23,9 +24,13 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
       <header className="relative bg-gradient-to-r from-navy via-[#123257] to-navy text-white shadow-[0_10px_30px_-20px_rgba(13,44,84,0.8)]">
         <div className="max-w-[1100px] mx-auto px-4 md:px-8 py-3.5 flex items-center justify-between gap-4">
           <Link href="/admin" className="flex items-center gap-2.5 group">
-            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-coral to-amber flex items-center justify-center font-serif text-[18px] shadow-[0_8px_20px_-8px_rgba(232,99,26,0.7)]">
-              V
-            </span>
+            <Image
+              src="/images/logo.jpg"
+              alt="Vuela Fácil Travel"
+              width={36}
+              height={36}
+              className="w-9 h-9 rounded-full bg-white ring-1 ring-white/20 object-cover shadow-[0_8px_20px_-8px_rgba(0,0,0,0.5)]"
+            />
             <span className="leading-tight">
               <span className="block font-serif text-[17px]">
                 Vuela <span className="text-amber italic">Fácil</span>
