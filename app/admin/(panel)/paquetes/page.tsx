@@ -2,8 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@/components/icons";
 import { readPaquetes } from "@/lib/store";
-import { formatCOP, descuentoPct } from "@/lib/utils";
-import { deletePaqueteAction } from "../../actions";
+import { formatMoneda, descuentoPct } from "@/lib/utils";
+import { deletePaqueteAction, duplicarPaqueteAction, moverPaqueteAction } from "../../actions";
 import { PageHeader, ErrorBanner, btnPrimary, btnGhost, btnDanger } from "../ui";
 
 export const dynamic = "force-dynamic";
@@ -81,11 +81,11 @@ export default async function PaquetesAdmin({
                   )}
                 </div>
                 <div className="flex items-center gap-2 mt-1.5">
-                  <span className="font-semibold text-navy text-[15px]">{formatCOP(p.precio)}</span>
+                  <span className="font-semibold text-navy text-[15px]">{formatMoneda(p.precio, p.moneda)}</span>
                   {desc && (
                     <>
                       <span className="text-[12px] text-navy/40 line-through">
-                        {formatCOP(p.precioAntes!)}
+                        {formatMoneda(p.precioAntes!, p.moneda)}
                       </span>
                       <span className="text-[10px] font-bold text-coral bg-coral/10 px-1.5 py-0.5 rounded-full">
                         −{desc}%
@@ -94,6 +94,22 @@ export default async function PaquetesAdmin({
                   )}
                 </div>
               </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <form action={moverPaqueteAction}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <input type="hidden" name="dir" value="subir" />
+                  <button title="Subir" aria-label="Subir" className="w-7 h-7 rounded-lg border border-navy/12 text-navy/60 hover:bg-navy hover:text-white flex items-center justify-center transition-colors">
+                    <Icon.Arrow className="w-3.5 h-3.5 -rotate-90" />
+                  </button>
+                </form>
+                <form action={moverPaqueteAction}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <input type="hidden" name="dir" value="bajar" />
+                  <button title="Bajar" aria-label="Bajar" className="w-7 h-7 rounded-lg border border-navy/12 text-navy/60 hover:bg-navy hover:text-white flex items-center justify-center transition-colors">
+                    <Icon.Arrow className="w-3.5 h-3.5 rotate-90" />
+                  </button>
+                </form>
+              </div>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
                 <Link
                   href={`/admin/paquetes/${p.id}`}
@@ -101,6 +117,12 @@ export default async function PaquetesAdmin({
                 >
                   Editar
                 </Link>
+                <form action={duplicarPaqueteAction}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <button className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full border border-navy/15 text-navy/75 text-[12px] font-semibold hover:border-navy hover:text-navy transition-colors w-full">
+                    Duplicar
+                  </button>
+                </form>
                 <form action={deletePaqueteAction}>
                   <input type="hidden" name="id" value={p.id} />
                   <button className={`${btnDanger} w-full`} title="Eliminar paquete">

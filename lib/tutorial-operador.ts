@@ -82,6 +82,13 @@ Los paquetes son los viajes que se muestran en la página.
 En la lista de paquetes, botón **Eliminar** en el paquete. Esto sí lo quita de la
 página (no se puede deshacer, así que confirma que es el correcto).
 
+### Duplicar y ordenar
+- **Duplicar:** crea una copia idéntica para armar uno parecido sin empezar de
+  cero. Queda con "(copia)" en el nombre; edítala y lista.
+- **Ordenar:** con las flechas **↑ / ↓** subes o bajas un paquete. El orden de la
+  lista es el mismo en que se ven en la página (pon arriba los que quieras
+  destacar). *(Aplica igual en Alojamientos.)*
+
 > 💡 Con solo elegir bien la **Categoría**, el paquete aparece solo en el buscador
 > del inicio y en las páginas por tema. Tú no haces nada extra.
 

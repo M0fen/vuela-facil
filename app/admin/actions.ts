@@ -218,6 +218,51 @@ export async function deletePaqueteAction(formData: FormData): Promise<void> {
   redirect(ok ? "/admin/paquetes" : "/admin/paquetes?error=1");
 }
 
+export async function duplicarPaqueteAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  let ok = true;
+  try {
+    const paquetes = await readPaquetes();
+    const i = paquetes.findIndex((p) => p.id === id);
+    if (i >= 0) {
+      const copia: Paquete = {
+        ...paquetes[i],
+        id: `vf-${slug(paquetes[i].destino) || "paquete"}-${Date.now().toString(36)}`,
+        destino: `${paquetes[i].destino} (copia)`,
+      };
+      const nuevos = [...paquetes];
+      nuevos.splice(i + 1, 0, copia);
+      await savePaquetes(nuevos);
+      revalidatePath("/");
+    }
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/paquetes" : "/admin/paquetes?error=1");
+}
+
+export async function moverPaqueteAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  const dir = str(formData, "dir");
+  let ok = true;
+  try {
+    const paquetes = await readPaquetes();
+    const i = paquetes.findIndex((p) => p.id === id);
+    const j = dir === "subir" ? i - 1 : i + 1;
+    if (i >= 0 && j >= 0 && j < paquetes.length) {
+      const nuevos = [...paquetes];
+      [nuevos[i], nuevos[j]] = [nuevos[j], nuevos[i]];
+      await savePaquetes(nuevos);
+      revalidatePath("/");
+    }
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/paquetes" : "/admin/paquetes?error=1");
+}
+
 // --- Alojamientos (arriendo) -----------------------------------------------
 
 export async function saveAlojamientoAction(formData: FormData): Promise<void> {
@@ -299,6 +344,55 @@ export async function deleteAlojamientoAction(formData: FormData): Promise<void>
     await saveAlojamientos(items.filter((a) => a.id !== id));
     revalidatePath("/");
     revalidatePath("/alojamientos");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/alojamientos" : "/admin/alojamientos?error=1");
+}
+
+export async function duplicarAlojamientoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  let ok = true;
+  try {
+    const items = await readAlojamientos();
+    const i = items.findIndex((a) => a.id === id);
+    if (i >= 0) {
+      const copia: Alojamiento = {
+        ...items[i],
+        id: `al-${slug(items[i].titulo) || "alojamiento"}-${Date.now().toString(36)}`,
+        titulo: `${items[i].titulo} (copia)`,
+        publicado: false, // la copia nace como borrador
+        createdAt: new Date().toISOString(),
+      };
+      const nuevos = [...items];
+      nuevos.splice(i + 1, 0, copia);
+      await saveAlojamientos(nuevos);
+      revalidatePath("/");
+      revalidatePath("/alojamientos");
+    }
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/alojamientos" : "/admin/alojamientos?error=1");
+}
+
+export async function moverAlojamientoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  const dir = str(formData, "dir");
+  let ok = true;
+  try {
+    const items = await readAlojamientos();
+    const i = items.findIndex((a) => a.id === id);
+    const j = dir === "subir" ? i - 1 : i + 1;
+    if (i >= 0 && j >= 0 && j < items.length) {
+      const nuevos = [...items];
+      [nuevos[i], nuevos[j]] = [nuevos[j], nuevos[i]];
+      await saveAlojamientos(nuevos);
+      revalidatePath("/");
+      revalidatePath("/alojamientos");
+    }
   } catch {
     ok = false;
   }
