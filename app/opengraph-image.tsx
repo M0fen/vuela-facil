@@ -10,11 +10,20 @@ export const alt = "Vuela Fácil Travel · Agencia de viajes en Pereira";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Logo real embebido como data URI (se lee en el build).
-const logoData = readFileSync(join(process.cwd(), "public/images/logo.jpg")).toString("base64");
-const logoSrc = `data:image/jpeg;base64,${logoData}`;
+// Logo real como data URI. Se lee DENTRO de la función (no a nivel de módulo):
+// así importar este módulo para resolver metadata en otras rutas no dispara el
+// readFileSync (que en runtime podría no encontrar el archivo trazado).
+function leerLogo(): string | null {
+  try {
+    const data = readFileSync(join(process.cwd(), "public/images/logo.jpg")).toString("base64");
+    return `data:image/jpeg;base64,${data}`;
+  } catch {
+    return null;
+  }
+}
 
 export default function OpengraphImage() {
+  const logoSrc = leerLogo();
   return new ImageResponse(
     (
       <div
@@ -30,16 +39,33 @@ export default function OpengraphImage() {
           color: "#f7f3ec",
         }}
       >
-        {/* Marca con el logo real */}
+        {/* Marca con el logo real (o avión si no se pudo leer el logo) */}
         <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={logoSrc}
-            alt="Vuela Fácil Travel"
-            width={84}
-            height={84}
-            style={{ width: 84, height: 84, borderRadius: 999, background: "#fff", objectFit: "cover" }}
-          />
+          {logoSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoSrc}
+              alt="Vuela Fácil Travel"
+              width={84}
+              height={84}
+              style={{ width: 84, height: 84, borderRadius: 999, background: "#fff", objectFit: "cover" }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 84,
+                height: 84,
+                borderRadius: 999,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "linear-gradient(135deg, #e8631a 0%, #f4a93c 100%)",
+                fontSize: 44,
+              }}
+            >
+              ✈
+            </div>
+          )}
           <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: -0.5 }}>
             Vuela Fácil Travel
           </div>
