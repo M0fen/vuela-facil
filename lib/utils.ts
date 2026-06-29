@@ -11,11 +11,17 @@ const copFormatter = new Intl.NumberFormat("es-CO", {
 
 export const formatCOP = (n: number): string => copFormatter.format(n);
 
-const usdFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+const milesFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 
-/** Formatea un precio en la moneda dada (COP por defecto). USD se muestra "US$ 1,500". */
-export const formatMoneda = (n: number, moneda: "COP" | "USD" = "COP"): string =>
-  moneda === "USD" ? `US$ ${usdFormatter.format(n)}` : formatCOP(n);
+/**
+ * Formatea un precio en la moneda dada (COP por defecto).
+ * USD → "US$ 1,500" · EUR → "€ 1,500" · COP → "$ 1.500" (formato colombiano).
+ */
+export const formatMoneda = (n: number, moneda: "COP" | "USD" | "EUR" = "COP"): string => {
+  if (moneda === "USD") return `US$ ${milesFormatter.format(n)}`;
+  if (moneda === "EUR") return `€ ${milesFormatter.format(n)}`;
+  return formatCOP(n);
+};
 
 export const waLink = (msg: string): string =>
   `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`;

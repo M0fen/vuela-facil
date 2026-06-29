@@ -1,9 +1,9 @@
 import "server-only";
 import { put, list, del } from "@vercel/blob";
 import { unstable_cache, revalidateTag } from "next/cache";
-import type { Alojamiento, Analytics, EstadoLead, EstadoReserva, Guia, Lead, Paquete, Promo, Reserva, Testimonio } from "./types";
+import type { Alojamiento, Analytics, EstadoLead, EstadoReserva, Guia, Lead, Paquete, Parque, Promo, Reserva, Testimonio } from "./types";
 import type { Destino } from "./geo";
-import { ALOJAMIENTOS, GUIAS, PAQUETES, PROMO, TESTIMONIOS } from "./data";
+import { ALOJAMIENTOS, GUIAS, HOTELES, PAQUETES, PARQUES, PROMO, TESTIMONIOS } from "./data";
 import { DESTINOS } from "./destinos";
 
 // ---------------------------------------------------------------------------
@@ -20,6 +20,8 @@ import { DESTINOS } from "./destinos";
 const KEYS = {
   paquetes: "data/packages.json",
   alojamientos: "data/alojamientos.json",
+  hoteles: "data/hoteles.json",
+  parques: "data/parques.json",
   promo: "data/promo.json",
   testimonios: "data/testimonios.json",
   guias: "data/guias.json",
@@ -32,6 +34,8 @@ const RESERVAS_PREFIX = "data/reservas/";
 const TAGS = {
   paquetes: "paquetes",
   alojamientos: "alojamientos",
+  hoteles: "hoteles",
+  parques: "parques",
   promo: "promo",
   testimonios: "testimonios",
   guias: "guias",
@@ -169,6 +173,54 @@ export async function getAlojamiento(id: string): Promise<Alojamiento | null> {
 export async function saveAlojamientos(items: Alojamiento[]): Promise<void> {
   await writeDoc(KEYS.alojamientos, items);
   revalidateTag(TAGS.alojamientos);
+}
+
+// --- Hoteles (misma estructura que alojamiento, vitrina propia) -------------
+
+export const readHoteles = async () => dedupeById(await readDoc<Alojamiento[]>(KEYS.hoteles, HOTELES));
+
+export const getHoteles = unstable_cache(readHoteles, ["hoteles"], {
+  tags: [TAGS.hoteles],
+  revalidate: 300,
+});
+
+export async function getHotelesPublicados(): Promise<Alojamiento[]> {
+  const items = await getHoteles();
+  return items.filter((a) => a.publicado);
+}
+
+export async function getHotel(id: string): Promise<Alojamiento | null> {
+  const items = await getHoteles();
+  return items.find((a) => a.id === id) ?? null;
+}
+
+export async function saveHoteles(items: Alojamiento[]): Promise<void> {
+  await writeDoc(KEYS.hoteles, items);
+  revalidateTag(TAGS.hoteles);
+}
+
+// --- Parques (entradas/pases del día) --------------------------------------
+
+export const readParques = async () => dedupeById(await readDoc<Parque[]>(KEYS.parques, PARQUES));
+
+export const getParques = unstable_cache(readParques, ["parques"], {
+  tags: [TAGS.parques],
+  revalidate: 300,
+});
+
+export async function getParquesPublicados(): Promise<Parque[]> {
+  const items = await getParques();
+  return items.filter((p) => p.publicado);
+}
+
+export async function getParque(id: string): Promise<Parque | null> {
+  const items = await getParques();
+  return items.find((p) => p.id === id) ?? null;
+}
+
+export async function saveParques(items: Parque[]): Promise<void> {
+  await writeDoc(KEYS.parques, items);
+  revalidateTag(TAGS.parques);
 }
 
 /** Solo guías publicadas, ordenadas por fecha (para el sitio público). */

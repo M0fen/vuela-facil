@@ -4,6 +4,8 @@ import { TrustBar } from "@/components/TrustBar";
 import { Categorias } from "@/components/Categorias";
 import { Paquetes } from "@/components/Paquetes";
 import { Alojamientos } from "@/components/Alojamientos";
+import { HotelesHome } from "@/components/HotelesHome";
+import { ParquesHome } from "@/components/ParquesHome";
 import { Quiz } from "@/components/Quiz";
 import { RecomendadosTemporada } from "@/components/RecomendadosTemporada";
 import { GuiasHome } from "@/components/GuiasHome";
@@ -16,17 +18,19 @@ import { Footer } from "@/components/Footer";
 import { PackageModal } from "@/components/PackageModal";
 import { ExploraDestinos } from "@/components/globo/ExploraDestinos";
 import { FlightPathDivider } from "@/components/fx/FlightPathDivider";
-import { getPaquetes, getPromo, getTestimonios, getGuiasPublicadas, getDestinos, getAlojamientosPublicados } from "@/lib/store";
+import { getPaquetes, getPromo, getTestimonios, getGuiasPublicadas, getDestinos, getAlojamientosPublicados, getHotelesPublicados, getParquesPublicados } from "@/lib/store";
 import { pagosActivos } from "@/lib/pagos";
 
 export default async function Home() {
-  const [paquetes, promo, testimonios, guias, destinos, alojamientos] = await Promise.all([
+  const [paquetes, promo, testimonios, guias, destinos, alojamientos, hoteles, parques] = await Promise.all([
     getPaquetes(),
     getPromo(),
     getTestimonios(),
     getGuiasPublicadas(),
     getDestinos(),
     getAlojamientosPublicados(),
+    getHotelesPublicados(),
+    getParquesPublicados(),
   ]);
 
   return (
@@ -39,6 +43,8 @@ export default async function Home() {
         <OfferBanner promo={promo} />
         <ExploraDestinos paquetes={paquetes} destinos={destinos} />
         <Alojamientos alojamientos={alojamientos} />
+        <HotelesHome hoteles={hoteles} />
+        <ParquesHome parques={parques} />
         <Categorias />
         <Testimonios testimonios={testimonios} />
         <Confianza />

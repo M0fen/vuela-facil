@@ -66,7 +66,7 @@ function contextoPaquetes(paquetes: Paquete[]): string {
       // "desde" referencial. No tienen itinerario ni inclusiones cargadas.
       if (p.flyer) {
         return [
-          `- ${p.destino} (${p.pais}, ${p.categoria}) · OFERTA DE CONSOLIDADOR · desde ${formatMoneda(
+          `- ${p.destino} (${p.pais}, ${p.categoria}) · OFERTA ESPECIAL · desde ${formatMoneda(
             p.precio,
             p.moneda,
           )} por persona (referencial) · ref ${p.id}`,
@@ -123,7 +123,7 @@ CÓMO ASESORAS (sé proactiva y oportuna):
 - Si dudan entre opciones, compáralas en una línea cada una para que decidan fácil.
 - Cuando notes interés real, pide con naturalidad el número de WhatsApp para enviar la cotización o reservar el cupo (ej: "¿A qué WhatsApp te paso la propuesta?"). No insistas si no quiere; pídelo una sola vez.
 
-OFERTAS DE CONSOLIDADOR (importante): además de nuestros paquetes propios, conseguimos *ofertas express de consolidadores* (en el catálogo van marcadas como "OFERTA DE CONSOLIDADOR"). Ofrécelas con naturalidad cuando encajen con lo que busca el cliente, igual que un plan propio — son una forma de tener MUCHAS más opciones. Para estas:
+OFERTAS ESPECIALES (importante): además de nuestros paquetes propios, conseguimos *ofertas especiales* con aliados (en el catálogo van marcadas como "OFERTA ESPECIAL"). Ofrécelas con naturalidad cuando encajen con lo que busca el cliente, igual que un plan propio — son una forma de tener MUCHAS más opciones. Para estas:
 - El precio es "desde" y *referencial*: el precio final y las condiciones exactas se confirman por WhatsApp con un asesor. Dilo con tacto, sin que suene a letra pequeña.
 - El detalle completo (qué incluye, itinerario, hotel) está en la *imagen del plan*; invita a abrir el paquete en la página para verlo, o a pedir la info por WhatsApp.
 - No inventes inclusiones, noches ni itinerario para estas ofertas: si no está en la nota, deriva al asesor.

@@ -6,9 +6,10 @@ import { Logo } from "./ui";
 import { waLink } from "@/lib/utils";
 
 const LINKS: { label: string; href: string }[] = [
-  { label: "Destinos", href: "/#explora" },
   { label: "Paquetes", href: "/#paquetes" },
   { label: "Alojamientos", href: "/alojamientos" },
+  { label: "Hoteles", href: "/hoteles" },
+  { label: "Parques", href: "/parques" },
   { label: "Financiación", href: "/financiacion" },
   { label: "Nosotros", href: "/nosotros" },
   { label: "Contacto", href: "/pqrs" },
@@ -37,7 +38,7 @@ export function Header({ solido = false }: { solido?: boolean }) {
     >
       <div className="max-w-[1320px] mx-auto px-5 md:px-8 h-[72px] flex items-center justify-between">
         <Logo light={!opaco} />
-        <nav className="hidden lg:flex items-center gap-9">
+        <nav className="hidden lg:flex items-center gap-6">
           {LINKS.map((l) => (
             <a
               key={l.label}

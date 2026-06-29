@@ -1,13 +1,14 @@
 import { notFound } from "next/navigation";
 import type { Alojamiento } from "@/lib/types";
-import { TIPOS_ALOJAMIENTO_SUGERIDOS } from "@/lib/types";
-import { readAlojamientos } from "@/lib/store";
-import { saveAlojamientoAction } from "../../../actions";
+import { readHoteles } from "@/lib/store";
+import { saveHotelAction } from "../../../actions";
 import { EstadiaForm } from "../../EstadiaForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function EditarAlojamiento({
+const TIPOS_HOTEL = ["Hotel", "Hotel boutique", "Hotel campestre", "Hostal", "Resort", "Aparta-hotel"] as const;
+
+export default async function EditarHotel({
   params,
   searchParams,
 }: {
@@ -20,7 +21,7 @@ export default async function EditarAlojamiento({
 
   let item: Partial<Alojamiento> = {};
   if (!esNuevo) {
-    const items = await readAlojamientos();
+    const items = await readHoteles();
     const found = items.find((x) => x.id === id);
     if (!found) notFound();
     item = found;
@@ -28,12 +29,12 @@ export default async function EditarAlojamiento({
 
   return (
     <EstadiaForm
-      action={saveAlojamientoAction}
+      action={saveHotelAction}
       item={item}
       esNuevo={esNuevo}
-      adminBase="/admin/alojamientos"
-      noun="alojamiento"
-      tipos={TIPOS_ALOJAMIENTO_SUGERIDOS}
+      adminBase="/admin/hoteles"
+      noun="hotel"
+      tipos={TIPOS_HOTEL}
       error={!!error}
     />
   );

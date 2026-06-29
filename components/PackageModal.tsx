@@ -250,8 +250,8 @@ export function PackageModal({
                   )}
                   <p className="flex items-start gap-2 text-navy/65 text-[14px] leading-relaxed">
                     <Icon.Sparkle className="w-4 h-4 mt-0.5 text-coral shrink-0" />
-                    Plan de un aliado consolidador. Los detalles completos están en la imagen;
-                    cotiza por WhatsApp y te confirmamos disponibilidad y el precio final.
+                    Oferta especial. Los detalles completos están en la imagen; cotiza por WhatsApp y
+                    te confirmamos disponibilidad y el precio final.
                   </p>
                 </section>
               ) : (<>

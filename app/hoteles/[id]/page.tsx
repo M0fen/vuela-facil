@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EstadiaDetalle } from "@/components/EstadiaDetalle";
-import { getAlojamiento, getAlojamientosPublicados } from "@/lib/store";
+import { getHotel, getHotelesPublicados } from "@/lib/store";
 
 export async function generateMetadata({
   params,
@@ -9,12 +9,12 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const a = await getAlojamiento(id);
-  if (!a) return { title: "Alojamiento no encontrado · Vuela Fácil Travel" };
+  const a = await getHotel(id);
+  if (!a) return { title: "Hotel no encontrado · Vuela Fácil Travel" };
   return {
     title: `${a.titulo} · ${a.ubicacion} · Vuela Fácil Travel`,
     description: a.descripcion.slice(0, 160),
-    alternates: { canonical: `/alojamientos/${a.id}` },
+    alternates: { canonical: `/hoteles/${a.id}` },
     openGraph: {
       title: `${a.titulo} · ${a.ubicacion}`,
       description: a.descripcion.slice(0, 160),
@@ -25,19 +25,19 @@ export async function generateMetadata({
   };
 }
 
-export default async function AlojamientoDetalle({
+export default async function HotelDetalle({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const a = await getAlojamiento(id);
+  const a = await getHotel(id);
   if (!a || !a.publicado) notFound();
 
-  return <EstadiaDetalle item={a} basePath="/alojamientos" sectionLabel="Alojamientos" />;
+  return <EstadiaDetalle item={a} basePath="/hoteles" sectionLabel="Hoteles" />;
 }
 
 export async function generateStaticParams() {
-  const items = await getAlojamientosPublicados();
+  const items = await getHotelesPublicados();
   return items.map((a) => ({ id: a.id }));
 }

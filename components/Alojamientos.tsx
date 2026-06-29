@@ -5,13 +5,14 @@ import { SectionEyebrow } from "./ui";
 import { formatCOP, waLink, descuentoPct } from "@/lib/utils";
 import type { Alojamiento } from "@/lib/types";
 
-/** Tarjeta de alojamiento (reutilizada en el inicio y en la página /alojamientos). */
-export function AlojamientoCard({ a }: { a: Alojamiento }) {
+/** Tarjeta de alojamiento/hotel (reutilizada en el inicio y en las páginas de
+ *  vitrina). `basePath` decide a qué detalle enlaza (/alojamientos o /hoteles). */
+export function AlojamientoCard({ a, basePath = "/alojamientos" }: { a: Alojamiento; basePath?: string }) {
   const desc = descuentoPct(a.precioNoche, a.precioAntes);
-  const msg = `Hola Vuela Fácil 👋 Me interesa el alojamiento *${a.titulo}* (${a.ubicacion}). ¿Me cuentas disponibilidad y precio?`;
+  const msg = `Hola Vuela Fácil 👋 Me interesa *${a.titulo}* (${a.ubicacion}). ¿Me cuentas disponibilidad y precio?`;
   return (
     <article className="group bg-white rounded-3xl overflow-hidden border border-navy/8 hover:border-navy/20 hover:shadow-[0_30px_60px_-30px_rgba(13,44,84,0.35)] hover:-translate-y-1 transition-[transform,box-shadow,border-color] duration-300 flex flex-col">
-      <Link href={`/alojamientos/${a.id}`} className="relative aspect-[5/4] overflow-hidden block">
+      <Link href={`${basePath}/${a.id}`} className="relative aspect-[5/4] overflow-hidden block">
         <Image
           src={a.imagen}
           alt={a.titulo}
@@ -34,7 +35,7 @@ export function AlojamientoCard({ a }: { a: Alojamiento }) {
       </Link>
       <div className="p-6 flex flex-col flex-1">
         <h3 className="font-serif text-[22px] md:text-[24px] text-navy leading-tight">
-          <Link href={`/alojamientos/${a.id}`} className="hover:text-coral transition-colors">
+          <Link href={`${basePath}/${a.id}`} className="hover:text-coral transition-colors">
             {a.titulo}
           </Link>
         </h3>
@@ -72,7 +73,7 @@ export function AlojamientoCard({ a }: { a: Alojamiento }) {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <Link
-              href={`/alojamientos/${a.id}`}
+              href={`${basePath}/${a.id}`}
               className="px-4 py-3 rounded-full border border-navy/15 text-navy text-[13px] font-semibold text-center hover:bg-navy hover:text-white transition-colors"
             >
               Ver detalle

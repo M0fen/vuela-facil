@@ -2,13 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Alojamiento, Categoria, EstadoLead, EstadoReserva, Guia, Paquete, Promo, TipoAlojamiento, Testimonio } from "@/lib/types";
+import type { Alojamiento, Categoria, DiaItinerario, EstadoLead, EstadoReserva, Guia, Moneda, Paquete, Parque, Promo, SeccionEstadia, Testimonio } from "@/lib/types";
 import type { Destino, TipoDestino } from "@/lib/geo";
 import {
   readPaquetes,
   savePaquetes,
   readAlojamientos,
   saveAlojamientos,
+  readHoteles,
+  saveHoteles,
+  readParques,
+  saveParques,
   readPromo,
   savePromo,
   readTestimonios,
@@ -30,14 +34,11 @@ const ESTADOS_LEAD: EstadoLead[] = ["nuevo", "contactado", "cotizado", "ganado",
 
 const TIPOS_DESTINO: TipoDestino[] = ["playa", "naturaleza", "ciudad", "aventura", "internacional"];
 
-const TIPOS_ALOJAMIENTO: TipoAlojamiento[] = [
-  "Finca",
-  "Apartamento",
-  "Cabaña",
-  "Casa",
-  "Glamping",
-  "Habitación",
-];
+const MONEDAS: Moneda[] = ["COP", "USD", "EUR"];
+const moneda = (fd: FormData, previo?: Moneda): Moneda => {
+  const m = str(fd, "moneda") as Moneda;
+  return MONEDAS.includes(m) ? m : previo ?? "COP";
+};
 
 const CATEGORIAS: Categoria[] = [
   "Playa",
@@ -61,6 +62,31 @@ const lines = (fd: FormData, k: string) =>
     .split("\n")
     .map((s) => s.trim())
     .filter(Boolean);
+
+// URLs de galería que se conservan: vienen como varios inputs ocultos con el
+// mismo nombre (el editor de galería deja uno por cada foto que se mantiene).
+const urls = (fd: FormData, k: string) =>
+  fd
+    .getAll(k)
+    .map((v) => String(v).trim())
+    .filter(Boolean);
+
+/**
+ * Itinerario editable: una línea por día. Formatos aceptados (flexible):
+ *   "Día 1 | Llegada | Recepción y bienvenida"  (día | título | descripción)
+ *   "Llegada | Recepción y bienvenida"          (título | descripción → "Día N")
+ *   "Llegada"                                    (solo título → "Día N")
+ */
+function parseItinerario(fd: FormData, k: string): DiaItinerario[] | undefined {
+  const filas = lines(fd, k);
+  if (filas.length === 0) return undefined;
+  return filas.map((fila, i) => {
+    const p = fila.split("|").map((s) => s.trim());
+    if (p.length >= 3) return { dia: p[0] || `Día ${i + 1}`, titulo: p[1], desc: p.slice(2).join(" | ") };
+    if (p.length === 2) return { dia: `Día ${i + 1}`, titulo: p[0], desc: p[1] };
+    return { dia: `Día ${i + 1}`, titulo: p[0], desc: "" };
+  });
+}
 
 function slug(s: string): string {
   return s
@@ -93,8 +119,8 @@ export async function savePaqueteAction(formData: FormData): Promise<void> {
     imagen = await uploadImage(archivoPrincipal);
   }
 
-  // Galería: URLs existentes (textarea) + archivos nuevos.
-  const galeriaUrls = lines(formData, "galeria");
+  // Galería: URLs que se conservan + archivos nuevos.
+  const galeriaUrls = urls(formData, "galeria");
   const nuevasFotos = await uploadFiles(formData.getAll("galeriaArchivos") as File[]);
   const galeria = [...galeriaUrls, ...nuevasFotos];
 
@@ -137,8 +163,10 @@ export async function savePaqueteAction(formData: FormData): Promise<void> {
     ...previo,
     ...datos,
     flyer: previo?.flyer,
-    moneda: ((m) => (m === "USD" || m === "COP" ? m : previo?.moneda))(str(formData, "moneda")),
-    itinerario: previo?.itinerario,
+    moneda: moneda(formData, previo?.moneda),
+    // Itinerario editable: si el textarea trae filas, se usan; si queda vacío,
+    // se limpia y la página muestra el itinerario genérico por duración.
+    itinerario: parseItinerario(formData, "itinerario"),
     faqs: previo?.faqs,
     noIncluye: previo?.noIncluye,
     mapaQuery: previo?.mapaQuery,
@@ -192,10 +220,10 @@ export async function savePaqueteExpressAction(formData: FormData): Promise<void
     calificacion: 0,
     reviews: 0,
     salidas: vigencia,
-    etiqueta: str(formData, "etiqueta") || "Consolidador",
+    etiqueta: str(formData, "etiqueta") || "Oferta especial",
     resumen: str(formData, "resumen") || undefined,
     flyer: true,
-    moneda: str(formData, "moneda") === "USD" ? "USD" : "COP",
+    moneda: moneda(formData),
   };
 
   let ok = true;
@@ -268,34 +296,57 @@ export async function moverPaqueteAction(formData: FormData): Promise<void> {
   redirect(ok ? "/admin/paquetes" : "/admin/paquetes?error=1");
 }
 
-// --- Alojamientos (arriendo) -----------------------------------------------
+// --- Estadías: Alojamientos y Hoteles --------------------------------------
+// Misma estructura (Alojamiento), distinta vitrina/colección. Las acciones se
+// generalizan con un "contexto" para no duplicar lógica.
 
-export async function saveAlojamientoAction(formData: FormData): Promise<void> {
+type EstadiaCtx = {
+  read: () => Promise<Alojamiento[]>;
+  save: (items: Alojamiento[]) => Promise<void>;
+  seccion: SeccionEstadia;
+  idPrefix: string; // "al" | "ho"
+  adminBase: string; // "/admin/alojamientos" | "/admin/hoteles"
+  publicBase: string; // "/alojamientos" | "/hoteles"
+};
+
+const ALOJ: EstadiaCtx = {
+  read: readAlojamientos,
+  save: saveAlojamientos,
+  seccion: "alojamiento",
+  idPrefix: "al",
+  adminBase: "/admin/alojamientos",
+  publicBase: "/alojamientos",
+};
+const HOTEL: EstadiaCtx = {
+  read: readHoteles,
+  save: saveHoteles,
+  seccion: "hotel",
+  idPrefix: "ho",
+  adminBase: "/admin/hoteles",
+  publicBase: "/hoteles",
+};
+
+async function guardarEstadia(formData: FormData, ctx: EstadiaCtx): Promise<void> {
   await requireAdmin();
 
-  const items = await readAlojamientos();
+  const items = await ctx.read();
   const idActual = str(formData, "id");
   const esNuevo = !idActual;
 
-  // Imagen principal: archivo nuevo (si lo hay) o la URL existente.
   let imagen = str(formData, "imagenActual");
   const archivoPrincipal = formData.get("imagenArchivo");
   if (archivoPrincipal instanceof File && archivoPrincipal.size > 0) {
     imagen = await uploadImage(archivoPrincipal);
   }
 
-  // Galería: URLs existentes (textarea) + archivos nuevos.
-  const galeriaUrls = lines(formData, "galeria");
+  const galeriaUrls = urls(formData, "galeria");
   const nuevasFotos = await uploadFiles(formData.getAll("galeriaArchivos") as File[]);
   const galeria = [...galeriaUrls, ...nuevasFotos];
-
-  const tipoRaw = str(formData, "tipo") as TipoAlojamiento;
-  const tipo = TIPOS_ALOJAMIENTO.includes(tipoRaw) ? tipoRaw : "Finca";
 
   const titulo = str(formData, "titulo");
   let id = idActual;
   if (esNuevo) {
-    const base = `al-${slug(titulo) || Date.now().toString(36)}`;
+    const base = `${ctx.idPrefix}-${slug(titulo) || Date.now().toString(36)}`;
     id = items.some((a) => a.id === base) ? `${base}-${Date.now().toString(36)}` : base;
   }
 
@@ -308,7 +359,8 @@ export async function saveAlojamientoAction(formData: FormData): Promise<void> {
   const datos: Alojamiento = {
     id,
     titulo,
-    tipo,
+    tipo: str(formData, "tipo") || "Otro",
+    seccion: ctx.seccion,
     ubicacion: str(formData, "ubicacion"),
     imagen: imagen || "/images/cat-eje.jpg",
     galeria: galeria.length > 0 ? galeria : undefined,
@@ -328,84 +380,234 @@ export async function saveAlojamientoAction(formData: FormData): Promise<void> {
   };
 
   const previo = items.find((a) => a.id === id);
-  const nuevos = previo
-    ? items.map((a) => (a.id === id ? datos : a))
-    : [...items, datos];
+  const nuevos = previo ? items.map((a) => (a.id === id ? datos : a)) : [...items, datos];
 
   let ok = true;
   try {
-    await saveAlojamientos(nuevos);
+    await ctx.save(nuevos);
     revalidatePath("/");
-    revalidatePath("/alojamientos");
-    revalidatePath(`/alojamientos/${id}`);
+    revalidatePath(ctx.publicBase);
+    revalidatePath(`${ctx.publicBase}/${id}`);
   } catch {
     ok = false;
   }
-  redirect(ok ? "/admin/alojamientos" : "/admin/alojamientos?error=1");
+  redirect(ok ? ctx.adminBase : `${ctx.adminBase}?error=1`);
 }
 
-export async function deleteAlojamientoAction(formData: FormData): Promise<void> {
+async function eliminarEstadia(formData: FormData, ctx: EstadiaCtx): Promise<void> {
   await requireAdmin();
   const id = str(formData, "id");
   let ok = true;
   try {
-    const items = await readAlojamientos();
-    await saveAlojamientos(items.filter((a) => a.id !== id));
+    const items = await ctx.read();
+    await ctx.save(items.filter((a) => a.id !== id));
     revalidatePath("/");
-    revalidatePath("/alojamientos");
+    revalidatePath(ctx.publicBase);
   } catch {
     ok = false;
   }
-  redirect(ok ? "/admin/alojamientos" : "/admin/alojamientos?error=1");
+  redirect(ok ? ctx.adminBase : `${ctx.adminBase}?error=1`);
 }
 
-export async function duplicarAlojamientoAction(formData: FormData): Promise<void> {
+async function duplicarEstadia(formData: FormData, ctx: EstadiaCtx): Promise<void> {
   await requireAdmin();
   const id = str(formData, "id");
   let ok = true;
   try {
-    const items = await readAlojamientos();
+    const items = await ctx.read();
     const i = items.findIndex((a) => a.id === id);
     if (i >= 0) {
       const copia: Alojamiento = {
         ...items[i],
-        id: `al-${slug(items[i].titulo) || "alojamiento"}-${Date.now().toString(36)}`,
+        id: `${ctx.idPrefix}-${slug(items[i].titulo) || "item"}-${Date.now().toString(36)}`,
         titulo: `${items[i].titulo} (copia)`,
         publicado: false, // la copia nace como borrador
         createdAt: new Date().toISOString(),
       };
       const nuevos = [...items];
       nuevos.splice(i + 1, 0, copia);
-      await saveAlojamientos(nuevos);
+      await ctx.save(nuevos);
       revalidatePath("/");
-      revalidatePath("/alojamientos");
+      revalidatePath(ctx.publicBase);
     }
   } catch {
     ok = false;
   }
-  redirect(ok ? "/admin/alojamientos" : "/admin/alojamientos?error=1");
+  redirect(ok ? ctx.adminBase : `${ctx.adminBase}?error=1`);
 }
 
-export async function moverAlojamientoAction(formData: FormData): Promise<void> {
+async function moverEstadia(formData: FormData, ctx: EstadiaCtx): Promise<void> {
   await requireAdmin();
   const id = str(formData, "id");
   const dir = str(formData, "dir");
   let ok = true;
   try {
-    const items = await readAlojamientos();
+    const items = await ctx.read();
     const i = items.findIndex((a) => a.id === id);
     const j = dir === "subir" ? i - 1 : i + 1;
     if (i >= 0 && j >= 0 && j < items.length) {
       const nuevos = [...items];
       [nuevos[i], nuevos[j]] = [nuevos[j], nuevos[i]];
-      await saveAlojamientos(nuevos);
+      await ctx.save(nuevos);
       revalidatePath("/");
-      revalidatePath("/alojamientos");
+      revalidatePath(ctx.publicBase);
     }
   } catch {
     ok = false;
   }
-  redirect(ok ? "/admin/alojamientos" : "/admin/alojamientos?error=1");
+  redirect(ok ? ctx.adminBase : `${ctx.adminBase}?error=1`);
+}
+
+// Alojamientos
+export async function saveAlojamientoAction(formData: FormData): Promise<void> {
+  await guardarEstadia(formData, ALOJ);
+}
+export async function deleteAlojamientoAction(formData: FormData): Promise<void> {
+  await eliminarEstadia(formData, ALOJ);
+}
+export async function duplicarAlojamientoAction(formData: FormData): Promise<void> {
+  await duplicarEstadia(formData, ALOJ);
+}
+export async function moverAlojamientoAction(formData: FormData): Promise<void> {
+  await moverEstadia(formData, ALOJ);
+}
+
+// Hoteles
+export async function saveHotelAction(formData: FormData): Promise<void> {
+  await guardarEstadia(formData, HOTEL);
+}
+export async function deleteHotelAction(formData: FormData): Promise<void> {
+  await eliminarEstadia(formData, HOTEL);
+}
+export async function duplicarHotelAction(formData: FormData): Promise<void> {
+  await duplicarEstadia(formData, HOTEL);
+}
+export async function moverHotelAction(formData: FormData): Promise<void> {
+  await moverEstadia(formData, HOTEL);
+}
+
+// --- Parques (entradas/pases del día) --------------------------------------
+
+export async function saveParqueAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const items = await readParques();
+  const idActual = str(formData, "id");
+  const esNuevo = !idActual;
+
+  let imagen = str(formData, "imagenActual");
+  const archivoPrincipal = formData.get("imagenArchivo");
+  if (archivoPrincipal instanceof File && archivoPrincipal.size > 0) {
+    imagen = await uploadImage(archivoPrincipal);
+  }
+
+  const galeriaUrls = urls(formData, "galeria");
+  const nuevasFotos = await uploadFiles(formData.getAll("galeriaArchivos") as File[]);
+  const galeria = [...galeriaUrls, ...nuevasFotos];
+
+  const nombre = str(formData, "nombre");
+  let id = idActual;
+  if (esNuevo) {
+    const base = `pq-${slug(nombre) || Date.now().toString(36)}`;
+    id = items.some((p) => p.id === base) ? `${base}-${Date.now().toString(36)}` : base;
+  }
+  const previo = items.find((p) => p.id === id);
+
+  const datos: Parque = {
+    id,
+    nombre,
+    tipo: str(formData, "tipo") || "Temático",
+    ubicacion: str(formData, "ubicacion"),
+    imagen: imagen || "/images/cat-eje.jpg",
+    galeria: galeria.length > 0 ? galeria : undefined,
+    precioDesde: int(formData, "precioDesde"),
+    precioAntes: int(formData, "precioAntes") || undefined,
+    moneda: moneda(formData, previo?.moneda),
+    horario: str(formData, "horario") || undefined,
+    incluye: lines(formData, "incluye"),
+    descripcion: str(formData, "descripcion"),
+    etiqueta: str(formData, "etiqueta") || null,
+    destacado: formData.get("destacado") === "on",
+    publicado: formData.get("publicado") === "on",
+    createdAt: previo?.createdAt ?? new Date().toISOString(),
+  };
+
+  const nuevos = previo ? items.map((p) => (p.id === id ? datos : p)) : [...items, datos];
+
+  let ok = true;
+  try {
+    await saveParques(nuevos);
+    revalidatePath("/");
+    revalidatePath("/parques");
+    revalidatePath(`/parques/${id}`);
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/parques" : "/admin/parques?error=1");
+}
+
+export async function deleteParqueAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  let ok = true;
+  try {
+    const items = await readParques();
+    await saveParques(items.filter((p) => p.id !== id));
+    revalidatePath("/");
+    revalidatePath("/parques");
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/parques" : "/admin/parques?error=1");
+}
+
+export async function duplicarParqueAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  let ok = true;
+  try {
+    const items = await readParques();
+    const i = items.findIndex((p) => p.id === id);
+    if (i >= 0) {
+      const copia: Parque = {
+        ...items[i],
+        id: `pq-${slug(items[i].nombre) || "parque"}-${Date.now().toString(36)}`,
+        nombre: `${items[i].nombre} (copia)`,
+        publicado: false,
+        createdAt: new Date().toISOString(),
+      };
+      const nuevos = [...items];
+      nuevos.splice(i + 1, 0, copia);
+      await saveParques(nuevos);
+      revalidatePath("/");
+      revalidatePath("/parques");
+    }
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/parques" : "/admin/parques?error=1");
+}
+
+export async function moverParqueAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = str(formData, "id");
+  const dir = str(formData, "dir");
+  let ok = true;
+  try {
+    const items = await readParques();
+    const i = items.findIndex((p) => p.id === id);
+    const j = dir === "subir" ? i - 1 : i + 1;
+    if (i >= 0 && j >= 0 && j < items.length) {
+      const nuevos = [...items];
+      [nuevos[i], nuevos[j]] = [nuevos[j], nuevos[i]];
+      await saveParques(nuevos);
+      revalidatePath("/");
+      revalidatePath("/parques");
+    }
+  } catch {
+    ok = false;
+  }
+  redirect(ok ? "/admin/parques" : "/admin/parques?error=1");
 }
 
 // --- Guías -----------------------------------------------------------------

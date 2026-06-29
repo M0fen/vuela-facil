@@ -6,6 +6,9 @@ export type Categoria =
   | "Aventura"
   | "Luna de Miel";
 
+/** Moneda de un precio. COP por defecto en todo el sitio. */
+export type Moneda = "COP" | "USD" | "EUR";
+
 export interface DiaItinerario {
   dia: string;
   titulo: string;
@@ -37,8 +40,8 @@ export interface Paquete {
    *  Oculta las secciones autogeneradas (itinerario, incluye, FAQ, reseñas) que
    *  serían inventadas, y muestra el flyer completo + CTA a WhatsApp. */
   flyer?: boolean;
-  /** Moneda del precio (solo aplica a ofertas de consolidador/flyer). Def. COP. */
-  moneda?: "COP" | "USD";
+  /** Moneda del precio. Def. COP. */
+  moneda?: Moneda;
   // --- Campos opcionales para la página de detalle /paquetes/[id] ---
   /** Resumen corto para SEO/Open Graph y encabezado de la página de detalle. */
   resumen?: string;
@@ -56,23 +59,32 @@ export interface Paquete {
   mapaQuery?: string;
 }
 
-export type TipoAlojamiento =
-  | "Finca"
-  | "Apartamento"
-  | "Cabaña"
-  | "Casa"
-  | "Glamping"
-  | "Habitación";
+/** Tipos sugeridos de alojamiento. El operador puede crear otros (texto libre). */
+export const TIPOS_ALOJAMIENTO_SUGERIDOS = [
+  "Finca",
+  "Apartamento",
+  "Cabaña",
+  "Casa",
+  "Glamping",
+  "Habitación",
+] as const;
+
+/** Sección del producto de estadía (misma estructura, distinta vitrina). */
+export type SeccionEstadia = "alojamiento" | "hotel";
 
 /**
- * Alojamiento en arriendo (fincas, apartamentos, cabañas…). Producto propio,
- * tipo Airbnb, pero con reserva por WhatsApp (sin pagos ni calendario). El
- * operador lo administra completo desde el panel.
+ * Alojamiento en arriendo (fincas, apartamentos, cabañas…) u hotel. Producto
+ * propio, tipo Airbnb, pero con reserva por WhatsApp (sin pagos ni calendario).
+ * El operador lo administra completo desde el panel. `seccion` decide en qué
+ * vitrina pública aparece ("Alojamientos" u "Hoteles").
  */
 export interface Alojamiento {
   id: string;
   titulo: string;
-  tipo: TipoAlojamiento;
+  /** Categoría/tipo (texto libre; el operador puede crear nuevas). */
+  tipo: string;
+  /** Vitrina donde se muestra. Por defecto "alojamiento". */
+  seccion?: SeccionEstadia;
   /** Municipio/zona legible, ej. "Salento, Quindío". */
   ubicacion: string;
   imagen: string;
@@ -95,6 +107,35 @@ export interface Alojamiento {
   /** Si true, aparece en el bloque destacado del inicio. */
   destacado?: boolean;
   /** Si false, no aparece en el sitio público (borrador). */
+  publicado: boolean;
+  createdAt?: string;
+}
+
+/**
+ * Parque / atracción (Parque del Café, Panaca, parques temáticos…). Producto de
+ * entrada por día — sin noches. Reserva por WhatsApp. El operador lo administra
+ * completo desde el panel.
+ */
+export interface Parque {
+  id: string;
+  nombre: string;
+  /** Tipo/categoría libre (Temático, Natural, Acuático…). */
+  tipo: string;
+  ubicacion: string;
+  imagen: string;
+  galeria?: string[];
+  /** Precio de la entrada "desde". */
+  precioDesde: number;
+  precioAntes?: number;
+  /** Moneda del precio. Def. COP. */
+  moneda?: Moneda;
+  /** Horario legible (ej. "Mar–Dom · 9:00 a.m. – 6:00 p.m."). */
+  horario?: string;
+  /** Qué incluye la entrada (atracciones, shows…). */
+  incluye: string[];
+  descripcion: string;
+  etiqueta?: string | null;
+  destacado?: boolean;
   publicado: boolean;
   createdAt?: string;
 }

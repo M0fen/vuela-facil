@@ -92,7 +92,7 @@ function PackageCard({ p, index = 0 }: { p: Paquete; index?: number }) {
         <div className="flex items-center gap-2 text-[12px] text-navy/55 mb-4">
           {p.flyer ? (
             <>
-              <Icon.Sparkle className="w-3.5 h-3.5 text-coral" /> Oferta de consolidador
+              <Icon.Sparkle className="w-3.5 h-3.5 text-coral" /> Oferta especial
             </>
           ) : (
             <>
@@ -232,7 +232,7 @@ export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
                     : "bg-white text-coral border-coral/30 hover:border-coral/60"
                 }`}
               >
-                <Icon.Sparkle className="w-3.5 h-3.5" /> Consolidador
+                <Icon.Sparkle className="w-3.5 h-3.5" /> Ofertas
               </button>
             )}
           </div>
@@ -245,7 +245,7 @@ export function Paquetes({ paquetes }: { paquetes: Paquete[] }) {
           </span>
           {busqueda.soloConsolidador && (
             <Chip onClear={() => setBusqueda({ soloConsolidador: false })}>
-              Ofertas de consolidador
+              Ofertas especiales
             </Chip>
           )}
           {busqueda.destino && (

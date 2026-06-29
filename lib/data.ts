@@ -1,4 +1,4 @@
-import type { Alojamiento, CategoriaCard, Financiacion, Guia, Negocio, Paquete, Promo, Testimonio } from "./types";
+import type { Alojamiento, CategoriaCard, Financiacion, Guia, Negocio, Paquete, Parque, Promo, Testimonio } from "./types";
 import { SITE_URL } from "./site";
 
 // Mientras NO existan reseñas reales verificadas, no emitimos datos
@@ -220,6 +220,94 @@ export const ALOJAMIENTOS: Alojamiento[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// HOTELES — misma estructura que un alojamiento, pero en su propia vitrina.
+// (Reemplazar por hoteles reales con sus fotos.)
+// ---------------------------------------------------------------------------
+export const HOTELES: Alojamiento[] = [
+  {
+    id: "ho-boutique-pereira",
+    titulo: "Hotel boutique en el centro de Pereira",
+    tipo: "Hotel boutique",
+    seccion: "hotel",
+    ubicacion: "Pereira, Risaralda",
+    imagen: "/images/pkg-ejc.jpg",
+    galeria: ["/images/pkg-ejc.jpg", "/images/cat-eje.jpg"],
+    precioNoche: 290000,
+    huespedes: 2,
+    habitaciones: 1,
+    camas: 1,
+    banos: 1,
+    amenidades: ["WiFi", "Desayuno incluido", "Aire acondicionado", "Recepción 24h", "Parqueadero"],
+    descripcion:
+      "Hotel boutique a pasos del centro de Pereira, ideal para viajes de negocios o escapadas. Habitaciones cómodas, desayuno incluido y atención cercana.",
+    etiqueta: "Céntrico",
+    destacado: true,
+    publicado: true,
+    createdAt: "2026-01-20T12:00:00.000Z",
+  },
+  {
+    id: "ho-campestre-eje",
+    titulo: "Hotel campestre con piscina",
+    tipo: "Hotel campestre",
+    seccion: "hotel",
+    ubicacion: "Montenegro, Quindío",
+    imagen: "/images/cat-eje.jpg",
+    galeria: ["/images/cat-eje.jpg", "/images/story-1.jpg"],
+    precioNoche: 420000,
+    huespedes: 4,
+    habitaciones: 2,
+    camas: 3,
+    banos: 2,
+    amenidades: ["Piscina", "WiFi", "Restaurante", "Zona BBQ", "Parqueadero", "Apto familias"],
+    descripcion:
+      "Hotel campestre en el corazón del Eje Cafetero, con piscina, restaurante y amplias zonas verdes. Perfecto para descansar en familia cerca de los parques temáticos.",
+    destacado: true,
+    publicado: true,
+    createdAt: "2026-01-18T12:00:00.000Z",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// PARQUES — entradas/pases del día (Parque del Café, Panaca, parques temáticos).
+// Producto de entrada por día (sin noches). Reemplazar por datos reales.
+// ---------------------------------------------------------------------------
+export const PARQUES: Parque[] = [
+  {
+    id: "pq-parque-del-cafe",
+    nombre: "Parque del Café",
+    tipo: "Temático",
+    ubicacion: "Montenegro, Quindío",
+    imagen: "/images/cat-eje.jpg",
+    galeria: ["/images/cat-eje.jpg", "/images/story-1.jpg"],
+    precioDesde: 95000,
+    horario: "Mié–Dom · 9:00 a.m. – 6:00 p.m.",
+    incluye: ["Acceso al parque", "Atracciones mecánicas", "Shows culturales", "Teleférico"],
+    descripcion:
+      "El parque temático más emblemático del Eje Cafetero: atracciones mecánicas, espectáculos sobre la cultura cafetera, teleférico y mucho más. Pasaporte de un día para toda la familia.",
+    etiqueta: "Más vendido",
+    destacado: true,
+    publicado: true,
+    createdAt: "2026-01-22T12:00:00.000Z",
+  },
+  {
+    id: "pq-panaca",
+    nombre: "PANACA",
+    tipo: "Agroparque",
+    ubicacion: "Quimbaya, Quindío",
+    imagen: "/images/story-1.jpg",
+    galeria: ["/images/story-1.jpg", "/images/cat-eje.jpg"],
+    precioDesde: 90000,
+    horario: "Mié–Dom · 9:00 a.m. – 5:00 p.m.",
+    incluye: ["Acceso al agroparque", "Estaciones temáticas", "Shows con animales"],
+    descripcion:
+      "El parque de la naturaleza y los animales domésticos más grande del mundo. Estaciones temáticas, shows ecuestres y contacto con animales. Una experiencia ideal para niños y grandes.",
+    destacado: true,
+    publicado: true,
+    createdAt: "2026-01-21T12:00:00.000Z",
+  },
+];
+
+// ---------------------------------------------------------------------------
 // NEGOCIO — señales de confianza reales.
 // ⚠️ Reemplaza `rnt` por el Registro Nacional de Turismo verdadero de la agencia.
 // ---------------------------------------------------------------------------
@@ -252,7 +340,7 @@ export const NEGOCIO: Negocio = {
 export const FINANCIACION: Financiacion = {
   cuotas: 12,
   abonoPct: 30,
-  bnpl: ["Addi", "Sistecrédito"],
+  bnpl: ["Addi"],
   medios: ["PSE", "Tarjetas", "Nequi", "Bancolombia"],
 };
 

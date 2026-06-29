@@ -1,14 +1,16 @@
 import type { MetadataRoute } from "next";
-import { getPaquetes, getGuiasPublicadas, getAlojamientosPublicados } from "@/lib/store";
+import { getPaquetes, getGuiasPublicadas, getAlojamientosPublicados, getHotelesPublicados, getParquesPublicados } from "@/lib/store";
 import { LANDINGS } from "@/lib/landings";
 import { SITE_URL as BASE } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const [paquetes, guias, alojamientos] = await Promise.all([
+  const [paquetes, guias, alojamientos, hoteles, parques] = await Promise.all([
     getPaquetes(),
     getGuiasPublicadas(),
     getAlojamientosPublicados(),
+    getHotelesPublicados(),
+    getParquesPublicados(),
   ]);
 
   const infoPaths = [
@@ -27,6 +29,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: BASE, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${BASE}/guias`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE}/alojamientos`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/hoteles`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/parques`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     ...infoPaths.map((p) => ({
       url: `${BASE}${p}`,
       lastModified: now,
@@ -53,6 +57,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...alojamientos.map((a) => ({
       url: `${BASE}/alojamientos/${a.id}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+    ...hoteles.map((a) => ({
+      url: `${BASE}/hoteles/${a.id}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+    ...parques.map((p) => ({
+      url: `${BASE}/parques/${p.id}`,
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.7,

@@ -8,6 +8,8 @@ const NAV = [
   { href: "/admin", label: "Inicio", icon: Icon.Compass },
   { href: "/admin/paquetes", label: "Paquetes", icon: Icon.Plane },
   { href: "/admin/alojamientos", label: "Alojamientos", icon: Icon.Home },
+  { href: "/admin/hoteles", label: "Hoteles", icon: Icon.Home },
+  { href: "/admin/parques", label: "Parques", icon: Icon.Sparkle },
   { href: "/admin/destinos", label: "Destinos", icon: Icon.Pin },
   { href: "/admin/reservas", label: "Reservas", icon: Icon.Calendar },
   { href: "/admin/guias", label: "Guías", icon: Icon.Globe },

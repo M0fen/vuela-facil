@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Icon } from "@/components/icons";
 import { Stars } from "@/components/ui";
 import { PackageMini } from "@/components/PackageMini";
+import { GaleriaPublica } from "@/components/GaleriaPublica";
 import { VistosRecientemente } from "@/components/VistosRecientemente";
 import { TrackView } from "@/components/TrackView";
 import { NEGOCIO, FINANCIACION, RESENAS_VERIFICADAS } from "@/lib/data";
@@ -105,7 +106,7 @@ export default async function PaquetePage({
     offers: {
       "@type": "Offer",
       price: pkg.precio,
-      priceCurrency: "COP",
+      priceCurrency: pkg.moneda ?? "COP",
       availability: "https://schema.org/InStock",
       url: `${SITE_URL}/paquetes/${pkg.id}`,
     },
@@ -215,48 +216,23 @@ export default async function PaquetePage({
               </section>
             )}
 
-            {/* Flyer del consolidador: la imagen ES el detalle */}
+            {/* Flyer: la imagen ES el detalle (ampliable en pantalla completa) */}
             {pkg.flyer && (
               <section>
-                <div className="rounded-2xl overflow-hidden border border-navy/10 bg-white">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={galeria[0]}
-                    alt={`${pkg.destino} — detalle del plan`}
-                    className="w-full h-auto block"
-                    loading="eager"
-                  />
-                </div>
+                <GaleriaPublica images={[galeria[0]]} alt={`${pkg.destino} — detalle del plan`} variant="flyer" />
                 <p className="mt-3 flex items-start gap-2 text-navy/60 text-[13px]">
                   <Icon.Sparkle className="w-4 h-4 mt-0.5 text-coral shrink-0" />
-                  Plan de nuestros aliados consolidadores. Todos los detalles están en la
-                  imagen; escríbenos por WhatsApp y te confirmamos disponibilidad y el precio final.
+                  Oferta especial. Todos los detalles están en la imagen; escríbenos por WhatsApp y te
+                  confirmamos disponibilidad y el precio final.
                 </p>
               </section>
             )}
 
-            {/* Galería */}
+            {/* Galería con visor (lightbox) */}
             {!pkg.flyer && galeria.length > 1 && (
               <section>
                 <h2 className="font-serif text-navy text-[26px] mb-4">Galería</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {galeria.map((src, i) => (
-                    <div
-                      key={src + i}
-                      className={`relative rounded-2xl overflow-hidden ${
-                        i === 0 ? "col-span-2 md:col-span-2 row-span-2 aspect-[4/3]" : "aspect-[4/3]"
-                      }`}
-                    >
-                      <Image
-                        src={src}
-                        alt={`${pkg.destino} — foto ${i + 1}`}
-                        fill
-                        sizes="(max-width: 768px) 50vw, 33vw"
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
+                <GaleriaPublica images={galeria} alt={pkg.destino} variant="grid" />
               </section>
             )}
 

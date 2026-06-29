@@ -29,7 +29,7 @@ export default async function NuevoPaqueteExpress({
           Nuevo paquete express
         </h1>
         <p className="text-navy/55 text-[14px] mt-1.5 max-w-2xl">
-          Para ofertas de consolidador donde el flyer ya trae todo. Sube la imagen y
+          Para ofertas especiales donde el flyer ya trae todo. Sube la imagen y
           completa solo lo básico — el resto lo verá el cliente en la imagen y lo
           cotiza por WhatsApp. Más adelante puedes editarlo como un paquete normal.
         </p>
@@ -38,7 +38,7 @@ export default async function NuevoPaqueteExpress({
       <form action={savePaqueteExpressAction} className="space-y-5 max-w-2xl">
         <Card title="Imagen del flyer" icon={Icon.Compass}>
           <label className="block text-[12px] uppercase tracking-wider text-navy/60 font-semibold mb-1.5">
-            Sube la imagen del consolidador
+            Sube la imagen de la oferta
           </label>
           <input
             type="file"
@@ -57,9 +57,9 @@ export default async function NuevoPaqueteExpress({
             <Field label="Destino / título" name="destino" required placeholder="San Andrés todo incluido" />
             <Field label="País" name="pais" placeholder="Colombia" />
             <Select label="Categoría" name="categoria" options={CATEGORIAS} />
-            <Field label="Etiqueta" name="etiqueta" placeholder="Consolidador" hint="Por defecto: Consolidador" />
+            <Field label="Etiqueta" name="etiqueta" placeholder="Oferta especial" hint="Por defecto: Oferta especial" />
             <Field label="Precio desde" name="precio" type="number" required hint="Solo el número, ej: 1890000" />
-            <Select label="Moneda" name="moneda" options={["COP", "USD"]} />
+            <Select label="Moneda" name="moneda" options={["COP", "USD", "EUR"]} />
             <Field label="Precio anterior (opcional)" name="precioAntes" type="number" hint="Si es mayor, se muestra tachado." />
           </div>
           <div className="mt-4">

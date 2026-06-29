@@ -7,6 +7,7 @@ import { Icon } from "@/components/icons";
 import { savePaqueteAction } from "../../../actions";
 import { Field, Area, Select, Card, btnPrimary } from "../../ui";
 import { AIGenerate } from "@/components/admin/AIGenerate";
+import { GaleriaEditor } from "@/components/admin/GaleriaEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -51,9 +52,7 @@ export default async function EditarPaquete({
             <Field label="País" name="pais" defaultValue={pkg.pais} />
             <Select label="Categoría" name="categoria" options={CATEGORIAS} defaultValue={pkg.categoria} />
             <Field label="Etiqueta (opcional)" name="etiqueta" defaultValue={pkg.etiqueta ?? ""} placeholder="Más vendido, Promo del mes…" />
-            {pkg.flyer && (
-              <Select label="Moneda (oferta consolidador)" name="moneda" options={["COP", "USD"]} defaultValue={pkg.moneda ?? "COP"} />
-            )}
+            <Select label="Moneda" name="moneda" options={["COP", "USD", "EUR"]} defaultValue={pkg.moneda ?? "COP"} />
             <Field label="Duración (texto)" name="duracion" defaultValue={pkg.duracion} placeholder="4 días · 3 noches" />
             <Field label="Duración (días)" name="duracionDias" type="number" defaultValue={pkg.duracionDias} />
             <Field label="Precio por persona (COP)" name="precio" type="number" defaultValue={pkg.precio} required />
@@ -112,6 +111,13 @@ export default async function EditarPaquete({
             <Area label="Resumen" name="resumen" defaultValue={pkg.resumen} rows={2} hint="Una o dos frases para la página y SEO." />
             <Area label="Qué incluye (una por línea)" name="incluye" defaultValue={pkg.incluye?.join("\n")} />
             <Area label="Próximas salidas (una por línea)" name="salidas" defaultValue={pkg.salidas?.join("\n")} />
+            <Area
+              label="Itinerario (un día por línea)"
+              name="itinerario"
+              defaultValue={pkg.itinerario?.map((d) => `${d.dia} | ${d.titulo} | ${d.desc}`).join("\n")}
+              rows={6}
+              hint="Formato por línea: Día 1 | Título | Descripción. Si lo dejas vacío, se muestra un itinerario genérico por la duración."
+            />
             <div className="grid sm:grid-cols-2 gap-4">
               <Area label="Mejor época" name="mejorEpoca" defaultValue={pkg.mejorEpoca} rows={3} />
               <Area label="Cómo llegar" name="comoLlegar" defaultValue={pkg.comoLlegar} rows={3} />
@@ -120,23 +126,7 @@ export default async function EditarPaquete({
         </Card>
 
         <Card title="Galería" icon={Icon.Compass}>
-          <Area
-            label="URLs de la galería (una por línea)"
-            name="galeria"
-            defaultValue={pkg.galeria?.join("\n")}
-            rows={3}
-            hint="Se conservan estas y se agregan las que subas abajo."
-          />
-          <label className="block mt-4 text-[12px] uppercase tracking-wider text-navy/60 font-semibold mb-1.5">
-            Agregar fotos a la galería
-          </label>
-          <input
-            type="file"
-            name="galeriaArchivos"
-            accept="image/*"
-            multiple
-            className="text-[13px] text-navy/70 file:mr-3 file:px-3 file:py-2 file:rounded-full file:border-0 file:bg-navy file:text-white file:text-[12px] file:font-semibold"
-          />
+          <GaleriaEditor existing={pkg.galeria ?? []} />
         </Card>
 
         <div className="sticky bottom-4 z-10 flex items-center gap-3 p-3 rounded-2xl bg-white/90 backdrop-blur border border-navy/10 shadow-[0_12px_30px_-18px_rgba(13,44,84,0.4)]">
