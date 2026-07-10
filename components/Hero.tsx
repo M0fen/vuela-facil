@@ -152,7 +152,7 @@ export function Hero({ paquetes }: { paquetes: Paquete[] }) {
         <div className="max-w-3xl">
           <div className="hero-in inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/12 backdrop-blur-md border border-white/20 text-white/95 text-[12px] tracking-[0.18em] uppercase mb-6" style={{ animationDelay: "0.05s" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-coral animate-pulse" />
-            Pereira · Eje Cafetero · desde 2014
+            Pereira · Eje Cafetero · desde 2022
           </div>
           <h1 className="hero-in font-serif text-white text-[44px] leading-[1.02] md:text-[72px] md:leading-[1.02] tracking-[-0.02em]" style={{ animationDelay: "0.15s" }}>
             El mundo es <em className="italic text-amber">más fácil</em>
