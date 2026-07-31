@@ -340,12 +340,12 @@ export const NEGOCIO: Negocio = {
 export const FINANCIACION: Financiacion = {
   cuotas: 12,
   abonoPct: 30,
-  bnpl: ["Addi"],
+  bnpl: [],
   medios: ["PSE", "Tarjetas", "Nequi", "Bancolombia"],
 };
 
 /** Métodos de pago aceptados. Fuente única para los badges de todo el sitio. */
-export const MEDIOS_PAGO = ["Visa", "Mastercard", "AmEx", "PSE", "Nequi", "Daviplata", "Addi"] as const;
+export const MEDIOS_PAGO = ["Visa", "Mastercard", "AmEx", "PSE", "Nequi", "Daviplata"] as const;
 
 // ---------------------------------------------------------------------------
 // REFERIDOS y FIDELIZACIÓN (Fase 5). Programa "gana–gana" gestionado por el

@@ -6,7 +6,7 @@ import { InfoHeader } from "@/components/info/Prose";
 
 export const metadata: Metadata = {
   title: "Financiación y formas de pago · Vuela Fácil Travel",
-  description: `Viaja ahora y paga después: hasta ${FINANCIACION.cuotas} cuotas sin interés, separa con el ${FINANCIACION.abonoPct}% y financia con ${FINANCIACION.bnpl.join(" o ")}. PSE, tarjetas y Nequi.`,
+  description: `Viaja ahora y paga después: hasta ${FINANCIACION.cuotas} cuotas sin interés y separa tu viaje con el ${FINANCIACION.abonoPct}%. PSE, tarjetas y Nequi.`,
 };
 
 const OPCIONES = [
@@ -19,11 +19,6 @@ const OPCIONES = [
     icon: Icon.Calendar,
     titulo: `Separa con el ${FINANCIACION.abonoPct}%`,
     desc: `Asegura tu cupo abonando solo el ${FINANCIACION.abonoPct}% y paga el saldo antes de viajar.`,
-  },
-  {
-    icon: Icon.Shield,
-    titulo: `Paga después con ${FINANCIACION.bnpl.join(" o ")}`,
-    desc: "Compra ahora y paga en cuotas con nuestros aliados de financiación, 100% en línea.",
   },
 ];
 
@@ -43,7 +38,7 @@ export default function FinanciacionPage() {
         intro="Tu próximo viaje no tiene que esperar. Te damos varias formas de pagarlo a tu ritmo, sin letra menuda."
       />
 
-      <div className="grid sm:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-2 gap-4">
         {OPCIONES.map((o) => (
           <div key={o.titulo} className="rounded-2xl bg-white border border-navy/8 p-5">
             <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-coral/15 to-amber/10 text-coral flex items-center justify-center">

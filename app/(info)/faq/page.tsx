@@ -16,11 +16,15 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "¿Qué medios de pago aceptan?",
-    a: `Aceptamos ${FINANCIACION.medios.join(", ")} y financiación con ${FINANCIACION.bnpl.join(" y ")}. Puedes diferir a ${FINANCIACION.cuotas} cuotas sin interés o separar tu viaje abonando el ${FINANCIACION.abonoPct}%.`,
+    a: `Aceptamos ${FINANCIACION.medios.join(", ")}${
+      FINANCIACION.bnpl.length > 0 ? ` y financiación con ${FINANCIACION.bnpl.join(" y ")}` : ""
+    }. Puedes diferir a ${FINANCIACION.cuotas} cuotas sin interés o separar tu viaje abonando el ${FINANCIACION.abonoPct}%.`,
   },
   {
     q: "¿Puedo pagar a cuotas o financiar mi viaje?",
-    a: `Sí. Ofrecemos hasta ${FINANCIACION.cuotas} cuotas sin interés y financiación con ${FINANCIACION.bnpl.join(" y ")} para que viajes ahora y pagues después. Consulta los detalles en la página de Financiación.`,
+    a: `Sí. Ofrecemos hasta ${FINANCIACION.cuotas} cuotas sin interés${
+      FINANCIACION.bnpl.length > 0 ? ` y financiación con ${FINANCIACION.bnpl.join(" y ")}` : ""
+    } para que viajes ahora y pagues después. Consulta los detalles en la página de Financiación.`,
   },
   {
     q: "¿El precio incluye todo?",

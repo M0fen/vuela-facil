@@ -92,7 +92,7 @@ Convertir "Lía" (hoy simulada) en un asistente conversacional real:
   **Pídeme las llaves antes.**
 - **Analítica de conversión**: medir clics a WhatsApp por sección/paquete
   (Vercel Analytics o Plausible) para saber qué convierte.
-- **Comercial**: destacar **cuotas (Addi/Nequi/tarjetas)** y "sin interés";
+- **Comercial**: destacar **cuotas (Nequi/tarjetas)** y "sin interés";
   cupones/promos por temporada; **programa "Tribu Vuela Fácil"/referidos**
   (código por WhatsApp); captura de email con beneficio real (guía gratis =
   reciprocidad).

@@ -38,7 +38,7 @@ Dejé el copy honesto y conservador; confirma los datos reales para poder ser m�
   - [ ] `NEXT_PUBLIC_SITE_URL` (dominio real, sin slash final)
 - [ ] Configurar el **webhook** en el panel de Wompi: `https://TU-DOMINIO/api/pagos/wompi/webhook`
 - [ ] **Probar un pago real** (sandbox primero). La integración no se pudo testear sin llaves.
-- [ ] (Opcional) **Addi / Sistecrédito** directo: integración aparte. La mensajería ya está lista.
+- [ ] (Opcional) Integración directa con un aliado **BNPL** (compra ahora, paga después): actualmente sin ninguno activo (`bnpl: []` en `lib/data.ts`).
 
 ## 🟪 Para activar avisos por correo (Resend) — Fase 2 (OPCIONAL)
 - [ ] Crear cuenta en **Resend** (https://resend.com) y copiar la API key.

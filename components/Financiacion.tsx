@@ -9,7 +9,7 @@ export function FinanciacionPerks({ className = "" }: { className?: string }) {
   const perks = [
     `Hasta ${FINANCIACION.cuotas} cuotas sin interés`,
     `Separa con el ${FINANCIACION.abonoPct}%`,
-    `Paga después con ${FINANCIACION.bnpl.join(" / ")}`,
+    ...(FINANCIACION.bnpl.length > 0 ? [`Paga después con ${FINANCIACION.bnpl.join(" / ")}`] : []),
   ];
   return (
     <div className={`flex flex-wrap gap-1.5 ${className}`}>

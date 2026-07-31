@@ -62,7 +62,7 @@ export function faqsDe(p: Paquete): FAQ[] {
     },
     {
       q: "¿Puedo pagar a cuotas?",
-      a: "Sí. Manejamos hasta 12 cuotas sin interés con tarjetas y opciones como Addi y Nequi. Te explicamos las alternativas por WhatsApp.",
+      a: "Sí. Manejamos hasta 12 cuotas sin interés con tarjetas y opciones como Nequi. Te explicamos las alternativas por WhatsApp.",
     },
     {
       q: "¿Qué pasa si necesito cambiar las fechas?",
