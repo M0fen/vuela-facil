@@ -5,6 +5,7 @@ import type { Parque } from "@/lib/types";
 import { readParques } from "@/lib/store";
 import { Icon } from "@/components/icons";
 import { GaleriaEditor } from "@/components/admin/GaleriaEditor";
+import { CalculadoraPrecio } from "@/components/admin/CalculadoraPrecio";
 import { saveParqueAction } from "../../../actions";
 import { Field, Area, Select, Card, ErrorBanner, btnPrimary } from "../../ui";
 
@@ -72,6 +73,7 @@ export default async function EditarParque({
             <Select label="Moneda" name="moneda" options={["COP", "USD", "EUR"]} defaultValue={p.moneda ?? "COP"} />
             <Field label="Horario (opcional)" name="horario" defaultValue={p.horario} placeholder="Mié–Dom · 9:00 a.m. – 6:00 p.m." />
           </div>
+          <CalculadoraPrecio targetName="precioDesde" className="mt-4" />
         </Card>
 
         <Card title="Imagen principal" icon={Icon.Compass}>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Icon } from "@/components/icons";
 import { savePaqueteExpressAction } from "../../../actions";
 import { Field, Area, Select, Card, ErrorBanner, btnPrimary } from "../../ui";
+import { CalculadoraPrecio } from "@/components/admin/CalculadoraPrecio";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +63,7 @@ export default async function NuevoPaqueteExpress({
             <Select label="Moneda" name="moneda" options={["COP", "USD", "EUR"]} />
             <Field label="Precio anterior (opcional)" name="precioAntes" type="number" hint="Si es mayor, se muestra tachado." />
           </div>
+          <CalculadoraPrecio targetName="precio" className="mt-4" />
           <div className="mt-4">
             <Area
               label="Vigencia / salidas (una por línea)"

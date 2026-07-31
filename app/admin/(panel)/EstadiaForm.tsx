@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { Alojamiento } from "@/lib/types";
 import { Icon } from "@/components/icons";
 import { GaleriaEditor } from "@/components/admin/GaleriaEditor";
+import { CalculadoraPrecio } from "@/components/admin/CalculadoraPrecio";
 import { Field, Area, Card, ErrorBanner, btnPrimary } from "./ui";
 
 const labelCls = "block text-[12px] font-semibold text-navy/55 mb-1.5";
@@ -76,6 +77,7 @@ export function EstadiaForm({
             <Field label="Precio por noche (COP)" name="precioNoche" type="number" defaultValue={item.precioNoche} required hint="Solo el número, ej: 650000" />
             <Field label="Precio anterior (opcional)" name="precioAntes" type="number" defaultValue={item.precioAntes} hint="Si es mayor, se muestra tachado con el % de ahorro." />
           </div>
+          <CalculadoraPrecio targetName="precioNoche" className="mt-4" />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
             <Field label="Huéspedes" name="huespedes" type="number" defaultValue={item.huespedes ?? 2} />
             <Field label="Habitaciones" name="habitaciones" type="number" defaultValue={item.habitaciones ?? 1} />

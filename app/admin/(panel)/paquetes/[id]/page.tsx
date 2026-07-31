@@ -8,6 +8,7 @@ import { savePaqueteAction } from "../../../actions";
 import { Field, Area, Select, Card, btnPrimary } from "../../ui";
 import { AIGenerate } from "@/components/admin/AIGenerate";
 import { GaleriaEditor } from "@/components/admin/GaleriaEditor";
+import { CalculadoraPrecio } from "@/components/admin/CalculadoraPrecio";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,7 @@ export default async function EditarPaquete({
               <Field label="N° reseñas" name="reviews" type="number" defaultValue={pkg.reviews ?? 0} />
             </div>
           </div>
+          <CalculadoraPrecio targetName="precio" className="mt-4" />
         </Card>
 
         <Card title="Imagen principal" icon={Icon.Compass}>
